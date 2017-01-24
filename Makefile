@@ -11,4 +11,4 @@ webserver: $(OBJ)
 	g++ $(CXXFLAGS) -o $@ $^ $(CFLAGS)
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) webserver
