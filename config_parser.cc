@@ -25,6 +25,22 @@ std::string NginxConfig::ToString(int depth) {
   return serialized_config;
 }
 
+int NginxConfig::GetPort()
+{
+  for (auto i : statements_) {
+    if (i->tokens_.size() == 2) {
+      if (i->tokens_[0] == "port") {
+        try {
+          return std::stoi(i->tokens_[1]);
+        }
+        catch (...) {
+        }
+      }
+    }
+  }
+  return -1;
+}
+
 std::string NginxConfigStatement::ToString(int depth) {
   std::string serialized_statement;
   for (int i = 0; i < depth; ++i) {

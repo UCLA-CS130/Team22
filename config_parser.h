@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 class NginxConfig;
 
@@ -12,7 +13,7 @@ class NginxConfigStatement {
  public:
   std::string ToString(int depth);
   std::vector<std::string> tokens_;
-  std::unique_ptr<NginxConfig> child_block_;
+  std::shared_ptr<NginxConfig> child_block_;
 };
 
 // The parsed representation of the entire config.
@@ -20,6 +21,11 @@ class NginxConfig {
  public:
   std::string ToString(int depth = 0);
   std::vector<std::shared_ptr<NginxConfigStatement>> statements_;
+  
+  // performs a full scan, inefficient, change later for more config options
+  // returns -1 on error, otherwise returns [0,65535]
+  int GetPort();
+
 };
 
 // The driver that parses a config file and generates an NginxConfig.
