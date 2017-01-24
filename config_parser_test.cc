@@ -16,8 +16,8 @@ TEST(NginxConfigParserTest, NestedConfig) {
   NginxConfig out_config;
   bool success = parser.Parse("config_with_nested", &out_config);
 
+  ASSERT_TRUE(success); //this was fixed to allow nested Configs that end like }}
   EXPECT_EQ(out_config.statements_.size(), 1);
-  EXPECT_TRUE(success); //this was fixed to allow nested Configs that end like }}
 }
 
 TEST(NginxConfigParserTest, LargeConfig) {
@@ -56,13 +56,13 @@ TEST_F(NginxStringConfigTest, InvalidConfig) {
 //test basic valid configs
 TEST_F(NginxStringConfigTest, ValidConfigs){
   //test comments read properly
-  EXPECT_TRUE(parseString("foo bar; #a comment"));
+  ASSERT_TRUE(parseString("foo bar; #a comment"));
   EXPECT_EQ(out_config.statements_.size(), 1);
   
   out_config.statements_.clear();
   
   //test multiple line commands
-  EXPECT_TRUE(parseString("foo\nbar\nx;"));
+  ASSERT_TRUE(parseString("foo\nbar\nx;"));
   EXPECT_EQ(out_config.statements_.size(), 1);
   EXPECT_EQ(out_config.statements_[0]->tokens_[0], "foo");
   EXPECT_EQ(out_config.statements_[0]->tokens_[1], "bar");
