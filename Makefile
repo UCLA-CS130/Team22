@@ -13,6 +13,9 @@ webserver: $(OBJ)
 test:
 	./build_tests.sh
 	./config_parser_test
+	
+test-curl:
+	curl http://localhost:4000
 
 clean:
 	rm -f $(OBJ) webserver
