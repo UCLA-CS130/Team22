@@ -1,6 +1,7 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include "server.h"
+#include "config_parser.h"
 
 int main(int argc, char* argv[])
 {
