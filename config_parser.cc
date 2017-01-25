@@ -27,6 +27,8 @@ std::string NginxConfig::ToString(int depth) {
 
 int NginxConfig::GetPort()
 {
+	//for each statement, look for a statement thats consists of 2 tokens, the first of which
+	//is 'port', and return the second token assuming it is a valid number
 	for (auto i : statements_) {
 		if (i->tokens_.size() == 2) {
 			if (i->tokens_[0] == "port") {

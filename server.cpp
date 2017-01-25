@@ -13,6 +13,7 @@ Server::Server(boost::asio::io_service& io_service, short port) : io_service_(io
 
 void Server::start_accept()
 {
+	//create new connection for incoming request, send to handle_accept
 	Connection* new_connection = new Connection(io_service_);
 	acceptor_.async_accept(new_connection->socket(),
 		boost::bind(&Server::handle_accept, this, new_connection,
@@ -21,6 +22,7 @@ void Server::start_accept()
 
 void Server::handle_accept(Connection* new_connection, const boost::system::error_code& error)
 {
+	//start the connection if no error, clean up otherwise. Go back to waiting at start_accept
 	if (!error)
 	{
 		new_connection->start();

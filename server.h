@@ -7,13 +7,16 @@
 
 using boost::asio::ip::tcp;
 
+//general Server class, creates and manages incoming connections
 class Server
 {
 public:
 	Server(boost::asio::io_service& io_service, short port);
 
 private:
+	//general function to listen for connections
 	void start_accept();
+	//handle creating a new connection when a request comes in
 	void handle_accept(Connection* new_connection, const boost::system::error_code& error);
 
 	boost::asio::io_service& io_service_;
