@@ -14,6 +14,8 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <stdexcept>
+
 
 #include "config_parser.h"
 
@@ -33,13 +35,19 @@ int NginxConfig::GetPort()
 		if (i->tokens_.size() == 2) {
 			if (i->tokens_[0] == "port") {
 				try {
-					return std::stoi(i->tokens_[1]);
-				}
-				catch (...) {
-				}
+                    int port = std::stoi(i->tokens_[1]);
+                    //error check that port is in bounds, break if not
+                    if(port <= 0 || port > 65535)
+                        throw 1;
+					return port;
+				} catch (...) { //catch invalid port number, or string entered as port number
+                    throw std::invalid_argument("port " + i->tokens_[1] + " is invalid");
+                }
+
 			}
 		}
 	}
+
 	return -1;
 }
 

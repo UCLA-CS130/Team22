@@ -1,14 +1,21 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <stdexcept>
 #include "server.h"
 #include "config_parser.h"
 
 using boost::asio::ip::tcp;
 
-Server::Server(boost::asio::io_service& io_service, NginxConfig& out_config) : io_service_(io_service),
-		acceptor_(io_service, tcp::endpoint(tcp::v4(), out_config.GetPort()))
+Server::Server(boost::asio::io_service& io_service, NginxConfig& out_config) : io_service_(io_service), acceptor_(io_service)
 {
+	//handles invalid ports by throwing to main from within the GetPort function
+	int port = out_config.GetPort();
+	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
+	acceptor_.open(endpoint.protocol());
+	acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+	acceptor_.bind(endpoint);
+	acceptor_.listen();
 	start_accept();
 }
 
