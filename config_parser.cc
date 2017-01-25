@@ -35,15 +35,14 @@ int NginxConfig::GetPort()
 		if (i->tokens_.size() == 2) {
 			if (i->tokens_[0] == "port") {
 				try {
-                    int port = std::stoi(i->tokens_[1]);
-                    //error check that port is in bounds, break if not
-                    if(port <= 0 || port > 65535)
-                        throw 1;
+					int port = std::stoi(i->tokens_[1]);
+					//error check that port is in bounds, break if not
+					if(port <= 0 || port > 65535)
+						throw 1;
 					return port;
 				} catch (...) { //catch invalid port number, or string entered as port number
-                    throw std::invalid_argument("port " + i->tokens_[1] + " is invalid");
-                }
-
+					throw std::invalid_argument("port " + i->tokens_[1] + " is invalid");
+				}
 			}
 		}
 	}
