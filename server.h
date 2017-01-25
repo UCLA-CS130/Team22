@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <string>
 #include "connection.h"
+#include "config_parser.h"
 
 using boost::asio::ip::tcp;
 
@@ -11,7 +12,7 @@ using boost::asio::ip::tcp;
 class Server
 {
 public:
-	Server(boost::asio::io_service& io_service, short port);
+	Server(boost::asio::io_service& io_service, NginxConfig& out_config);
 
 private:
 	//general function to listen for connections

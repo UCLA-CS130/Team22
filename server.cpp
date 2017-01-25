@@ -2,11 +2,12 @@
 #include <string>
 #include <cstring>
 #include "server.h"
+#include "config_parser.h"
 
 using boost::asio::ip::tcp;
 
-Server::Server(boost::asio::io_service& io_service, short port) : io_service_(io_service),
-		acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
+Server::Server(boost::asio::io_service& io_service, NginxConfig& out_config) : io_service_(io_service),
+		acceptor_(io_service, tcp::endpoint(tcp::v4(), out_config.GetPort()))
 {
 	start_accept();
 }

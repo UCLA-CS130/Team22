@@ -15,19 +15,14 @@ int main(int argc, char* argv[])
 
 		NginxConfigParser parser;
 		NginxConfig out_config;
-		int port;
 		if (!parser.Parse(argv[1], &out_config)) {
-			return 1;
-		}
-		port = out_config.GetPort();
-		if (port == -1) {
-			std::cerr << "Error reading port from config file. Expecting: \"port [portnumber];\" in config file.";
+			std::cerr << "Error parsing input config file\n";
 			return 1;
 		}
 
 		boost::asio::io_service io_service;
 
-		Server s(io_service, port);
+		Server s(io_service, out_config);
 
 		io_service.run();
 	}

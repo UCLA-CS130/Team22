@@ -1,5 +1,8 @@
 // An nginx config file parser.
 
+#ifndef CONFIG_PARSER_H
+#define CONFIG_PARSER_H
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -21,7 +24,7 @@ class NginxConfig {
  public:
 	std::string ToString(int depth = 0);
 	std::vector<std::shared_ptr<NginxConfigStatement>> statements_;
-	
+
 	// performs a full scan, inefficient, change later for more config options
 	// returns -1 on error, otherwise returns [0,65535]
 	int GetPort();
@@ -62,3 +65,5 @@ class NginxConfigParser {
 
 	TokenType ParseToken(std::istream* input, std::string* value);
 };
+
+#endif // CONFIG_PARSER_H
