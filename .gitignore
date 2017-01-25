@@ -1,5 +1,6 @@
 *.o
 *.a
 
+webserver
 config_parser_test
 config_parser
