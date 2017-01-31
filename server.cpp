@@ -11,6 +11,9 @@ Server::Server(boost::asio::io_service& io_service, NginxConfig& out_config) : i
 {
 	//handles invalid ports by throwing to main from within the GetPort function
 	int port = out_config.GetPort();
+	if (port == -1) {
+		throw std::runtime_error("Missing or invalid port in config");
+	}
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	acceptor_.open(endpoint.protocol());
 	acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
