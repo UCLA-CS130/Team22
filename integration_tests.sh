@@ -15,7 +15,7 @@ fi
 
 expected_curl_response="GET / HTTP/1.1  Host: localhost:8080"
 
-if curl -s localhost:8080 | tr "\n\r" " " | grep "$expected_curl_response" > /dev/null; then
+if curl -s localhost:8080 | tr "\n\r" " " | grep "GET / HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
     printf "  --curl succeeded\n"
 else
     printf "  !!curl failed\n"
