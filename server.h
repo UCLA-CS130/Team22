@@ -12,9 +12,11 @@ using boost::asio::ip::tcp;
 class Server
 {
 public:
-	Server(boost::asio::io_service& io_service, NginxConfig& out_config);
+	static Server* MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config);
 
 private:
+	//private constructor for Server
+	Server(boost::asio::io_service& io_service, int port);
 	//general function to listen for connections
 	void start_accept();
 	//handle creating a new connection when a request comes in
