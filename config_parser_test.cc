@@ -73,15 +73,15 @@ TEST_F(NginxStringConfigTest, ValidConfigs){
 
 // port test
 TEST_F(NginxStringConfigTest, ConfigPortScan){
-  ASSERT_TRUE(parseString("port 4000;"));
-  EXPECT_EQ(out_config.GetPort(), 4000);
+  ASSERT_TRUE(parseString("server { listen 8080; }"));
+  EXPECT_EQ(out_config.GetPort(), 8080);
   clear();
   
-  ASSERT_TRUE(parseString("port abcd;"));
+  ASSERT_TRUE(parseString("server { listen cats; }"));
   EXPECT_EQ(out_config.GetPort(), -1);
   clear();
   
-  ASSERT_TRUE(parseString("port;"));
+  ASSERT_TRUE(parseString("server { listen; }"));
   EXPECT_EQ(out_config.GetPort(), -1);
   clear();
   
