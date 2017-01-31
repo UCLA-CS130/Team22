@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++11 -I. -Wall -Werror -fprofile-arcs -ftest-coverage
+CXXFLAGS=-std=c++11 -I. -Wall -Werror
 BOOSTFLAG = -lboost_system
 DEPS=server.h connection.h config_parser.h
 OBJ=server.o connection.o config_parser.o main.o
@@ -14,8 +14,12 @@ webserver: $(OBJ)
 test:
 	./build_tests.sh
 	./config_parser_test
+
+coverage: CXXFLAGS += -fprofile-arcs -ftest-coverage
+coverage: webserver
 	
-test-curl:
+test-curl: 
 	curl http://localhost:4000
+
 clean:
 	rm -f $(OBJ) $(TESTOBJ) webserver
