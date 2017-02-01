@@ -21,7 +21,7 @@ void Connection::start()
 			boost::asio::placeholders::bytes_transferred));
 }
 
-void Connection::handle_read(const boost::system::error_code& error, size_t bytes_transferred)
+std::string Connection::handle_request(const boost::system::error_code& error, size_t bytes_transferred)
 {
 	if (!error)
 	{
@@ -36,10 +36,13 @@ void Connection::handle_read(const boost::system::error_code& error, size_t byte
 			boost::asio::buffer(response, bytes_transferred + header_length),
 			boost::bind(&Connection::close_socket, this,
 				boost::asio::placeholders::error));
+
+		return std::string(response);
 	}
 	else
 	{
 		delete this;
+		return "";
 	}
 }
 

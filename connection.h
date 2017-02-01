@@ -18,7 +18,7 @@ public:
 	void start();
 
 private:
-	void handle_read(const boost::system::error_code& error, size_t bytes_transferred);
+	std::string handle_request(const boost::system::error_code& error, size_t bytes_transferred);
 
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);
