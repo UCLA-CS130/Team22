@@ -15,11 +15,25 @@ test:
 	./build_tests.sh
 	./config_parser_test
 
-coverage: CXXFLAGS += -fprofile-arcs -ftest-coverage
+coverage: CXXFLAGS += -fprofile-arcs -ftest-coverage -g
 coverage: webserver
+
+what: foo.cc
+	printf "hello"
+	
+cov: foo.cc
+	g++ -fprofile-arcs -ftest-coverage -g -O0 -Wall foo.cc -o foo
+	./foo
+	gcov -r foo.cc
+	
+lcov: cov
+	lcov --capture --directory ./ --output-file coverage.info
+	genhtml coverage.info --output-directory coverage
 	
 test-curl: 
-	curl http://localhost:4000
+	curl http://localhost:8080
 
 clean:
-	rm -f $(OBJ) $(TESTOBJ) webserver
+	rm -f $(OBJ) $(TESTOBJ) webserver *.gcda *.gcno *.gcov
+	rm -rf cov/*
+	rm -f foo

@@ -7,15 +7,15 @@ printf "server {\n\tlisten 8080;\n}" > config_temp;
 ./webserver config_temp &
 sleep 1
 
-if netstat -vatn | grep 0.0.0.8080 > /dev/null; then
-    printf "  --tcp connection established at port 8080\n"
-else
-    printf "  !!no tcp connection found at port 8080\n"
-fi
+# if netstat -vatn | grep 0.0.0.8080 > /dev/null; then
+    # printf "  --tcp connection established at port 8080\n"
+# else
+    # printf "  !!no tcp connection found at port 8080\n"
+# fi
 
 expected_curl_response="GET / HTTP/1.1  Host: localhost:8080"
-
-if curl -s localhost:8080 | tr "\n\r" " " | grep "$expected_curl_response" > /dev/null; then
+#curl -s localhost:8080
+if curl -s localhost:8080 | tr "\n\r" " " | grep "GET / HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
     printf "  --curl succeeded\n"
 else
     printf "  !!curl failed\n"
