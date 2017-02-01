@@ -3,7 +3,6 @@ CXXFLAGS=-std=c++11 -I. -Wall -Werror
 BOOSTFLAG = -lboost_system
 DEPS=server.h connection.h config_parser.h
 OBJ=server.o connection.o config_parser.o main.o
-TESTOBJ=server.gcno connection.gcno config_parser.gcno main.gcno
 
 %.o: %.c $(DEPS)
 	$(CC) $(CXXFLAGS) -c -o $@ $<
@@ -35,6 +34,6 @@ integration-test:
 	./integration_tests.sh
 	
 clean:
-	rm -f $(OBJ) $(TESTOBJ) webserver *.gcda *.gcno *.gcov
+	rm -f $(OBJ) webserver *.gcda *.gcno *.gcov
 	rm -rf cov/*
 	rm -f foo
