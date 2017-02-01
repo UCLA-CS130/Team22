@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
-OPTIMIZE=-O0
+OPTIMIZE=-O2
 BOOSTFLAG = -lboost_system
 DEPS=server.h connection.h config_parser.h
 OBJ=server.o connection.o config_parser.o main.o
@@ -13,7 +13,7 @@ default: webserver
 	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $<
 
 webserver: $(OBJ)
-	g++ $(CXXFLAGS) $(COV) -o $@ $^ $(BOOSTFLAG)
+	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
 
 gtest-all.o:
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
@@ -30,14 +30,11 @@ test: build-tests
 	./server_test
 
 cov-%: COV += -fprofile-arcs -ftest-coverage -g
+cov-%: OPTIMIZE = -O0
 cov-test: test lcov
+cov-webserver: webserver
 cov-integration: webserver integration-test lcov
 
-cov: foo.cc
-	g++ -fprofile-arcs -ftest-coverage -g -O0 -Wall foo.cc -o foo
-	./foo
-	gcov -r foo.cc
-	
 lcov:
 	lcov --capture --directory ./ --output-file coverage.info --no-external --base-directory ./ --quiet
 	lcov --remove coverage.info '*/googletest/*' -o coverage.info
@@ -50,8 +47,7 @@ test-curl:
 
 integration-test: webserver
 	./integration_tests.sh
-	printf "hey"
 
 clean:
-	rm -f $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov
+	rm -f $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a
 	rm -rf covhtml/*
