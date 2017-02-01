@@ -10,12 +10,12 @@ TESTOBJ=server.gcno connection.gcno config_parser.gcno main.gcno
 
 webserver: $(OBJ)
 	g++ $(CXXFLAGS) -o $@ $^ $(BOOSTFLAG)
-	
+
 test:
 	./build_tests.sh
 	./config_parser_test
-	
-test-curl:
-	curl http://localhost:4000
+
+integration-test:
+	./integration_tests.sh
 clean:
 	rm -f $(OBJ) $(TESTOBJ) webserver

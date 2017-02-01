@@ -68,6 +68,8 @@ rm temp_output
 kill %1
 wait $! 2>/dev/null
 
+printf "\n"
+
 if [ $error_flag -eq 1 ]
 then
     exit 1
