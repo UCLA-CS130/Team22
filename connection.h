@@ -17,14 +17,17 @@ public:
 
 	void start();
 
+	void handle_request(const boost::system::error_code& error, size_t bytes_transferred);
+
+	std::string handle_data_write(size_t bytes_transferred, char* data);
+
 private:
-	std::string handle_request(const boost::system::error_code& error, size_t bytes_transferred);
 
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);
 
 	// construct response by placing request after headers
-	void copy_request(char* response, size_t bytes_transferred, size_t header_length);
+	void copy_request(char* response, char* data, size_t bytes_transferred, size_t header_length);
 
 	tcp::socket socket_;
 	enum { max_length = 1024 };

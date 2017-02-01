@@ -14,6 +14,7 @@ webserver: $(OBJ)
 test:
 	./build_tests.sh
 	./config_parser_test
+	./connection
 
 integration-test:
 	make
