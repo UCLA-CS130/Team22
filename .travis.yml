@@ -1,0 +1,8 @@
+dist: trusty
+sudo: required
+language: cpp
+script: make test
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
