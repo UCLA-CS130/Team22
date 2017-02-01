@@ -5,6 +5,7 @@
 
 int main(int argc, char* argv[])
 {
+	Server* server = nullptr;
 	try
 	{
 		if (argc != 2)
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
 
 		boost::asio::io_service io_service;
 
-		Server* server = Server::MakeServer(io_service, out_config);
+		server = Server::MakeServer(io_service, out_config);
 		if(server == nullptr)
 		{
 			std::cerr << "invalid port\n";
@@ -35,6 +36,8 @@ int main(int argc, char* argv[])
 	{
 		std::cerr << "Exception: " << e.what() << "\n";
 	}
+
+	delete server;
 
 	return 0;
 }
