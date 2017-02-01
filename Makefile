@@ -16,6 +16,7 @@ test:
 	./config_parser_test
 
 integration-test:
+	make
 	./integration_tests.sh
 clean:
 	rm -f $(OBJ) $(TESTOBJ) webserver
