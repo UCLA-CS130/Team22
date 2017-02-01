@@ -31,6 +31,7 @@ test-curl:
 	curl http://localhost:8080
 
 integration-test:
+	make
 	./integration_tests.sh
 	
 clean:

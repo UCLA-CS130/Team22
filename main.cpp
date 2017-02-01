@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 		Server* server = Server::MakeServer(io_service, out_config);
 		if(server == nullptr)
 		{
-			std::cerr << "Invalid port\n";
+			std::cerr << "invalid port\n";
 			return 1;
 		}
 
