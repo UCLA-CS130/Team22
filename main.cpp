@@ -22,7 +22,12 @@ int main(int argc, char* argv[])
 
 		boost::asio::io_service io_service;
 
-		Server s(io_service, out_config);
+		Server* server = Server::MakeServer(io_service, out_config);
+		if(server == nullptr)
+		{
+			std::cerr << "Invalid port\n";
+			return 1;
+		}
 
 		io_service.run();
 	}

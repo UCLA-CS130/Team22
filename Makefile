@@ -10,16 +10,13 @@ TESTOBJ=server.gcno connection.gcno config_parser.gcno main.gcno
 
 webserver: $(OBJ)
 	g++ $(CXXFLAGS) -o $@ $^ $(BOOSTFLAG)
-	
+
 test:
 	./build_tests.sh
 	./config_parser_test
 
 coverage: CXXFLAGS += -fprofile-arcs -ftest-coverage -g
 coverage: webserver
-
-what: foo.cc
-	printf "hello"
 	
 cov: foo.cc
 	g++ -fprofile-arcs -ftest-coverage -g -O0 -Wall foo.cc -o foo
@@ -33,6 +30,9 @@ lcov: cov
 test-curl: 
 	curl http://localhost:8080
 
+integration-test:
+	./integration_tests.sh
+	
 clean:
 	rm -f $(OBJ) $(TESTOBJ) webserver *.gcda *.gcno *.gcov
 	rm -rf cov/*
