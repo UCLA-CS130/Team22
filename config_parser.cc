@@ -35,21 +35,24 @@ int NginxConfig::GetPort()
 		if(statement->tokens_[0] == "server" && statement->child_block_ != nullptr) {
 			for(auto inner_statement : statement->child_block_->statements_) {
 				if (inner_statement->tokens_.size() == 2 && inner_statement->tokens_[0] == "listen") {
+					int port;
 					try {
-						int port = std::stoi(inner_statement->tokens_[1]);
-						//error check that port is in bounds, break if not
-						if(port <= 0 || port > 65535)
-							throw 1;
-						return port;
-					} catch (...) { //catch invalid port number, or string entered as port number
-						throw std::invalid_argument("port " + inner_statement->tokens_[1] + " is invalid");
+						port = std::stoi(inner_statement->tokens_[1]);
 					}
+					catch (...) { // conversion error
+						return -1;
+					}
+
+					//error check that port is in bounds, break if not
+					if (port <= 0 || port > 65535)
+						return -1;
+					return port;
 				}
 			}
 		}
 	}
 
-	return -1;
+	return -1; // missing port error
 }
 
 std::string NginxConfigStatement::ToString(int depth) {

@@ -7,16 +7,25 @@
 
 using boost::asio::ip::tcp;
 
-Server::Server(boost::asio::io_service& io_service, NginxConfig& out_config) : io_service_(io_service), acceptor_(io_service)
+Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config)
 {
 	//handles invalid ports by throwing to main from within the GetPort function
 	int port = out_config.GetPort();
+	if (port == -1) {
+		return nullptr;
+	}
+	return new Server(io_service, port);
+}
+
+Server::Server(boost::asio::io_service& io_service, int port) : io_service_(io_service), acceptor_(io_service)
+{
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	acceptor_.open(endpoint.protocol());
 	acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 	acceptor_.bind(endpoint);
 	acceptor_.listen();
 	start_accept();
+	std::cout << "Listening on port " << port << "..." << std::endl;
 }
 
 void Server::start_accept()
