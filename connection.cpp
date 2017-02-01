@@ -16,7 +16,7 @@ tcp::socket& Connection::socket()
 void Connection::start()
 {
 	socket_.async_read_some(boost::asio::buffer(data_, max_length),
-		boost::bind(&Connection::handle_read, this,
+		boost::bind(&Connection::handle_request, this,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
 }
