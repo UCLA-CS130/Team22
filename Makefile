@@ -24,9 +24,7 @@ build-tests: libgtest.a $(OBJ)
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system
 
-test:
-	make integration-test
-	make unit-test
+test: integration-test unit-test
 
 unit-test: build-tests
 	./config_parser_test
