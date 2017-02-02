@@ -89,10 +89,6 @@ TEST_F(NginxStringConfigTest, ConfigPortScan){
   EXPECT_EQ(out_config.GetPort(), -1);
   clear();
   
-  ASSERT_TRUE(parseString("server { listen 8080; }"));
-  EXPECT_EQ(out_config.GetPort(), 8080);
-  clear();
-
   ASSERT_TRUE(parseString("server { listen 65536; }"));
   EXPECT_EQ(out_config.GetPort(), -1);
   clear();
