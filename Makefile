@@ -38,6 +38,7 @@ cov-%: OPTIMIZE = -O0
 cov-test: test lcov
 cov-webserver: webserver
 cov-integration: webserver integration-test lcov
+cov-unit: unit-test lcov
 
 lcov:
 	lcov --capture --directory ./ --output-file coverage.info --no-external --base-directory ./ --quiet
@@ -45,9 +46,6 @@ lcov:
 	genhtml coverage.info --output-directory covhtml
 	lcov --list coverage.info
 	printf "see covhtml/index.html for more information"
-	
-test-curl: 
-	curl http://localhost:8080
 
 integration-test: webserver
 	./integration_tests.sh
