@@ -50,4 +50,3 @@ integration-test: webserver
 
 clean:
 	rm -f $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a
-	rm -rf covhtml/*
