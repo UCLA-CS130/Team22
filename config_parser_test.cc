@@ -88,4 +88,28 @@ TEST_F(NginxStringConfigTest, ConfigPortScan){
   ASSERT_TRUE(parseString("hey;"));
   EXPECT_EQ(out_config.GetPort(), -1);
   clear();
+  
+  ASSERT_TRUE(parseString("server { listen 8080; }"));
+  EXPECT_EQ(out_config.GetPort(), 8080);
+  clear();
+
+  ASSERT_TRUE(parseString("server { listen 65536; }"));
+  EXPECT_EQ(out_config.GetPort(), -1);
+  clear();
+
+  ASSERT_TRUE(parseString("server { listen -1; }"));
+  EXPECT_EQ(out_config.GetPort(), -1);
+  clear();
+}
+
+// Tests ToString method that contains a block
+TEST(NginxConfigParserTest, ToStringBlock) {
+	NginxConfigStatement statement;
+	statement.tokens_.push_back("server");
+	statement.tokens_.push_back("{");
+	statement.tokens_.push_back("listen");
+	statement.tokens_.push_back("80");
+	statement.tokens_.push_back(";");
+	statement.tokens_.push_back("}");
+	EXPECT_EQ(statement.ToString(0), "server { listen 80 ; };\n");
 }
