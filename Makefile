@@ -3,7 +3,7 @@ CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
 BOOSTFLAG = -lboost_system
 DEPS=server.h connection.h config_parser.h
-OBJ=server.o connection.o config_parser.o main.o
+OBJ=server.o connection.o config_parser.o
 GTEST_DIR=googletest/googletest
 TESTS=config_parser_test connection_test server_test
 
@@ -13,16 +13,16 @@ default: webserver
 	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $<
 
 webserver: $(OBJ)
-	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
+	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ main.cc $(BOOSTFLAG)
 
-gtest-all.o:
+libgtest.a:
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
-build-tests: gtest-all.o
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread config_parser_test.cc config_parser.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc connection.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc server.cc connection.cc config_parser.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system
+build-tests: libgtest.a $(OBJ)
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread config_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test -lboost_system
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system
 
 test: build-tests
 	./config_parser_test
