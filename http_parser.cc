@@ -5,10 +5,21 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
-HttpParser::HttpParser(const char* const raw_req) : method_(""), path_(""), body_("")
+HttpParser* HttpParser::MakeHttpParser(const char* const raw_req)
 {
-    parse_raw_request(raw_req);
+    HttpParser* hp = new HttpParser();
+    if(hp->parse_raw_request(raw_req))
+    {
+        return hp;
+    }
+    else
+    {
+        delete hp;
+        return nullptr;
+    }
 }
+
+HttpParser::HttpParser() {}
 
 std::string HttpParser::get_path()
 {
@@ -63,7 +74,7 @@ bool HttpParser::parse_raw_request(const char* const raw_req){
         body_ = req.substr(begin_body_index, req.size() - begin_body_index - 2); //minus 2 to ignore the last \r\n
 
     //truncate req to everything before the \r\n\r\n
-    req = req.substr(0, begin_body_index + 1);
+    req = req.substr(0, end_fields_index + 1);
 
     //split raw request based on /r/n
     //boost::split(lines, req, boost::is_any_of("\n"));
@@ -76,7 +87,6 @@ bool HttpParser::parse_raw_request(const char* const raw_req){
     //parse the method and path separately, return 0 if it fails
     if(!parse_first_line(lines[0]))
         return false;
-
 
     //populate the map with the fields
     for(unsigned int i = 1; i < lines.size(); ++i)
