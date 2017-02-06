@@ -4,14 +4,16 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include "server.h"
 
 using boost::asio::ip::tcp;
+class Server;
 
 //handles each individual connection
 class Connection
 {
 public:
-	Connection(boost::asio::io_service& io_service);
+	Connection(Server* parent, boost::asio::io_service& io_service);
 
 	tcp::socket& socket();
 
@@ -22,6 +24,7 @@ public:
 	std::string handle_data_write(size_t bytes_transferred, char* data);
 
 private:
+	Server* server_;
 
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);

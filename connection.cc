@@ -1,10 +1,11 @@
 #include <iostream>
 #include <cstring>
 #include "connection.h"
+#include "request_handler.h"
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service) : socket_(io_service)
+Connection::Connection(Server* parent, boost::asio::io_service& io_service) : server_(NULL), socket_(io_service)
 {
 }
 
@@ -25,7 +26,15 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 {
 	if (!error)
 	{
-		handle_data_write(bytes_transferred, data_);
+		// parse header
+		HttpParser parsedHeader = HttpParser(data_); // unsafe, is there no byte count or anything?
+
+		// get the correct handler based on server config
+		RequestHandler* handler = server->GetHandler(parsedHeader.GetUrl());
+		
+		std::string data = std::string(data_, bytes_transferred);
+		handler->GenerateResponse(parsedHeader, data);
+
 	}
 	else
 	{

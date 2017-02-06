@@ -2,8 +2,8 @@ CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
 BOOSTFLAG = -lboost_system
-DEPS=server.h connection.h config_parser.h
-OBJ=server.o connection.o config_parser.o
+DEPS=server.h connection.h config_parser.h request_handler.h echo_handler.h
+OBJ=server.o connection.o config_parser.o echo_handler.o
 GTEST_DIR=googletest/googletest
 TESTS=config_parser_test connection_test server_test
 

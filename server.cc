@@ -31,7 +31,7 @@ Server::Server(boost::asio::io_service& io_service, int port) : io_service_(io_s
 void Server::start_accept()
 {
 	//create new connection for incoming request, send to handle_accept
-	Connection* new_connection = new Connection(io_service_);
+	Connection* new_connection = new Connection(this, io_service_);
 	acceptor_.async_accept(new_connection->socket(),
 		boost::bind(&Server::handle_accept, this, new_connection,
 			boost::asio::placeholders::error));
