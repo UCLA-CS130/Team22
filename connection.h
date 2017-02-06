@@ -21,17 +21,18 @@ public:
 
 	std::string handle_data_write(size_t bytes_transferred, char* data);
 
+	std::string handle_data_server();
+
 private:
 
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);
 
-	// construct response by placing request after headers
-	void copy_request(char* response, char* data, size_t bytes_transferred, size_t header_length);
-
 	tcp::socket socket_;
 	enum { max_length = 1024 };
 	char data_[max_length];
+	
+	std::string response_data;
 };
 
 

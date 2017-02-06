@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <fstream>
 #include "connection.h"
 
 using boost::asio::ip::tcp;
@@ -25,6 +26,10 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 {
 	if (!error)
 	{
+		// file server
+		//handle_data_server();
+
+		// echo server
 		handle_data_write(bytes_transferred, data_);
 	}
 	else
@@ -36,18 +41,62 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 std::string Connection::handle_data_write(size_t bytes_transferred, char* data)
 {
 	//append headers setting response and content type, and echo back in body
-	char response[max_length];
-	sprintf(response, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: %d\n\n", (int)bytes_transferred);
-	size_t header_length = std::strlen(response);
-	copy_request(response, data, bytes_transferred, header_length);
+	response_data = "";
+	response_data += "HTTP/1.1 200 OK\nContent-Type: text/plain\n";
+	response_data += "Content-Length: ";
+	response_data += std::to_string(bytes_transferred);
+	response_data += "\n\n";
+	response_data += data;
 	//write response back
 	boost::asio::async_write(
 		socket_,
-		boost::asio::buffer(response, bytes_transferred + header_length),
+		boost::asio::buffer(response_data, response_data.length()),
 		boost::bind(&Connection::close_socket, this,
 			boost::asio::placeholders::error));
 
-	return std::string(response);
+	return response_data;
+}
+
+std::string Connection::handle_data_server()
+{
+	//append headers setting response and content type, and echo back in body
+	char content_type[] = "image/jpeg";
+	char filepath[] = "static/zura.jpg";
+
+	response_data = "";
+	std::string line;
+	std::ifstream infile(filepath, std::ifstream::ate | std::ifstream::binary);
+	if (infile.is_open())
+	{
+		int filesize = infile.tellg();
+		response_data += "HTTP/1.1 200 OK\nContent-Type: ";
+		response_data += content_type;
+		response_data += "\r\n";
+		response_data += "Content-Length: ";
+		response_data += std::to_string(filesize);
+		response_data += "\r\n\r\n";
+	}
+	else
+	{
+		std::cerr << "Unable to open file" << std::endl;
+	}
+
+	// reset back to beginning
+	infile.clear();
+	infile.seekg(0, std::ios::beg);
+	char buf[max_length];
+    while (infile.read(buf, sizeof(buf)).gcount() > 0) {
+        response_data.append(buf, infile.gcount());
+        
+    }
+	//write response back
+	boost::asio::async_write(
+		socket_,
+		boost::asio::buffer(response_data, response_data.length()),
+		boost::bind(&Connection::close_socket, this,
+			boost::asio::placeholders::error));
+
+	return response_data;
 }
 
 // Close socket after sending response
@@ -59,10 +108,4 @@ void Connection::close_socket(const boost::system::error_code& error)
   } else {
       delete this;
   }
-}
-
-// construct response by placing request after headers
-void Connection::copy_request(char* response, char* data, size_t bytes_transferred, size_t header_length)
-{
-    std::memcpy(&response[header_length], data, bytes_transferred);
 }
