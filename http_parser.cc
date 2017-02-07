@@ -28,22 +28,22 @@ HttpParser::HttpParser() {
     fields_ = new std::unordered_map<std::string, std::string>();
 }
 
-std::string HttpParser::get_path()
+std::string HttpParser::get_path() const
 {
     return path_;
 }
 
-std::string HttpParser::get_method()
+std::string HttpParser::get_method() const
 {
     return method_;
 }
 
-std::unordered_map<std::string, std::string>* HttpParser::get_fields()
+std::unordered_map<std::string, std::string>* HttpParser::get_fields() const
 {
     return fields_;
 }
 
-std::string HttpParser::get_body()
+std::string HttpParser::get_body() const
 {
     return body_;
 }

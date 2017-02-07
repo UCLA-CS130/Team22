@@ -4,7 +4,17 @@ error_flag=0
 
 #test basic port listening
 printf "\ntesting simple port listen on 8080 in config...\n"
-printf "server {\n\tlisten 8080;\n}" > config_temp;
+printf "server {\n
+            listen 8080;\n
+            path /echo EchoHandler {}\n
+            path /test EchoHandler {}\n
+            path /static StaticFileHandler {\n
+                root static/;\n
+            }\n
+            path /special StaticFileHandler {\n
+                root static/more/;\n
+            }\n
+        }" > config_temp;
 
 ./webserver config_temp &
 sleep 1
@@ -16,11 +26,19 @@ else
     printf "  !!no tcp connection found at port 8080\n"
 fi
 
-if curl -s localhost:8080 | tr "\n\r" " " | grep "GET / HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
+if curl -s localhost:8080/echo | tr "\n\r" " " | grep "GET /echo HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
     printf "  --curl succeeded\n"
 else
     error_flag=1
     printf "  !!curl failed\n"
+fi
+
+#testing file handler
+printf "\ntesting file request of static/more/city.jpg ...\n"
+if diff <(curl -s localhost:8080/special/city.jpg) static/more/city.jpg; then
+    printf "  --city.jpg curled successfully\n"
+else
+    printf "  !!city.jpg failed to curl\n"
 fi
 
 rm config_temp
@@ -32,7 +50,7 @@ printf "\ntesting invalid port: port 100000...\n"
 printf "server {\n\tlisten 100000;\n}" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
-sleep 1
+wait $! 2>/dev/null
 
 if cat temp_output | grep "invalid" > /dev/null; then
     printf "  --invalid port caught\n"
@@ -41,15 +59,15 @@ else
     printf "  !!invalid port not caught\n"
 fi
 
+
 rm config_temp
 rm temp_output
-kill %1
-wait $! 2>/dev/null
+
 
 #test invalid config syntax
 printf "\ntesting invalid config syntax: mismatched braces...\n"
 
-printf "server{ listen 8080;" > config_temp
+printf "server{ listen 8080\n echo_path /;\n file_path /static;" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
 sleep 1
