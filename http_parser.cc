@@ -5,9 +5,27 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
-HttpParser::HttpParser(const char* const raw_req) : method_(""), path_(""), body_("")
+HttpParser* HttpParser::MakeHttpParser(const char* const raw_req)
 {
-    parse_raw_request(raw_req);
+    HttpParser* hp = new HttpParser();
+    if(hp->parse_raw_request(raw_req))
+    {
+        return hp;
+    }
+    else
+    {
+        delete hp;
+        return nullptr;
+    }
+}
+
+HttpParser::~HttpParser()
+{
+    delete fields_;
+}
+
+HttpParser::HttpParser() {
+    fields_ = new std::unordered_map<std::string, std::string>();
 }
 
 std::string HttpParser::get_path()
@@ -20,7 +38,7 @@ std::string HttpParser::get_method()
     return method_;
 }
 
-std::map<std::string, std::string> HttpParser::get_fields()
+std::unordered_map<std::string, std::string>* HttpParser::get_fields()
 {
     return fields_;
 }
@@ -63,7 +81,7 @@ bool HttpParser::parse_raw_request(const char* const raw_req){
         body_ = req.substr(begin_body_index, req.size() - begin_body_index - 2); //minus 2 to ignore the last \r\n
 
     //truncate req to everything before the \r\n\r\n
-    req = req.substr(0, begin_body_index + 1);
+    req = req.substr(0, end_fields_index + 1);
 
     //split raw request based on /r/n
     //boost::split(lines, req, boost::is_any_of("\n"));
@@ -77,7 +95,6 @@ bool HttpParser::parse_raw_request(const char* const raw_req){
     if(!parse_first_line(lines[0]))
         return false;
 
-
     //populate the map with the fields
     for(unsigned int i = 1; i < lines.size(); ++i)
     {
@@ -87,7 +104,7 @@ bool HttpParser::parse_raw_request(const char* const raw_req){
 
         std::string key = lines[i].substr(0, index);
         std::string value = lines[i].substr(index+2); //add 2 to skip the ": "
-        fields_[key] = value;
+        fields_->insert(std::make_pair(key, value));
     }
 
     return true;
