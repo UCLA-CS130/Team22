@@ -25,12 +25,12 @@ protected:
 
 //Test for valid config
 TEST_F(MakeServerTest, ValidConfig) {
-	EXPECT_TRUE(parseConfigString("server { listen 8080; echo_path /; file_path /static;}"));
+	EXPECT_TRUE(parseConfigString("server { listen 8080;}"));
 }
 
 // Test for invalid string as port
 TEST_F(MakeServerTest, InvalidStringPortConfig) {
-	EXPECT_FALSE(parseConfigString("server { listen hello; echo_path /; file_path /static;}"));
+	EXPECT_FALSE(parseConfigString("server { listen hello;}"));
 }
 
 // Test for missing port definition
