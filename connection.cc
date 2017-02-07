@@ -58,23 +58,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	}
 }
 
-std::string Connection::handle_data_write(size_t bytes_transferred, char* data)
-{
-	//append headers setting response and content type, and echo back in body
-	char response[max_length];
-	sprintf(response, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: %d\n\n", (int)bytes_transferred);
-	size_t header_length = std::strlen(response);
-	copy_request(response, data, bytes_transferred, header_length);
-	//write response back
-	boost::asio::async_write(
-		socket_,
-		boost::asio::buffer(response, bytes_transferred + header_length),
-		boost::bind(&Connection::close_socket, this,
-			boost::asio::placeholders::error));
-
-	return std::string(response);
-}
-
 // Close socket after sending response
 void Connection::close_socket(const boost::system::error_code& error)
 {

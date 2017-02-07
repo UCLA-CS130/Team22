@@ -4,3 +4,7 @@
 webserver
 config_parser_test
 config_parser
+connection_test
+html_parser_test
+server_test
+echo_handler_test
