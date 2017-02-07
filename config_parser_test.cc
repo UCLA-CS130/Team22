@@ -34,6 +34,12 @@ protected:
 		std::stringstream config_stream(config_string);
 		return parser.Parse(&config_stream, &out_config);
 	}
+
+	bool testParseStatements(const std::string config_string) {
+		parseString(config_string);
+		return out_config.ParseStatements();
+	}
+
 	bool clear(){
 		out_config = NginxConfig();
 	}
@@ -94,34 +100,41 @@ TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 }
 
 
-/* TODO: fix these since the returns types have since changed
+TEST_F(NginxStringConfigTest, ConfigPathScan) {
+	//basic with staic and echo
+	ASSERT_TRUE(testParseStatements("server { listen 8080; path /echo2 EchoHandler; path /static StaticFileHandler {root static;}}"));
+	clear();
+
+	//no directory to map to /static: fail
+	ASSERT_FALSE(testParseStatements("server { listen 8080; path /static StaticFileHandler {no root;}}"));
+	clear();
+
+	//allowed to have no echo or root paths
+	ASSERT_TRUE(testParseStatements("server { listen 8080; }"));
+}
+
 // port test
 TEST_F(NginxStringConfigTest, ConfigPortScan){
-	ASSERT_TRUE(parseString("server { listen 8080; }"));
+	ASSERT_TRUE(testParseStatements("server { listen 8080; }"));
 	EXPECT_EQ(out_config.GetPort(), 8080);
 	clear();
 
-	ASSERT_TRUE(parseString("server { listen cats; }"));
-	EXPECT_EQ(out_config.GetPort(), -1);
+	ASSERT_FALSE(testParseStatements("server { listen cats; }"));
 	clear();
 
-	ASSERT_TRUE(parseString("server { listen; }"));
-	EXPECT_EQ(out_config.GetPort(), -1);
+	ASSERT_FALSE(testParseStatements("server { listen; }"));
 	clear();
 
-	ASSERT_TRUE(parseString("hey;"));
-	EXPECT_EQ(out_config.GetPort(), -1);
+	ASSERT_FALSE(testParseStatements("hey;"));
 	clear();
 
-	ASSERT_TRUE(parseString("server { listen 65536; }"));
-	EXPECT_EQ(out_config.GetPort(), -1);
+	ASSERT_FALSE(testParseStatements("server { listen 65536; }"));
 	clear();
 
-	ASSERT_TRUE(parseString("server { listen -1; }"));
-	EXPECT_EQ(out_config.GetPort(), -1);
+	ASSERT_FALSE(testParseStatements("server { listen -1; }"));
 	clear();
 }
-*/
+
 
 // Tests ToString method that contains a block
 TEST(NginxConfigParserTest, ToStringBlock) {
