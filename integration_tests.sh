@@ -33,16 +33,24 @@ else
     printf "  !!curl failed\n"
 fi
 
+#testing file handler
+printf "\ntesting file request of static/more/city.jpg ...\n"
+if diff <(curl -s localhost:8080/special/city.jpg) static/more/city.jpg; then
+    printf "  --city.jpg curled successfully\n"
+else
+    printf "  !!city.jpg failed to curl\n"
+fi
+
 rm config_temp
 kill %1
 wait $! 2>/dev/null
 
 #testing invalid port number
 printf "\ntesting invalid port: port 100000...\n"
-printf "server {\n\tlisten 100000;\n echo_path /;\n file_path /static;\n}" > config_temp
+printf "server {\n\tlisten 100000;\n}" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
-sleep 1
+wait $! 2>/dev/null
 
 if cat temp_output | grep "invalid" > /dev/null; then
     printf "  --invalid port caught\n"
@@ -51,10 +59,10 @@ else
     printf "  !!invalid port not caught\n"
 fi
 
+
 rm config_temp
 rm temp_output
-kill %1
-wait $! 2>/dev/null
+
 
 #test invalid config syntax
 printf "\ntesting invalid config syntax: mismatched braces...\n"
