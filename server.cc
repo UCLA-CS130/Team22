@@ -9,12 +9,14 @@ using boost::asio::ip::tcp;
 
 Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config)
 {
-	//handles invalid ports by throwing to main from within the GetPort function
-	int port = out_config.GetPort();
-	if (port == -1) {
+	//make sure parse succeeds in finding all relavant attributes
+	bool parse_status = out_config.ParseStatements();
+	if (!parse_status) {
 		return nullptr;
 	}
 
+	int port = out_config.GetPort();
+	
 	// request handlers
 	// hard coded
 	HandlerContainer *handlers = new HandlerContainer();

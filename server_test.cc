@@ -17,7 +17,7 @@ protected:
 		Server* server = Server::MakeServer(io_service, out_config);
 		return server;
   }
-  
+
   boost::asio::io_service io_service;
 	NginxConfigParser parser;
 	NginxConfig out_config;
@@ -25,16 +25,15 @@ protected:
 
 //Test for valid config
 TEST_F(MakeServerTest, ValidConfig) {
-	EXPECT_TRUE(parseConfigString("server { listen 8080; }"));
+	EXPECT_TRUE(parseConfigString("server { listen 8080;}"));
 }
 
 // Test for invalid string as port
 TEST_F(MakeServerTest, InvalidStringPortConfig) {
-	EXPECT_FALSE(parseConfigString("server { listen hello; }"));
+	EXPECT_FALSE(parseConfigString("server { listen hello;}"));
 }
 
 // Test for missing port definition
 TEST_F(MakeServerTest, MissingPortConfig) {
 	EXPECT_FALSE(parseConfigString("server { }"));
 }
-

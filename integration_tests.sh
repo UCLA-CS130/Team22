@@ -4,7 +4,7 @@ error_flag=0
 
 #test basic port listening
 printf "\ntesting simple port listen on 8080 in config...\n"
-printf "server {\n\tlisten 8080;\n}" > config_temp;
+printf "server {\n\tlisten 8080;\n echo_path /;\n file_path /static;\n}" > config_temp;
 
 ./webserver config_temp &
 sleep 1
@@ -29,7 +29,7 @@ wait $! 2>/dev/null
 
 #testing invalid port number
 printf "\ntesting invalid port: port 100000...\n"
-printf "server {\n\tlisten 100000;\n}" > config_temp
+printf "server {\n\tlisten 100000;\n echo_path /;\n file_path /static;\n}" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
 sleep 1
@@ -49,7 +49,7 @@ wait $! 2>/dev/null
 #test invalid config syntax
 printf "\ntesting invalid config syntax: mismatched braces...\n"
 
-printf "server{ listen 8080;" > config_temp
+printf "server{ listen 8080\n echo_path /;\n file_path /static;" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
 sleep 1
