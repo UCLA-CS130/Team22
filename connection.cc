@@ -41,7 +41,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	}
 }
 
-void Connection::write_response(std::string data)
+std::string Connection::write_response(std::string data)
 {
 	response_data_ = data;
 	boost::asio::async_write(
@@ -50,6 +50,7 @@ void Connection::write_response(std::string data)
 		boost::bind(&Connection::close_socket, this,
 			boost::asio::placeholders::error));
 
+	return response_data_;
 }
 
 // Close socket after sending response
