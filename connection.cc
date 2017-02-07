@@ -94,8 +94,9 @@ void Connection::copy_request(char* response, char* data, size_t bytes_transferr
 
 const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
+	// for each k,v pair
 	for (auto& handlerPair : *handlers_) {
-		// check if handler key (/echo) is at the beginning of the path
+		// check if key (/echo) is at the beginning of the path
 		if (path.find(handlerPair.first) == 0) {
 			// return the handler pointer
 			return handlerPair.second.get();
