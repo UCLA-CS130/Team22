@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <string>
 #include <list>
+#include <memory>
 
 #include "connection.h"
 #include "config_parser.h"
@@ -20,7 +21,7 @@ public:
 
 private:
 	//private constructor for Server
-	Server(boost::asio::io_service& io_service, int port);
+	Server(boost::asio::io_service& io_service, int port, HandlerContainer* handlers);
 	//general function to listen for connections
 	void start_accept();
 	//handle creating a new connection when a request comes in
@@ -29,7 +30,7 @@ private:
 	boost::asio::io_service& io_service_;
 	tcp::acceptor acceptor_;
 
-	const HandlerContainer* requestHandlers_;
+	std::unique_ptr<HandlerContainer> requestHandlers_;
 };
 
 #endif // SERVER_H

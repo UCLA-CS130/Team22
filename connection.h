@@ -23,8 +23,6 @@ public:
 	std::string handle_data_write(size_t bytes_transferred, char* data);
 
 private:
-	HandlerContainer* handlers_;
-
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);
 
@@ -36,6 +34,8 @@ private:
 	tcp::socket socket_;
 	enum { max_length = 1024 };
 	char data_[max_length];
+
+	const HandlerContainer* handlers_;
 };
 
 

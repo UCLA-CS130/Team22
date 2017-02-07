@@ -1,7 +1,9 @@
 #include <iostream>
 #include <cstring>
+#include <memory>
 #include "connection.h"
 #include "request_handler.h"
+#include "http_parser.h"
 
 using boost::asio::ip::tcp;
 
@@ -27,14 +29,14 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	if (!error)
 	{
 		// parse header
-		HttpParser parsedHeader = HttpParser(data_); // unsafe, is there no byte count or anything?
+		auto parsedHeader = std::auto_ptr<HttpParser>(HttpParser::MakeHttpParser(data_)); // unsafe, is there no byte count or anything?
 
 		// get the correct handler based on the header
-		RequestHandler* handler = GetRequestHandler(parsedHeader.get_path());
+		const RequestHandler* handler = GetRequestHandler(parsedHeader->get_path());
 		
 		// have the handler generate a response
 		std::string data = std::string(data_, bytes_transferred);
-		std::string response = handler->GenerateResponse(parsedHeader, data);
+		std::string response = handler->GenerateResponse(*parsedHeader, data);
 
 		// write out the response
 		boost::asio::async_write(
@@ -83,10 +85,12 @@ void Connection::copy_request(char* response, char* data, size_t bytes_transferr
     std::memcpy(&response[header_length], data, bytes_transferred);
 }
 
-RequestHandler* Connection::GetRequestHandler(const std::string& path)
+const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
-	for (auto i : requestHandlers_) {
+	//for (auto i : handlers_) {
 
 
-	}
+	//}
+
+	return NULL;
 }
