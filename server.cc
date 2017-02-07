@@ -23,7 +23,6 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 	// request handlers
 	// hard coded
 	HandlerContainer *handlers = new HandlerContainer();
-	//auto eh = std::unique_ptr<RequestHandler>(new EchoHandler());
 	//HandlerPair("hello", std::unique_ptr<RequestHandler>(new EchoHandler()));
 
 	// Populate echo paths

@@ -91,6 +91,7 @@ void Connection::close_socket(const boost::system::error_code& error)
 
 const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
+	// for each k,v pair
 	for (auto& handlerPair : *handlers_) {
 		std::size_t second_slash_pos = path.find("/", 1);
 		std::string search_path = path.substr(0, second_slash_pos);
