@@ -1,7 +1,7 @@
 #ifndef HttpParser_H
 #define HttpParser_H
 
-#include <map>
+#include <unordered_map>
 #include <string>
 
 class HttpParser
@@ -10,7 +10,7 @@ public:
     HttpParser(const char* const raw_req);
     std::string get_path();
     std::string get_method();
-    std::map<std::string, std::string> get_fields();
+    std::unordered_map<std::string, std::string> get_fields();
     std::string get_body();
 
 private:
@@ -23,7 +23,7 @@ private:
 
     std::string method_;
     std::string path_;
-    std::map<std::string, std::string> fields_;
+    std::unordered_map<std::string, std::string> fields_;
     std::string body_;
 };
 

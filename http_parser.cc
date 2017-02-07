@@ -20,7 +20,7 @@ std::string HttpParser::get_method()
     return method_;
 }
 
-std::map<std::string, std::string> HttpParser::get_fields()
+std::unordered_map<std::string, std::string> HttpParser::get_fields()
 {
     return fields_;
 }
