@@ -4,7 +4,17 @@ error_flag=0
 
 #test basic port listening
 printf "\ntesting simple port listen on 8080 in config...\n"
-printf "server {\n\tlisten 8080;\n echo_path /;\n file_path /static;\n}" > config_temp;
+printf "server {\n
+            listen 8080;\n
+            path /echo EchoHandler {}\n
+            path /test EchoHandler {}\n
+            path /static StaticFileHandler {\n
+                root static/;\n
+            }\n
+            path /special StaticFileHandler {\n
+                root static/more/;\n
+            }\n
+        }" > config_temp;
 
 ./webserver config_temp &
 sleep 1
@@ -16,7 +26,7 @@ else
     printf "  !!no tcp connection found at port 8080\n"
 fi
 
-if curl -s localhost:8080 | tr "\n\r" " " | grep "GET / HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
+if curl -s localhost:8080/echo | tr "\n\r" " " | grep "GET /echo HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
     printf "  --curl succeeded\n"
 else
     error_flag=1

@@ -45,7 +45,6 @@ protected:
 //test invalid inputs
 TEST_F(NginxStringConfigTest, InvalidConfig) {
 	EXPECT_FALSE(parseString("foo bar")); //no semicolon
-	EXPECT_FALSE(parseString("foo {\n}")); //empty curly braces; must have been an error? debatable
 	EXPECT_FALSE(parseString("foo {\n\tx;\n};")); //semicolon after a brace
 	EXPECT_FALSE(parseString("foo \"bar; ")); //mismatched quotes
 	EXPECT_FALSE(parseString("foo \'bar; ")); //mismatched single quotes
@@ -88,10 +87,10 @@ TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 	ASSERT_TRUE(parseString(config));
 	ASSERT_TRUE(out_config.ParseStatements());
 
-	EXPECT_EQ(out_config.GetEchoPath()->at(0), "/echo");
-	EXPECT_EQ(out_config.GetEchoPath()->at(1), "/echo2");
-	EXPECT_EQ(out_config.GetFilePath()->at("/static"), "static");
-	EXPECT_EQ(out_config.GetFilePath()->at("/static2"), "static2");
+	EXPECT_EQ(out_config.GetEchoPaths()->at(0), "/echo");
+	EXPECT_EQ(out_config.GetEchoPaths()->at(1), "/echo2");
+	EXPECT_EQ(out_config.GetFilePaths()->at("/static"), "static");
+	EXPECT_EQ(out_config.GetFilePaths()->at("/static2"), "static2");
 }
 
 
