@@ -14,6 +14,10 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 	if (port == -1) {
 		return nullptr;
 	}
+
+	// request handlers
+
+
 	return new Server(io_service, port);
 }
 
@@ -31,7 +35,7 @@ Server::Server(boost::asio::io_service& io_service, int port) : io_service_(io_s
 void Server::start_accept()
 {
 	//create new connection for incoming request, send to handle_accept
-	Connection* new_connection = new Connection(this, io_service_);
+	Connection* new_connection = new Connection(io_service_, requestHandlers_);
 	acceptor_.async_accept(new_connection->socket(),
 		boost::bind(&Server::handle_accept, this, new_connection,
 			boost::asio::placeholders::error));

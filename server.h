@@ -3,8 +3,12 @@
 
 #include <boost/asio.hpp>
 #include <string>
+#include <list>
+
 #include "connection.h"
 #include "config_parser.h"
+#include "request_handler.h"
+#include "echo_handler.h"
 
 using boost::asio::ip::tcp;
 
@@ -24,6 +28,9 @@ private:
 
 	boost::asio::io_service& io_service_;
 	tcp::acceptor acceptor_;
+
+	auto HandlerContainer
+	HandlerContainer requestHandlers_;
 };
 
 #endif // SERVER_H

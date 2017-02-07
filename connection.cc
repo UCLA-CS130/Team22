@@ -5,7 +5,7 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(Server* parent, boost::asio::io_service& io_service) : server_(NULL), socket_(io_service)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer& handlers) : socket_(io_service), handlers_(&handlers)
 {
 }
 
@@ -29,12 +29,19 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		// parse header
 		HttpParser parsedHeader = HttpParser(data_); // unsafe, is there no byte count or anything?
 
-		// get the correct handler based on server config
-		RequestHandler* handler = server->GetHandler(parsedHeader.GetUrl());
+		// get the correct handler based on the header
+		RequestHandler* handler = GetRequestHandler(parsedHeader.get_path());
 		
+		// have the handler generate a response
 		std::string data = std::string(data_, bytes_transferred);
-		handler->GenerateResponse(parsedHeader, data);
+		std::string response = handler->GenerateResponse(parsedHeader, data);
 
+		// write out the response
+		boost::asio::async_write(
+			socket_,
+			boost::asio::buffer(response),
+			boost::bind(&Connection::close_socket, this,
+				boost::asio::placeholders::error));
 	}
 	else
 	{
@@ -74,4 +81,12 @@ void Connection::close_socket(const boost::system::error_code& error)
 void Connection::copy_request(char* response, char* data, size_t bytes_transferred, size_t header_length)
 {
     std::memcpy(&response[header_length], data, bytes_transferred);
+}
+
+RequestHandler* Connection::GetRequestHandler(const std::string& path)
+{
+	for (auto i : requestHandlers_) {
+
+
+	}
 }
