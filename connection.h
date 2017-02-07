@@ -20,8 +20,6 @@ public:
 
 	void handle_request(const boost::system::error_code& error, size_t bytes_transferred);
 
-	std::string handle_data_write(size_t bytes_transferred, char* data);
-
 private:
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);
