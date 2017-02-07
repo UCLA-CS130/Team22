@@ -19,12 +19,11 @@ libgtest.a:
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
-build-tests: libgtest.a $(OBJ)
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread config_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test -lboost_system -lboost_regex
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system -lboost_regex
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system -lboost_regex
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread http_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o http_parser_test -lboost_system  -lboost_regex
-
+%_test: libgtest.a $(OBJ)
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread $@.cc ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
+	
+build-tests: $(TESTS)	
+	
 test: integration-test unit-test
 
 unit-test: build-tests
@@ -33,6 +32,9 @@ unit-test: build-tests
 	./server_test
 	./http_parser_test
 
+integration-test: webserver
+	./integration_tests.sh
+	
 cov-%: COV += -fprofile-arcs -ftest-coverage -g
 cov-%: OPTIMIZE = -O0
 cov-test: test lcov
@@ -46,9 +48,6 @@ lcov:
 	genhtml coverage.info --output-directory covhtml
 	lcov --list coverage.info
 	printf "see covhtml/index.html for more information"
-
-integration-test: webserver
-	./integration_tests.sh
 
 clean:
 	rm -f $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a
