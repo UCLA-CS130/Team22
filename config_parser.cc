@@ -29,30 +29,66 @@ std::string NginxConfig::ToString(int depth) {
 
 int NginxConfig::GetPort()
 {
+	return port_;
+}
+
+std::string NginxConfig::GetEchoPath()
+{
+	return echo_path_;
+}
+
+std::string NginxConfig::GetFilePath()
+{
+	return file_path_;
+}
+
+bool NginxConfig::ParseStatements()
+{
+	//enforce that these three attributes must be found to return a successful parse
+	bool port_found = false;
+
 	//for each statement, look for a body starting with keyword 'server'
 	//then look for keyword 'listen' that indicates the specific port number.
 	for (auto statement : statements_) {
 		if(statement->tokens_[0] == "server" && statement->child_block_ != nullptr) {
 			for(auto inner_statement : statement->child_block_->statements_) {
-				if (inner_statement->tokens_.size() == 2 && inner_statement->tokens_[0] == "listen") {
-					int port;
-					try {
-						port = std::stoi(inner_statement->tokens_[1]);
-					}
-					catch (...) { // conversion error
-						return -1;
+				if (inner_statement->tokens_.size() == 2 ) {
+					if (inner_statement->tokens_[0] == "listen")
+					{
+						int port;
+						try {
+							port = std::stoi(inner_statement->tokens_[1]);
+						}
+						catch (...) { // conversion error
+							return false;
+						}
+
+						//error check that port is in bounds, break if not
+						if (port <= 0 || port > 65535)
+							return false;
+						port_ = port;
+						port_found = true;
 					}
 
-					//error check that port is in bounds, break if not
-					if (port <= 0 || port > 65535)
-						return -1;
-					return port;
+					else if (inner_statement->tokens_[0] == "echo_path")
+					{
+						echo_path_ = inner_statement->tokens_[1];
+					}
+
+					else if (inner_statement->tokens_[0] == "file_path")
+					{
+						file_path_ = inner_statement->tokens_[1];
+					}
 				}
 			}
 		}
 	}
 
-	return -1; // missing port error
+	//all required attributes not found
+	if(port_found)
+		return true;
+	else
+		return false;
 }
 
 std::string NginxConfigStatement::ToString(int depth) {

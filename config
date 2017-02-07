@@ -1,3 +1,11 @@
 server {
     listen 8080;
+    echo_path {
+        /echo;
+        /echo2;
+    }
+    file_path {
+        /static /static;
+        /static2 /static2;
+    }
 }
