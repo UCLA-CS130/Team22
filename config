@@ -3,6 +3,6 @@ server {
 	
 	path /echo EchoHandler {}
 	path /static StaticFileHandler {
-		root "example"
+		root "example";
 	}	
 }
