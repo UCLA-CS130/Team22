@@ -12,7 +12,3 @@ std::string EchoHandler::GenerateResponse(const HttpParser& headerInfo, const st
 
 	return ss.str();
 }
-
-void EchoHandler::foo()
-{
-}

@@ -19,11 +19,8 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 
 	int port = out_config.GetPort();
 	
-	
-	// request handlers
-	// hard coded
+	// generate request handlers
 	HandlerContainer *handlers = new HandlerContainer();
-	//HandlerPair("hello", std::unique_ptr<RequestHandler>(new EchoHandler()));
 
 	// Populate echo paths
 	std::shared_ptr<std::vector<std::string>> echo_paths = out_config.GetEchoPaths();

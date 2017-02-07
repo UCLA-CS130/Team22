@@ -10,11 +10,7 @@
 class EchoHandler : public RequestHandler {
 public:
 	
-	// data is the full http request
-	// headerInfo is the parsed header
 	virtual std::string GenerateResponse(const HttpParser& headerInfo, const std::string& requestData) const;
-	void foo();
-
 	
 };
 
