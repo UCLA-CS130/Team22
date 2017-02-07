@@ -13,8 +13,10 @@ public:
     //getters
     std::string get_path();
     std::string get_method();
-    std::unordered_map<std::string, std::string> get_fields();
+    std::unordered_map<std::string, std::string>* get_fields();
     std::string get_body();
+
+    ~HttpParser();
 
 private:
     HttpParser();
@@ -28,7 +30,7 @@ private:
     //member variables
     std::string method_;
     std::string path_;
-    std::unordered_map<std::string, std::string> fields_;
+    std::unordered_map<std::string, std::string>* fields_;
     std::string body_;
 };
 

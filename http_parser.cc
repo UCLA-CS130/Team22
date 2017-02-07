@@ -19,7 +19,14 @@ HttpParser* HttpParser::MakeHttpParser(const char* const raw_req)
     }
 }
 
-HttpParser::HttpParser() {}
+HttpParser::~HttpParser()
+{
+    delete fields_;
+}
+
+HttpParser::HttpParser() {
+    fields_ = new std::unordered_map<std::string, std::string>();
+}
 
 std::string HttpParser::get_path()
 {
@@ -31,7 +38,7 @@ std::string HttpParser::get_method()
     return method_;
 }
 
-std::unordered_map<std::string, std::string> HttpParser::get_fields()
+std::unordered_map<std::string, std::string>* HttpParser::get_fields()
 {
     return fields_;
 }
@@ -97,7 +104,7 @@ bool HttpParser::parse_raw_request(const char* const raw_req){
 
         std::string key = lines[i].substr(0, index);
         std::string value = lines[i].substr(index+2); //add 2 to skip the ": "
-        fields_[key] = value;
+        fields_->insert(std::make_pair(key, value));
     }
 
     return true;

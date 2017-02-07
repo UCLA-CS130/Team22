@@ -19,12 +19,9 @@ TEST(http_parser, SimpleRequest) {
 
 TEST(http_parser, AnotherRequest) {
     HttpParser* hp = HttpParser::MakeHttpParser("GET / HTTP/1.1\r\nHost: localhost:8080\r\nUser-Agent: curl/7.43.0\r\nAccept: */*\r\n\r\nhello\r\n");
-    if(hp == nullptr) {
-        std::cout << "REKT";
-    }
     EXPECT_EQ(hp->get_path(), "/");
     EXPECT_EQ(hp->get_method(), "GET");
-    EXPECT_EQ(hp->get_fields()["User-Agent"], "curl/7.43.0");
+    EXPECT_EQ(hp->get_fields()->at("User-Agent"), "curl/7.43.0");
     EXPECT_EQ(hp->get_body(), "hello");
 
     delete hp;
