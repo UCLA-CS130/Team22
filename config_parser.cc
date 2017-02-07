@@ -51,12 +51,12 @@ std::shared_ptr<std::map<std::string, std::string>> NginxConfig::GetFilePath()
 
 bool NginxConfig::ParseStatements()
 {
+	bool port_found = false;
 	//for each statement, look for a body starting with keyword 'server'
 	//then look for keyword 'listen' that indicates the specific port number.
 	for (auto statement : statements_) {
 		if(statement->tokens_[0] == "server" && statement->child_block_ != nullptr) {
 			//assert that port value must be found in server{...}
-			bool port_found = false;
 			for(auto server_inner_statement : statement->child_block_->statements_) {
 				//extract port value
 				if (server_inner_statement->tokens_.size() == 2 ) {
@@ -104,10 +104,11 @@ bool NginxConfig::ParseStatements()
 
 			}
 
-			if(!port_found)
-				return false;
+
 		}
 	}
+	if(!port_found)
+		return false;
 	return true;
 }
 
