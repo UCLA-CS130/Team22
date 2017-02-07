@@ -37,7 +37,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		// get the correct handler based on the header
 		const RequestHandler* handler = GetRequestHandler(parsedHeader->get_path());
 		
-		if (handler == NULL) {
+		if (handler == nullptr) {
 			// TODO generalize, fit with the StaticFileHandler
 			response = "HTTP / 1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 0\r\n\r\n";
 		}
@@ -99,5 +99,5 @@ const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
