@@ -4,7 +4,7 @@ error_flag=0
 
 #test basic port listening
 printf "\ntesting simple port listen on 8080 in config...\n"
-printf "server {\n\tlisten 8080;\n}" > config_temp;
+printf "server {\n\tlisten 8080;\n\tpath /echo EchoHandler {}\n}" > config_temp;
 
 ./webserver config_temp &
 sleep 1
@@ -16,9 +16,9 @@ else
     printf "  !!no tcp connection found at port 8080\n"
 fi
 
-expected_curl_response="GET / HTTP/1.1  Host: localhost:8080"
+#expected_curl_response="GET /echo HTTP/1.1  Host: localhost:8080"
 
-if curl -s localhost:8080 | tr "\n\r" " " | grep "GET / HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
+if curl -s localhost:8080/echo | tr "\n\r" " " | grep "GET /echo HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
     printf "  --curl succeeded\n"
 else
     error_flag=1
