@@ -14,7 +14,9 @@ TEST(FileHandlerTest, SimpleTest) {
 	FileHandler fileHandler("static/");
 
 	std::string response = fileHandler.GenerateResponse(*headerInfo, request);
-	EXPECT_TRUE(response.length() > 200);
+	
+	int index = response.find("\r\n");
+	EXPECT_EQ(response.substr(0, index), "HTTP/1.1 200 OK");
 }
 
 TEST(FileHandlerTest, Simple404Test) {
@@ -27,5 +29,7 @@ TEST(FileHandlerTest, Simple404Test) {
 	FileHandler fileHandler("static/");
 
 	std::string response = fileHandler.GenerateResponse(*headerInfo, request);
-	EXPECT_FALSE(response.length() > 200);
+	
+	int index = response.find("\r\n");
+	EXPECT_EQ(response.substr(0, index), "HTTP/1.1 404 Not Found");
 }
