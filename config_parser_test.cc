@@ -45,7 +45,7 @@ protected:
 //test invalid inputs
 TEST_F(NginxStringConfigTest, InvalidConfig) {
 	EXPECT_FALSE(parseString("foo bar")); //no semicolon
-	EXPECT_FALSE(parseString("foo {\n}")); //empty curly braces; must have been an error? debatable
+	//EXPECT_FALSE(parseString("foo {\n}")); //empty curly braces; must have been an error? debatable
 	EXPECT_FALSE(parseString("foo {\n\tx;\n};")); //semicolon after a brace
 	EXPECT_FALSE(parseString("foo \"bar; ")); //mismatched quotes
 	EXPECT_FALSE(parseString("foo \'bar; ")); //mismatched single quotes

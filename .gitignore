@@ -8,3 +8,4 @@ connection_test
 html_parser_test
 server_test
 echo_handler_test
+http_parser_test

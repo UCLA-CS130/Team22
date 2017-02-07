@@ -20,19 +20,16 @@ libgtest.a:
 	ar -rv libgtest.a gtest-all.o
 
 build-tests: libgtest.a $(OBJ)
-	#g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread config_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test -lboost_system -lboost_regex
-	#g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system -lboost_regex
-	#g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system -lboost_regex
-	#g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread http_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o http_parser_test -lboost_system  -lboost_regex
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread config_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o config_parser_test -lboost_system -lboost_regex
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system -lboost_regex
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system -lboost_regex
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread http_parser_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o http_parser_test -lboost_system  -lboost_regex
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread echo_handler_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o echo_handler_test -lboost_system  -lboost_regex
 
 test: integration-test unit-test
 
 unit-test: build-tests
-	./config_parser_test
-	./connection_test
-	./server_test
-	./http_parser_test
+	for TEST in $(TESTS); do ./$$TEST ; done
 
 cov-%: COV += -fprofile-arcs -ftest-coverage -g
 cov-%: OPTIMIZE = -O0
