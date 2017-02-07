@@ -16,12 +16,15 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 	}
 
 	// request handlers
+	// hard coded
+	HandlerContainer *handlers = new HandlerContainer();
+	handlers->push_back("/echo", new EchoHandler());
+	handlers->push_back("/echo2", new EchoHandler());
 
-
-	return new Server(io_service, port);
+	return new Server(io_service, port, handlers);
 }
 
-Server::Server(boost::asio::io_service& io_service, int port) : io_service_(io_service), acceptor_(io_service)
+Server::Server(boost::asio::io_service& io_service, int port, const HandlerContainer* handlers) : io_service_(io_service), acceptor_(io_service), requestHandlers_(handlers)
 {
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	acceptor_.open(endpoint.protocol());

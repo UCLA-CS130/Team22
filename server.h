@@ -29,8 +29,7 @@ private:
 	boost::asio::io_service& io_service_;
 	tcp::acceptor acceptor_;
 
-	auto HandlerContainer
-	HandlerContainer requestHandlers_;
+	const HandlerContainer* requestHandlers_;
 };
 
 #endif // SERVER_H

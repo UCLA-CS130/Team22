@@ -5,7 +5,7 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer& handlers) : socket_(io_service), handlers_(&handlers)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers) : socket_(io_service), handlers_(handlers)
 {
 }
 

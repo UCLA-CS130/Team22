@@ -12,7 +12,7 @@ using boost::asio::ip::tcp;
 class Connection
 {
 public:
-	Connection(boost::asio::io_service& io_service, const HandlerContainer& handlers);
+	Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers);
 
 	tcp::socket& socket();
 

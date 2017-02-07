@@ -5,7 +5,8 @@
 #include <map>
 #include "http_parser.h"
 
-typedef std::map<std::unique_ptr<RequestHandler>(RequestHandler)> HandlerContainer;
+// list of k,v pairs, where k = path and v = pointer to request handler
+typedef std::list<std::pair<const std::string, std::unique_ptr<RequestHandler>>> HandlerContainer;
 
 class RequestHandler {
 public:
