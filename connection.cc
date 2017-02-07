@@ -28,16 +28,23 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 {
 	if (!error)
 	{
+		std::string response;
+
 		// parse header
 		auto parsedHeader = std::auto_ptr<HttpParser>(HttpParser::MakeHttpParser(data_)); // unsafe, is there no byte count or anything?
 
 		// get the correct handler based on the header
 		const RequestHandler* handler = GetRequestHandler(parsedHeader->get_path());
 		
-		// have the handler generate a response
-		std::string data = std::string(data_, bytes_transferred);
-		std::string response = handler->GenerateResponse(*parsedHeader, data);
-
+		if (handler == NULL) {
+			// TODO generalize, fit with the StaticFileHandler
+			response = "HTTP / 1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 0\r\n\r\n";
+		}
+		else {
+			// have the handler generate a response
+			std::string data = std::string(data_, bytes_transferred);
+			response = handler->GenerateResponse(*parsedHeader, data);
+		}
 		// write out the response
 		boost::asio::async_write(
 			socket_,
