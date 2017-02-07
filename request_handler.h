@@ -11,14 +11,14 @@
 class RequestHandler
 {
 public:
-  static std::string handle_echo(size_t bytes_transferred, char* data);
+	static std::string handle_echo(size_t bytes_transferred, char* data);
 
-  static std::string handle_file_server();
+	static std::string handle_file_server(std::string file_path);
 
 private:
-  enum { max_length = 1024 };
+	enum { max_length = 8192 };
 
-  static std::unordered_map<std::string,std::string> content_mappings;
+	static std::unordered_map<std::string,std::string> content_mappings;
 };
 
 #endif // REQUEST_HANDLER_H

@@ -27,7 +27,7 @@ private:
 	void close_socket(const boost::system::error_code& error);
 
 	tcp::socket socket_;
-	enum { max_length = 1024 };
+	enum { max_length = 8192 }; // 8KB max length
 	char data_[max_length];
 
 	std::string response_data_;

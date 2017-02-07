@@ -28,10 +28,10 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	if (!error)
 	{
 		// file server
-		std::string data = RequestHandler::handle_file_server();
+		//std::string data = RequestHandler::handle_file_server("static/kinkakuji.jpg");
 
 		// echo server
-		//std::string data = RequestHandler::handle_echo(bytes_transferred, data_);
+		std::string data = RequestHandler::handle_echo(bytes_transferred, data_);
 
 		write_response(data);
 	}
