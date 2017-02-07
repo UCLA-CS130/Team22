@@ -80,13 +80,13 @@ TEST_F(NginxStringConfigTest, ValidConfigs){
 TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 	std::string config =
 	"server {"
-	    "listen 8080;\n"
+		"listen 8080;\n"
 		"path /echo EchoHandler;\n"
-	    "path /echo2 EchoHandler;\n"
+		"path /echo2 EchoHandler;\n"
 		"path /static StaticFileHandler {\n"
 			"root static;\n"
 		"}\n"
-	    "path /static2 StaticFileHandler {\n"
+		"path /static2 StaticFileHandler {\n"
 			"root static2;\n"
 		"}\n"
 	"}\n";
