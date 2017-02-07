@@ -19,9 +19,7 @@ public:
 
 	void handle_request(const boost::system::error_code& error, size_t bytes_transferred);
 
-	std::string handle_data_write(size_t bytes_transferred, char* data);
-
-	std::string handle_data_server();
+	void write_response(std::string data);
 
 private:
 
@@ -31,8 +29,8 @@ private:
 	tcp::socket socket_;
 	enum { max_length = 1024 };
 	char data_[max_length];
-	
-	std::string response_data;
+
+	std::string response_data_;
 };
 
 
