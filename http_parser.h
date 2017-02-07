@@ -7,20 +7,25 @@
 class HttpParser
 {
 public:
-    HttpParser(const char* const raw_req);
+    //factory
+    static HttpParser* MakeHttpParser(const char* const raw_req);
+
+    //getters
     std::string get_path();
     std::string get_method();
     std::unordered_map<std::string, std::string> get_fields();
     std::string get_body();
 
 private:
-    //TODO: update return types of these functions to an appropriate error code
+    HttpParser();
+
     //parse the entire raw request and update the private member variables
     bool parse_raw_request(const char* const raw_req);
 
     //parse the first line of the request, involving GET,POST,etc
     bool parse_first_line(std::string line);
 
+    //member variables
     std::string method_;
     std::string path_;
     std::unordered_map<std::string, std::string> fields_;
