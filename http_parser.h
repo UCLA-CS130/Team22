@@ -11,10 +11,10 @@ public:
     static HttpParser* MakeHttpParser(const char* const raw_req);
 
     //getters
-    std::string get_path();
-    std::string get_method();
-    std::unordered_map<std::string, std::string>* get_fields();
-    std::string get_body();
+    std::string get_path() const;
+    std::string get_method() const;
+    std::unordered_map<std::string, std::string>* get_fields() const;
+    std::string get_body() const;
 
     ~HttpParser();
 

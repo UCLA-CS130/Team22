@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include "server.h"
 #include "config_parser.h"
+#include "echo_handler.h"
+#include "file_handler.h"
 
 using boost::asio::ip::tcp;
 
@@ -17,13 +19,26 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 
 	int port = out_config.GetPort();
 	
+	
 	// request handlers
 	// hard coded
 	HandlerContainer *handlers = new HandlerContainer();
 	//auto eh = std::unique_ptr<RequestHandler>(new EchoHandler());
 	//HandlerPair("hello", std::unique_ptr<RequestHandler>(new EchoHandler()));
 
-	handlers->push_back(HandlerPair("/echo", std::unique_ptr<RequestHandler>(new EchoHandler())));
+	// Populate echo paths
+	std::shared_ptr<std::vector<std::string>> echo_paths = out_config.GetEchoPaths();
+	for(auto echo_path : *echo_paths)
+	{
+		handlers->push_back(HandlerPair(echo_path, std::unique_ptr<RequestHandler>(new EchoHandler())));
+	}
+
+	// Populate file server paths
+	std::shared_ptr<std::map<std::string, std::string>> file_paths = out_config.GetFilePaths();
+	for(auto file_path : *file_paths)
+	{
+		handlers->push_back(HandlerPair(file_path.first, std::unique_ptr<RequestHandler>(new FileHandler(file_path.second))));
+	}
 
 	return new Server(io_service, port, handlers);
 }

@@ -2,7 +2,11 @@ server {
     listen 8080;
 	
 	path /echo EchoHandler {}
+	path /test EchoHandler {}
 	path /static StaticFileHandler {
-		root "example";
-	}	
+		root static/;
+	}
+	path /special StaticFileHandler {
+		root static/more/;
+	}
 }

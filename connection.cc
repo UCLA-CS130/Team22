@@ -39,7 +39,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		
 		if (handler == nullptr) {
 			// TODO generalize, fit with the StaticFileHandler
-			response = "HTTP / 1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 0\r\n\r\n";
+			response = RequestHandler::generate_error("Bad Path");
 		}
 		else {
 			// have the handler generate a response
@@ -92,8 +92,11 @@ void Connection::close_socket(const boost::system::error_code& error)
 const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
 	for (auto& handlerPair : *handlers_) {
+		std::size_t second_slash_pos = path.find("/", 1);
+		std::string search_path = path.substr(0, second_slash_pos);
+
 		// check if handler key (/echo) is at the beginning of the path
-		if (path.find(handlerPair.first) == 0) {
+		if (search_path.compare(handlerPair.first) == 0) {
 			// return the handler pointer
 			return handlerPair.second.get();
 		}

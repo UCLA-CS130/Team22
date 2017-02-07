@@ -9,7 +9,6 @@
 #include "connection.h"
 #include "config_parser.h"
 #include "request_handler.h"
-#include "echo_handler.h"
 
 using boost::asio::ip::tcp;
 

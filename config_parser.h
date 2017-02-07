@@ -32,13 +32,13 @@ class NginxConfig {
 
     //getters
 	int GetPort();
-    std::shared_ptr<std::vector<std::string>> GetEchoPath();
-    std::shared_ptr<std::map<std::string, std::string>> GetFilePath();
+    std::shared_ptr<std::vector<std::string>> GetEchoPaths();
+    std::shared_ptr<std::map<std::string, std::string>> GetFilePaths();
 
 private:
     int port_;
-    std::shared_ptr<std::vector<std::string>> echo_path_;
-    std::shared_ptr<std::map<std::string, std::string>> file_path_;
+    std::shared_ptr<std::vector<std::string>> echo_paths_;
+    std::shared_ptr<std::map<std::string, std::string>> file_paths_;
 };
 
 // The driver that parses a config file and generates an NginxConfig.

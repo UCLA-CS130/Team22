@@ -30,8 +30,8 @@ std::string NginxConfig::ToString(int depth) {
 
 NginxConfig::NginxConfig()
 {
-	echo_path_ = std::make_shared<std::vector<std::string>>();
-	file_path_ = std::make_shared<std::map<std::string, std::string>>();
+	echo_paths_ = std::make_shared<std::vector<std::string>>();
+	file_paths_ = std::make_shared<std::map<std::string, std::string>>();
 }
 
 int NginxConfig::GetPort()
@@ -39,24 +39,26 @@ int NginxConfig::GetPort()
 	return port_;
 }
 
-std::shared_ptr<std::vector<std::string>> NginxConfig::GetEchoPath()
+std::shared_ptr<std::vector<std::string>> NginxConfig::GetEchoPaths()
 {
-	return echo_path_;
+	return echo_paths_;
 }
 
-std::shared_ptr<std::map<std::string, std::string>> NginxConfig::GetFilePath()
+std::shared_ptr<std::map<std::string, std::string>> NginxConfig::GetFilePaths()
 {
-	return file_path_;
+	return file_paths_;
 }
 
 bool NginxConfig::ParseStatements()
 {
 	//for each statement, look for a body starting with keyword 'server'
 	//then look for keyword 'listen' that indicates the specific port number.
+
+	//assert that port value must be found in server{...}
+	bool port_found = false;
+
 	for (auto statement : statements_) {
 		if(statement->tokens_[0] == "server" && statement->child_block_ != nullptr) {
-			//assert that port value must be found in server{...}
-			bool port_found = false;
 			for(auto server_inner_statement : statement->child_block_->statements_) {
 				//extract port value
 				if (server_inner_statement->tokens_.size() == 2 ) {
@@ -78,17 +80,17 @@ bool NginxConfig::ParseStatements()
 					}
 				}
 				else if (server_inner_statement->tokens_.size() == 3 && server_inner_statement->tokens_[0] == "path") {
-					//echo_path
+					//echo_paths
 					if(server_inner_statement->tokens_[2] == "EchoHandler") {
-						echo_path_->push_back(server_inner_statement->tokens_[1]);
+						echo_paths_->push_back(server_inner_statement->tokens_[1]);
 					}
-					//file_path
+					//file_paths_
 					else if(server_inner_statement->tokens_[2] == "StaticFileHandler" && server_inner_statement->child_block_ != nullptr) {
 						//assert that a directory mapping is found in the child_block_
 						bool directory_mapping_found = false;
 						std::string url = server_inner_statement->tokens_[1];
 						std::string directory = "";
-						//in file_path options
+						//in file_paths_ options
 						for(auto file_inner_statement : server_inner_statement->child_block_->statements_) {
 							if(file_inner_statement->tokens_.size() == 2 && file_inner_statement->tokens_[0] == "root") {
 								directory_mapping_found = true;
@@ -98,16 +100,15 @@ bool NginxConfig::ParseStatements()
 						if(!directory_mapping_found)
 							return false;
 
-							file_path_->insert(std::make_pair(url, directory));
+							file_paths_->insert(std::make_pair(url, directory));
 					}
 				}
-
 			}
-
-			if(!port_found)
-				return false;
 		}
 	}
+	if(!port_found)
+		return false;
+
 	return true;
 }
 
