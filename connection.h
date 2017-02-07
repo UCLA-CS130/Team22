@@ -29,6 +29,7 @@ private:
 	// construct response by placing request after headers
 	void copy_request(char* response, char* data, size_t bytes_transferred, size_t header_length);
 
+	// returns a request handler if it was defined in the config, otherwise returns NULL
 	const RequestHandler* GetRequestHandler(const std::string & path);
 
 	tcp::socket socket_;
