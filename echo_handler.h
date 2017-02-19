@@ -5,12 +5,12 @@
 
 #include "request_handler.h"
 #include "config_parser.h"
-#include "http_parser.h"
+#include "request.h"
 
 class EchoHandler : public RequestHandler {
 public:
 	
-	virtual std::string GenerateResponse(const HttpParser& headerInfo, const std::string& requestData) const;
+	virtual std::string GenerateResponse(std::unique_ptr<Request> &request) const;
 	
 };
 

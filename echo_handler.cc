@@ -4,11 +4,11 @@
 #include "request_handler.h"
 #include "echo_handler.h"
 
-std::string EchoHandler::GenerateResponse(const HttpParser& headerInfo, const std::string& requestData) const
+std::string EchoHandler::GenerateResponse(std::unique_ptr<Request> &request) const
 {
 	std::stringstream ss;
-	ss << "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " << requestData.length() << "\r\n\r\n";
-	ss << requestData; // the echo, includes the header
+	ss << "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " << request->raw_request().length() << "\r\n\r\n";
+	ss << request->raw_request(); // the echo, includes the header
 
 	return ss.str();
 }

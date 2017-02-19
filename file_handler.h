@@ -2,16 +2,18 @@
 #define FILE_HANDLER_H
 
 #include <string>
+#include <memory>
+#include <unordered_map>
 #include "request_handler.h"
 #include "config_parser.h"
-#include "http_parser.h"
+#include "request.h"
 
 class FileHandler : public RequestHandler {
 public:
 	FileHandler(std::string directory);
 	// data is the full http request
-	// headerInfo is the parsed header
-	virtual std::string GenerateResponse(const HttpParser& headerInfo, const std::string& requestData) const;
+	// request is the parsed request
+	virtual std::string GenerateResponse(std::unique_ptr<Request> &request) const;
 
 private:
 	enum { max_length = 8192 };
