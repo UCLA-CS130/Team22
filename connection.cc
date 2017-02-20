@@ -4,7 +4,7 @@
 #include <fstream>
 #include "connection.h"
 #include "request_handler.h"
-#include "http_parser.h"
+#include "request.h"
 
 using boost::asio::ip::tcp;
 
@@ -32,10 +32,12 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		std::string response;
 
 		// parse header
-		auto parsedHeader = std::auto_ptr<HttpParser>(HttpParser::MakeHttpParser(data_)); // unsafe, is there no byte count or anything?
+		std::string data = std::string(data_, bytes_transferred);
+
+		auto request = Request::Parse(data);
 
 		// get the correct handler based on the header
-		const RequestHandler* handler = GetRequestHandler(parsedHeader->get_path());
+		const RequestHandler* handler = GetRequestHandler(request->uri());
 		
 		if (handler == nullptr) {
 			// TODO generalize, fit with the StaticFileHandler
@@ -43,8 +45,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		}
 		else {
 			// have the handler generate a response
-			std::string data = std::string(data_, bytes_transferred);
-			response = handler->GenerateResponse(*parsedHeader, data);
+			response = handler->HandleRequest(*request);
 		}
 
 		// write out the response

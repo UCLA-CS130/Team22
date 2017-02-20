@@ -4,14 +4,14 @@
 #include <string>
 #include <list>
 #include <memory>
-#include "http_parser.h"
+#include "request.h"
 
 class RequestHandler {
 public:
 
 	// requestData is the full http request
-	// headerInfo is the parsed header
-	virtual std::string GenerateResponse(const HttpParser& headerInfo, const std::string& requestData) const = 0;
+	// request is the parsed header
+	virtual std::string HandleRequest(const Request& request) const = 0;
 
 	static std::string generate_error(std::string reason)
 	{

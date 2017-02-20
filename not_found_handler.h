@@ -1,5 +1,5 @@
-#ifndef ECHO_HANDLER_H
-#define ECHO_HANDLER_H
+#ifndef NOT_FOUND_HANDLER_H
+#define NOT_FOUND_HANDLER_H
 
 #include <string>
 
@@ -7,7 +7,7 @@
 #include "config_parser.h"
 #include "request.h"
 
-class EchoHandler : public RequestHandler {
+class NotFoundHandler : public RequestHandler {
 public:
 	
 	virtual std::string HandleRequest(const Request& request) const;
@@ -15,4 +15,4 @@ public:
 };
 
 
-#endif // ECHO_HANDLER_H
+#endif // NOT_FOUND_HANDLER_H
