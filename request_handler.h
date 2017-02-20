@@ -9,10 +9,14 @@
 
 class RequestHandler {
 public:
+	enum Status {
+		OK = 0,
+		ERROR = 1
+	};
 
 	// requestData is the full http request
 	// request is the parsed header
-	virtual Response HandleRequest(const Request& request) const = 0;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const = 0;
 };
 
 // list of k,v pairs, where k = path and v = pointer to request handler

@@ -19,7 +19,8 @@ class Response {
 public:
 	enum ResponseCode {
 		ok = 200,
-        not_found = 404
+        not_found = 404,
+        internal_server_error = 500
 	};
 
 	void SetStatus(const ResponseCode response_code);

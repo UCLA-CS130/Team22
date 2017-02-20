@@ -44,11 +44,17 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		if (handler == nullptr) {
 			// TODO generalize, fit with the StaticFileHandler
 			NotFoundHandler not_found_handler("Bad Path");
-			response = not_found_handler.HandleRequest(*request);
+			not_found_handler.HandleRequest(*request, &response);
 		}
 		else {
 			// have the handler generate a response
-			response = handler->HandleRequest(*request);
+			RequestHandler::Status status = handler->HandleRequest(*request, &response);
+			if(status != RequestHandler::OK)
+			{
+				response = Response();
+				response.SetStatus(Response::internal_server_error);
+				response.SetBody("500 Internal Server Error");
+			}
 		}
 
 		// write out the response

@@ -13,7 +13,7 @@ public:
 	FileHandler(const std::string& directory);
 	// data is the full http request
 	// request is the parsed request
-	virtual Response HandleRequest(const Request& request) const;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 private:
 	enum { max_length = 8192 };

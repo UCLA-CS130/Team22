@@ -11,7 +11,7 @@
 class NotFoundHandler : public RequestHandler {
 public:
 	NotFoundHandler(const std::string& reason);
-	virtual Response HandleRequest(const Request& request) const;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 private:
 	std::string reason_;

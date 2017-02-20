@@ -14,7 +14,8 @@ TEST(FileHandlerTest, SimpleTest) {
 	// create an echo handler
 	FileHandler fileHandler("static/");
 
-	Response response = fileHandler.HandleRequest(*request);
+	Response response;
+	fileHandler.HandleRequest(*request, &response);
 	std::string response_string = response.ToString();
 	
 	int index = response_string.find("\r\n");
@@ -30,7 +31,8 @@ TEST(FileHandlerTest, Simple404Test) {
 	// create an echo handler
 	FileHandler fileHandler("static/");
 
-	Response response = fileHandler.HandleRequest(*request);
+	Response response;
+	fileHandler.HandleRequest(*request, &response);
 	std::string response_string = response.ToString();
 
 	int index = response_string.find("\r\n");
@@ -43,7 +45,8 @@ TEST(FileHandlerTest, UnsupportedTest) {
 
 	FileHandler fileHandler("static/");
 
-	Response response = fileHandler.HandleRequest(*request);
+	Response response;
+	fileHandler.HandleRequest(*request, &response);
 	std::string response_string = response.ToString();
 
 	int index = response_string.find("\r\n");

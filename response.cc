@@ -7,6 +7,7 @@
 namespace status_string {
 	const std::string ok = "HTTP/1.1 200 OK\r\n";
 	const std::string not_found = "HTTP/1.1 404 Not Found\r\n";
+	const std::string internal_server_error = "HTTP/1.1 500 Internal Server Error\r\n";
 }
 
 void Response::SetStatus(const ResponseCode response_code)
@@ -18,6 +19,9 @@ void Response::SetStatus(const ResponseCode response_code)
 		break;
 	case Response::not_found:
 		response_status_string_ = status_string::not_found;
+		break;
+	case Response::internal_server_error:
+		response_status_string_ = status_string::internal_server_error;
 		break;
 	}
 }

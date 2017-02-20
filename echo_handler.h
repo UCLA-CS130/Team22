@@ -10,8 +10,7 @@
 
 class EchoHandler : public RequestHandler {
 public:
-	
-	virtual Response HandleRequest(const Request& request) const;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 	
 };
 

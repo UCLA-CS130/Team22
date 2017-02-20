@@ -13,7 +13,8 @@ TEST(EchoHandlerTest, SimpleString) {
 	// create an echo handler
 	EchoHandler echoHandler;
 
-	Response response = echoHandler.HandleRequest(*request);
+	Response response;
+	echoHandler.HandleRequest(*request, &response);
 	std::string response_string = response.ToString();
 
 	std::string expected = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 5\r\n\r\nhello";

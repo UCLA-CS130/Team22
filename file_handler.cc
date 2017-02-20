@@ -20,10 +20,8 @@ std::unordered_map<std::string,std::string> FileHandler::content_mappings =
 // Constructor to have directory
 FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
-Response FileHandler::HandleRequest(const Request& request) const
+RequestHandler::Status FileHandler::HandleRequest(const Request& request, Response* response) const
 {	
-	Response response;
-
 	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
 	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);
@@ -32,7 +30,7 @@ Response FileHandler::HandleRequest(const Request& request) const
 	if(last_dot_pos == std::string::npos)
 	{
 		NotFoundHandler not_found_handler("Unknown File");
-		return not_found_handler.HandleRequest(request);
+		return not_found_handler.HandleRequest(request, response);
 	}
 	else
 	{
@@ -42,7 +40,7 @@ Response FileHandler::HandleRequest(const Request& request) const
 		if (it == content_mappings.end())
 		{
 			NotFoundHandler not_found_handler("Extension not supported");
-			return not_found_handler.HandleRequest(request);
+			return not_found_handler.HandleRequest(request, response);
 		}
 		else
 		{
@@ -53,14 +51,14 @@ Response FileHandler::HandleRequest(const Request& request) const
 			if (infile.is_open())
 			{
 				int filesize = infile.tellg();
-				response.SetStatus(Response::ok);
-				response.AddHeader("Content-Type", content_type);
-				response.AddHeader("Content-Length", std::to_string(filesize));
+				response->SetStatus(Response::ok);
+				response->AddHeader("Content-Type", content_type);
+				response->AddHeader("Content-Length", std::to_string(filesize));
 			}
 			else
 			{
 				NotFoundHandler not_found_handler("Unable to open file");
-				return not_found_handler.HandleRequest(request);
+				return not_found_handler.HandleRequest(request, response);
 			}
 
 			// reset back to beginning
@@ -72,9 +70,9 @@ Response FileHandler::HandleRequest(const Request& request) const
 			while (infile.read(buf, sizeof(buf)).gcount() > 0) {
 				body_data.append(buf, infile.gcount());
 			}
-			response.SetBody(body_data);
+			response->SetBody(body_data);
 		}
 	}
 	
-	return response;
+	return RequestHandler::OK;
 }
