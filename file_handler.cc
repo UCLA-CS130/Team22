@@ -1,9 +1,10 @@
 #include <string>
-#include <sstream>
 #include <fstream>
 
 #include "request_handler.h"
 #include "file_handler.h"
+#include "response.h"
+#include "not_found_handler.h"
 
 
 std::unordered_map<std::string,std::string> FileHandler::content_mappings =
@@ -19,9 +20,9 @@ std::unordered_map<std::string,std::string> FileHandler::content_mappings =
 // Constructor to have directory
 FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
-std::string FileHandler::HandleRequest(const Request& request) const
+Response FileHandler::HandleRequest(const Request& request) const
 {	
-	std::string response_data = "";
+	Response response;
 
 	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
@@ -30,7 +31,8 @@ std::string FileHandler::HandleRequest(const Request& request) const
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
-		return generate_error("Unknown File");
+		NotFoundHandler not_found_handler("Unknown File");
+		return not_found_handler.HandleRequest(request);
 	}
 	else
 	{
@@ -39,7 +41,8 @@ std::string FileHandler::HandleRequest(const Request& request) const
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
 		if (it == content_mappings.end())
 		{
-			return generate_error("Extension not supported");
+			NotFoundHandler not_found_handler("Extension not supported");
+			return not_found_handler.HandleRequest(request);
 		}
 		else
 		{
@@ -50,27 +53,28 @@ std::string FileHandler::HandleRequest(const Request& request) const
 			if (infile.is_open())
 			{
 				int filesize = infile.tellg();
-				response_data += "HTTP/1.1 200 OK\r\nContent-Type: ";
-				response_data += content_type;
-				response_data += "\r\n";
-				response_data += "Content-Length: ";
-				response_data += std::to_string(filesize);
-				response_data += "\r\n\r\n";
+				response.SetStatus(Response::ok);
+				response.AddHeader("Content-Type", content_type);
+				response.AddHeader("Content-Length", std::to_string(filesize));
 			}
 			else
 			{
-				return generate_error("Unable to open file");
+				NotFoundHandler not_found_handler("Unable to open file");
+				return not_found_handler.HandleRequest(request);
 			}
 
 			// reset back to beginning
 			infile.clear();
 			infile.seekg(0, std::ios::beg);
+
+			std::string body_data = "";
 			char buf[max_length];
 			while (infile.read(buf, sizeof(buf)).gcount() > 0) {
-				response_data.append(buf, infile.gcount());
+				body_data.append(buf, infile.gcount());
 			}
+			response.SetBody(body_data);
 		}
 	}
 	
-	return response_data;
+	return response;
 }
