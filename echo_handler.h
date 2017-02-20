@@ -10,7 +10,7 @@
 class EchoHandler : public RequestHandler {
 public:
 	
-	virtual std::string GenerateResponse(std::unique_ptr<Request> &request) const;
+	virtual std::string HandleRequest(const Request& request) const;
 	
 };
 

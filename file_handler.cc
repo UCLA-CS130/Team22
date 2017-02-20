@@ -17,13 +17,13 @@ std::unordered_map<std::string,std::string> FileHandler::content_mappings =
 };
 
 // Constructor to have directory
-FileHandler::FileHandler(std::string directory) : directory_(directory) {}
+FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
-std::string FileHandler::GenerateResponse(std::unique_ptr<Request> &request) const
+std::string FileHandler::HandleRequest(const Request& request) const
 {	
 	std::string response_data = "";
 
-	std::string full_path = request->uri();
+	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
 	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);
 

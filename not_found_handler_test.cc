@@ -11,7 +11,7 @@ TEST(NotFoundHandlerTest, SimpleString) {
 	// create an echo handler
 	NotFoundHandler not_found_handler;
 
-	std::string response = not_found_handler.GenerateResponse(request);
+	std::string response = not_found_handler.HandleRequest(*request);
 	std::string expected = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 15\r\n\r\n404 NOT FOUND\r\n";
 	EXPECT_EQ(response, expected);
 }

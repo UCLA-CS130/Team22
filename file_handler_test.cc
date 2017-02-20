@@ -13,7 +13,7 @@ TEST(FileHandlerTest, SimpleTest) {
 	// create an echo handler
 	FileHandler fileHandler("static/");
 
-	std::string response = fileHandler.GenerateResponse(request);
+	std::string response = fileHandler.HandleRequest(*request);
 	
 	int index = response.find("\r\n");
 	EXPECT_EQ(response.substr(0, index), "HTTP/1.1 200 OK");
@@ -28,7 +28,7 @@ TEST(FileHandlerTest, Simple404Test) {
 	// create an echo handler
 	FileHandler fileHandler("static/");
 
-	std::string response = fileHandler.GenerateResponse(request);
+	std::string response = fileHandler.HandleRequest(*request);
 	
 	int index = response.find("\r\n");
 	EXPECT_EQ(response.substr(0, index), "HTTP/1.1 404 Not Found");
@@ -40,7 +40,7 @@ TEST(FileHandlerTest, UnsupportedTest) {
 
 	FileHandler fileHandler("static/");
 
-	std::string response = fileHandler.GenerateResponse(request);
+	std::string response = fileHandler.HandleRequest(*request);
 
 	int index = response.find("\r\n");
 	EXPECT_EQ(response.substr(0, index), "HTTP/1.1 404 Not Found");

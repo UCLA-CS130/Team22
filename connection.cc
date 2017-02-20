@@ -45,7 +45,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		}
 		else {
 			// have the handler generate a response
-			response = handler->GenerateResponse(request);
+			response = handler->HandleRequest(*request);
 		}
 
 		// write out the response

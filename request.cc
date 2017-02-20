@@ -50,7 +50,7 @@ std::string Request::body() const
     return body_;
 }
 
-bool Request::parse_first_line(std::string line)
+bool Request::parse_first_line(const std::string& line)
 {
     std::vector<std::string> tokens;
     boost::split(tokens, line, boost::is_any_of(" "));

@@ -26,7 +26,7 @@ private:
 	bool parse_raw_request(const std::string& raw_req);
 
 	//parse the first line of the request, involving GET,POST,etc
-	bool parse_first_line(std::string line);
+	bool parse_first_line(const std::string& line);
 
 	//member variables
 	std::string raw_request_;

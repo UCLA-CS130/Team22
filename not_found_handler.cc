@@ -4,7 +4,7 @@
 #include "request_handler.h"
 #include "not_found_handler.h"
 
-std::string NotFoundHandler::GenerateResponse(std::unique_ptr<Request> &request) const
+std::string NotFoundHandler::HandleRequest(const Request& request) const
 {
 	std::string reason = "404 NOT FOUND\r\n";
 	std::stringstream ss;

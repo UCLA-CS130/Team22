@@ -11,7 +11,7 @@ public:
 
 	// requestData is the full http request
 	// request is the parsed header
-	virtual std::string GenerateResponse(std::unique_ptr<Request> &request) const = 0;
+	virtual std::string HandleRequest(const Request& request) const = 0;
 
 	static std::string generate_error(std::string reason)
 	{

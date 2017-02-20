@@ -10,10 +10,10 @@
 
 class FileHandler : public RequestHandler {
 public:
-	FileHandler(std::string directory);
+	FileHandler(const std::string& directory);
 	// data is the full http request
 	// request is the parsed request
-	virtual std::string GenerateResponse(std::unique_ptr<Request> &request) const;
+	virtual std::string HandleRequest(const Request& request) const;
 
 private:
 	enum { max_length = 8192 };
