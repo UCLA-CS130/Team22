@@ -2,10 +2,10 @@ CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
 BOOSTFLAG = -lboost_system -lboost_regex
-DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h file_handler.h not_found_handler.h
-OBJ=server.o connection.o config_parser.o request.o response.o echo_handler.o file_handler.o not_found_handler.o
+DEPS=server.h connection.h config_parser.h request.h response.h request_handlers.h
+OBJ=server.o connection.o config_parser.o request.o response.o request_handlers.o
 GTEST_DIR=googletest/googletest
-TESTS=config_parser_test connection_test server_test request_test echo_handler_test file_handler_test not_found_handler_test
+TESTS=config_parser_test connection_test server_test request_test request_handlers_test
 
 default: webserver
 
@@ -24,9 +24,7 @@ build-tests: libgtest.a $(OBJ)
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread connection_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o connection_test -lboost_system -lboost_regex
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread server_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o server_test -lboost_system -lboost_regex
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread request_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o request_test -lboost_system  -lboost_regex
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread echo_handler_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o echo_handler_test -lboost_system  -lboost_regex
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread file_handler_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o file_handler_test -lboost_system  -lboost_regex
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread not_found_handler_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o not_found_handler_test -lboost_system  -lboost_regex
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread request_handlers_test.cc $(OBJ) ${GTEST_DIR}/src/gtest_main.cc libgtest.a -o request_handlers_test -lboost_system  -lboost_regex
 
 
 test: integration-test unit-test

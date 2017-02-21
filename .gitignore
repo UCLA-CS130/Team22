@@ -9,9 +9,7 @@ config_parser
 connection_test
 request_test
 server_test
-echo_handler_test
-file_handler_test
-not_found_handler_test
+request_handlers_test
 
 covhtml
 coverage.info

@@ -14,7 +14,7 @@ public:
 	static std::unique_ptr<Request> Parse(const std::string& raw_req);
 
 	//getters
-	std::string raw_request() const; // TODO: Implement!
+	std::string raw_request() const;
 	std::string method() const;
 	std::string uri() const;
 	std::string version() const;
