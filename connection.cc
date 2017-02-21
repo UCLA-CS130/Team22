@@ -3,8 +3,7 @@
 #include <memory>
 #include <fstream>
 #include "connection.h"
-#include "request_handler.h"
-#include "not_found_handler.h"
+#include "request_handlers.h"
 #include "request.h"
 #include "response.h"
 

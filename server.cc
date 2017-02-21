@@ -4,8 +4,7 @@
 #include <stdexcept>
 #include "server.h"
 #include "config_parser.h"
-#include "echo_handler.h"
-#include "file_handler.h"
+#include "request_handlers.h"
 
 using boost::asio::ip::tcp;
 
