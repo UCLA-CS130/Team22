@@ -6,12 +6,15 @@
 #include "request_handler.h"
 #include "config_parser.h"
 #include "request.h"
+#include "response.h"
 
 class NotFoundHandler : public RequestHandler {
 public:
-	
-	virtual std::string HandleRequest(const Request& request) const;
-	
+	NotFoundHandler(const std::string& reason);
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
+
+private:
+	std::string reason_;
 };
 
 

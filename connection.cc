@@ -4,7 +4,9 @@
 #include <fstream>
 #include "connection.h"
 #include "request_handler.h"
+#include "not_found_handler.h"
 #include "request.h"
+#include "response.h"
 
 using boost::asio::ip::tcp;
 
@@ -29,7 +31,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 {
 	if (!error)
 	{
-		std::string response;
+		Response response;
 
 		// parse header
 		std::string data = std::string(data_, bytes_transferred);
@@ -41,11 +43,18 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		
 		if (handler == nullptr) {
 			// TODO generalize, fit with the StaticFileHandler
-			response = RequestHandler::generate_error("Bad Path");
+			NotFoundHandler not_found_handler("Bad Path");
+			not_found_handler.HandleRequest(*request, &response);
 		}
 		else {
 			// have the handler generate a response
-			response = handler->HandleRequest(*request);
+			RequestHandler::Status status = handler->HandleRequest(*request, &response);
+			if(status != RequestHandler::OK)
+			{
+				response = Response();
+				response.SetStatus(Response::internal_server_error);
+				response.SetBody("500 Internal Server Error");
+			}
 		}
 
 		// write out the response
@@ -67,9 +76,9 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	}
 }
 
-std::string Connection::write_response(std::string data)
+std::string Connection::write_response(const Response& response)
 {
-	response_data_ = data;
+	response_data_ = response.ToString();
 	boost::asio::async_write(
 		socket_,
 		boost::asio::buffer(response_data_, response_data_.length()),

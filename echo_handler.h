@@ -6,11 +6,11 @@
 #include "request_handler.h"
 #include "config_parser.h"
 #include "request.h"
+#include "response.h"
 
 class EchoHandler : public RequestHandler {
 public:
-	
-	virtual std::string HandleRequest(const Request& request) const;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 	
 };
 
