@@ -12,6 +12,7 @@ server_test
 echo_handler_test
 file_handler_test
 not_found_handler_test
+server_status_test
 
 covhtml
 coverage.info

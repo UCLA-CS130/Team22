@@ -6,6 +6,7 @@
 
 class ServerStatus {
 public:
+	// increments a counter for a particular responseCode
 	void LogRequest(int responseCode);
 
 	int TotalReponses();
@@ -21,6 +22,6 @@ private:
 
 // TODO: make this class should be thread safe since this will be shared
 // NOTE: this interface + threads = it is possible that total =/= sum of countByStatus, do we care?
-//    can fix this with a mutexed GetStatus
+//    can fix this with a mutexed GetStatus returning a snapshot struct of everything
 
 #endif // SERVER_STATUS_H
