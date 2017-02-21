@@ -2,10 +2,10 @@ CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
 BOOSTFLAG = -lboost_system -lboost_regex
-DEPS=server.h connection.h config_parser.h http_parser.h request_handler.h
-OBJ=server.o connection.o config_parser.o http_parser.o request_handler.o
+DEPS=server.h connection.h config_parser.h request.h request_handler.h echo_handler.h file_handler.h not_found_handler.h
+OBJ=server.o connection.o config_parser.o request.o echo_handler.o file_handler.o not_found_handler.o
 GTEST_DIR=googletest/googletest
-TESTS=config_parser_test connection_test server_test http_parser_test
+TESTS=config_parser_test connection_test server_test request_test echo_handler_test file_handler_test not_found_handler_test
 
 default: webserver
 
@@ -27,10 +27,7 @@ build-tests: $(TESTS)
 test: integration-test unit-test
 
 unit-test: build-tests
-	./config_parser_test
-	./connection_test
-	./server_test
-	./http_parser_test
+	for TEST in $(TESTS); do ./$$TEST ; done
 
 integration-test: webserver
 	./integration_tests.sh

@@ -1,13 +1,12 @@
-#include <iostream>
-#include <cstring>
+#include <string>
+#include <sstream>
 #include <fstream>
-#include <unordered_map>
-#include "connection.h"
+
 #include "request_handler.h"
+#include "file_handler.h"
 
-using boost::asio::ip::tcp;
 
-std::unordered_map<std::string,std::string> RequestHandler::content_mappings =
+std::unordered_map<std::string,std::string> FileHandler::content_mappings =
 {
 	{ "gif", "image/gif" },
 	{ "htm", "text/html" },
@@ -17,26 +16,21 @@ std::unordered_map<std::string,std::string> RequestHandler::content_mappings =
 	{ "png", "image/png" }
 };
 
-std::string RequestHandler::handle_echo(size_t bytes_transferred, char* data)
-{
-	//append headers setting response and content type, and echo back in body
-	std::string response_data = "";
-	response_data += "HTTP/1.1 200 OK\nContent-Type: text/plain\n";
-	response_data += "Content-Length: ";
-	response_data += std::to_string(bytes_transferred);
-	response_data += "\n\n";
-	response_data += data;
-	return response_data;
-}
+// Constructor to have directory
+FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
-std::string RequestHandler::handle_file_server(std::string file_path)
-{
+std::string FileHandler::HandleRequest(const Request& request) const
+{	
 	std::string response_data = "";
+
+	std::string full_path = request.uri();
+	std::size_t second_slash_pos = full_path.find("/", 1);
+	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);
 
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
-		std::cerr << "Could not find extension";
+		return generate_error("Unknown File");
 	}
 	else
 	{
@@ -45,7 +39,7 @@ std::string RequestHandler::handle_file_server(std::string file_path)
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
 		if (it == content_mappings.end())
 		{
-			std::cerr << "Extension not supported";
+			return generate_error("Extension not supported");
 		}
 		else
 		{
@@ -56,7 +50,7 @@ std::string RequestHandler::handle_file_server(std::string file_path)
 			if (infile.is_open())
 			{
 				int filesize = infile.tellg();
-				response_data += "HTTP/1.1 200 OK\nContent-Type: ";
+				response_data += "HTTP/1.1 200 OK\r\nContent-Type: ";
 				response_data += content_type;
 				response_data += "\r\n";
 				response_data += "Content-Length: ";
@@ -65,8 +59,7 @@ std::string RequestHandler::handle_file_server(std::string file_path)
 			}
 			else
 			{
-				std::cerr << "Unable to open file" << std::endl;
-				return response_data;
+				return generate_error("Unable to open file");
 			}
 
 			// reset back to beginning
@@ -79,6 +72,5 @@ std::string RequestHandler::handle_file_server(std::string file_path)
 		}
 	}
 	
-
 	return response_data;
 }

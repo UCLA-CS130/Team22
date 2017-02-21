@@ -1,24 +1,31 @@
 #ifndef REQUEST_HANDLER_H
 #define REQUEST_HANDLER_H
 
-#include <boost/asio.hpp>
 #include <string>
-#include <unordered_map>
-#include "connection.h"
-#include "config_parser.h"
+#include <list>
+#include <memory>
+#include "request.h"
 
-//class to handle requests
-class RequestHandler
-{
+class RequestHandler {
 public:
-	static std::string handle_echo(size_t bytes_transferred, char* data);
 
-	static std::string handle_file_server(std::string file_path);
+	// requestData is the full http request
+	// request is the parsed header
+	virtual std::string HandleRequest(const Request& request) const = 0;
 
-private:
-	enum { max_length = 8192 };
+	static std::string generate_error(std::string reason)
+	{
+		reason = "404 NOT FOUND\r\n" + reason;
+		std::stringstream error_ss;
+		error_ss << "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: " << reason.length() << "\r\n\r\n";
+		error_ss << reason;
 
-	static std::unordered_map<std::string,std::string> content_mappings;
+		return error_ss.str();
+	}
 };
+
+// list of k,v pairs, where k = path and v = pointer to request handler
+typedef std::list<std::pair<const std::string, std::unique_ptr<RequestHandler>>> HandlerContainer;
+typedef std::pair<const std::string, std::unique_ptr<RequestHandler>> HandlerPair;
 
 #endif // REQUEST_HANDLER_H

@@ -1,12 +1,14 @@
 #include <iostream>
 #include <cstring>
+#include <memory>
 #include <fstream>
 #include "connection.h"
 #include "request_handler.h"
+#include "request.h"
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service) : socket_(io_service)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers) : socket_(io_service), handlers_(handlers)
 {
 }
 
@@ -27,6 +29,29 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 {
 	if (!error)
 	{
+		std::string response;
+
+		// parse header
+		std::string data = std::string(data_, bytes_transferred);
+
+		auto request = Request::Parse(data);
+
+		// get the correct handler based on the header
+		const RequestHandler* handler = GetRequestHandler(request->uri());
+		
+		if (handler == nullptr) {
+			// TODO generalize, fit with the StaticFileHandler
+			response = RequestHandler::generate_error("Bad Path");
+		}
+		else {
+			// have the handler generate a response
+			response = handler->HandleRequest(*request);
+		}
+
+		// write out the response
+		write_response(response);
+
+		/*
 		// file server
 		//std::string data = RequestHandler::handle_file_server("static/kinkakuji.jpg");
 
@@ -34,6 +59,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		std::string data = RequestHandler::handle_echo(bytes_transferred, data_);
 
 		write_response(data);
+		*/
 	}
 	else
 	{
@@ -62,4 +88,21 @@ void Connection::close_socket(const boost::system::error_code& error)
   } else {
       delete this;
   }
+}
+
+const RequestHandler* Connection::GetRequestHandler(const std::string& path)
+{
+	// for each k,v pair
+	for (auto& handlerPair : *handlers_) {
+		std::size_t second_slash_pos = path.find("/", 1);
+		std::string search_path = path.substr(0, second_slash_pos);
+
+		// check if handler key (/echo) is at the beginning of the path
+		if (search_path.compare(handlerPair.first) == 0) {
+			// return the handler pointer
+			return handlerPair.second.get();
+		}
+	}
+
+	return nullptr;
 }
