@@ -11,29 +11,14 @@ using boost::asio::ip::tcp;
 
 Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config)
 {
-	//make sure parse succeeds in finding all relavant attributes
-	bool parse_status = out_config.ParseStatements();
-	if (!parse_status) {
-		return nullptr;
-	}
-
-	int port = out_config.GetPort();
-	
 	// generate request handlers
 	HandlerContainer *handlers = new HandlerContainer();
+	int port = 0;
 
-	// Populate echo paths
-	std::shared_ptr<std::vector<std::string>> echo_paths = out_config.GetEchoPaths();
-	for(auto echo_path : *echo_paths)
-	{
-		handlers->push_back(HandlerPair(echo_path, std::unique_ptr<RequestHandler>(new EchoHandler())));
-	}
-
-	// Populate file server paths
-	std::shared_ptr<std::map<std::string, std::string>> file_paths = out_config.GetFilePaths();
-	for(auto file_path : *file_paths)
-	{
-		handlers->push_back(HandlerPair(file_path.first, std::unique_ptr<RequestHandler>(new FileHandler(file_path.second))));
+	//make sure parse succeeds in finding all relavant attributes
+	bool parse_status = out_config.parse_config(&port, handlers);
+	if (!parse_status) {
+		return nullptr;
 	}
 
 	return new Server(io_service, port, handlers);
@@ -72,4 +57,58 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 	}
 
 	start_accept();
+}
+
+bool parse_config(int* const port, HandlerContainer* const handlers)
+{
+	//then look for keyword 'port' that indicates the specific port number.
+	//assert that port value must be found in server{...}
+	bool port_found = false;
+
+	for (auto statement : statements_) {
+		//catch port number OR default handler instantiations
+		if (statement->tokens_.size() == 2 ) {
+			//port
+			if (statement->tokens_[0] == "port") {
+				int parsed_port;
+				try {
+					parsed_port = std::stoi(statement->tokens_[1]);
+					*port = parsed_port;
+				}
+				catch (...) { // conversion error
+					return false;
+				}
+
+				//error check that port is in bounds, break if not
+				if (port <= 0 || port > 65535)
+					return false;
+				port_ = port;
+				port_found = true;
+			}
+
+			//default handler
+			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
+				default_handler->handler_name = statement->tokens_[1];
+				default_handler->child_block = statement->child_block_;
+			}
+		}
+		//generic handler instantiation
+		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
+			std::string uri = statement->tokens_[1];
+			std::shared_ptr<handler_options> options = std::make_shared<handler_options>();
+
+			options->handler_name = statement->tokens_[2];
+			options->child_block = statement->child_block_;
+
+			//prevent duplicate uri keys
+			if (handlers_map->find(uri) != handlers_map->end())
+				return false;
+
+			handlers_map->insert(std::make_pair(uri, options));
+		}
+	}
+	if(!port_found)
+		return false;
+
+	return true;
 }

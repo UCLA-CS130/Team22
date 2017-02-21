@@ -26,6 +26,9 @@ private:
 	//handle creating a new connection when a request comes in
 	void handle_accept(Connection* new_connection, const boost::system::error_code& error);
 
+	//parse the out_config to create handlers and find port
+	bool parse_config(int* const port, HandlerContainer* const handlers);
+
 	boost::asio::io_service& io_service_;
 	tcp::acceptor acceptor_;
 
