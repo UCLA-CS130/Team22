@@ -10,6 +10,8 @@
 
 class StatusHandler : public RequestHandler {
 public:
+	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
+
 	// This handler has special initialization because it uses shared data
 	void InitStatusHandler(const HandlerContainer*, const ServerStatus*);
 

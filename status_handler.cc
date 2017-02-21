@@ -1,6 +1,11 @@
 #include "status_handler.h"
 #include <sstream>
 
+RequestHandler::Status StatusHandler::Init(const std::string & uri_prefix, const NginxConfig & config)
+{
+	return RequestHandler::OK;
+}
+
 void StatusHandler::InitStatusHandler(const HandlerContainer* handlers, const ServerStatus* serverStatus)
 {
 	handlers_ = handlers;
