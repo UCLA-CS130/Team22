@@ -6,12 +6,17 @@
 #include "request_handler.h"
 #include "config_parser.h"
 #include "request.h"
+#include "server_status.h"
 
 class StatusHandler : public RequestHandler {
 public:
-	virtual Status HandleRequest(const Request& request, Response* response);
+	// This handler has special initialization because it uses shared data
+	void InitStatusHandler(const HandlerContainer*, const ServerStatus*);
+
+	RequestHandler::Status HandleRequest(const Request& request, Response* response);
 
 private:
+	const HandlerContainer* handlers_;
 	const ServerStatus* serverStatus_;
 };
 
