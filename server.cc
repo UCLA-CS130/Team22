@@ -19,6 +19,7 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 	bool parse_status = out_config.parse_config(&port, handlers);
 	if (!parse_status) {
 		return nullptr;
+
 	}
 
 	return new Server(io_service, port, handlers);
