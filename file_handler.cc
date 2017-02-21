@@ -5,9 +5,10 @@
 #include "file_handler.h"
 #include "response.h"
 #include "not_found_handler.h"
+#include "config_parser.h"
 
 
-std::unordered_map<std::string,std::string> FileHandler::content_mappings =
+std::unordered_map<std::string,std::string> content_mappings
 {
 	{ "gif", "image/gif" },
 	{ "htm", "text/html" },
@@ -20,8 +21,14 @@ std::unordered_map<std::string,std::string> FileHandler::content_mappings =
 // Constructor to have directory
 FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
+RequestHandler::Status FileHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
+{
+	return RequestHandler::OK;
+}
+
+
 RequestHandler::Status FileHandler::HandleRequest(const Request& request, Response* response) const
-{	
+{
 	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
 	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);

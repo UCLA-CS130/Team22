@@ -3,6 +3,13 @@
 #include "request_handler.h"
 #include "not_found_handler.h"
 #include "response.h"
+#include "config_parser.h"
+
+
+RequestHandler::Status NotFoundHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
+{
+	return RequestHandler::OK;
+}
 
 // Constructor to have reason
 NotFoundHandler::NotFoundHandler(const std::string& reason) : reason_(reason) {}

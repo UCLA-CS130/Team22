@@ -10,14 +10,12 @@
 
 class FileHandler : public RequestHandler {
 public:
+	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
 	FileHandler(const std::string& directory);
-	// data is the full http request
-	// request is the parsed request
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 private:
 	enum { max_length = 8192 };
-	static std::unordered_map<std::string,std::string> content_mappings;
 	std::string directory_;
 };
 
