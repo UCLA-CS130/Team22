@@ -95,7 +95,6 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 
 			//default handler
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
-				// shared_ptr so that handlers are automatically destructed
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
 
@@ -111,7 +110,6 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 		}
 		//generic handler instantiation
 		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
-			// shared_ptr so that handlers are automatically destructed
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
 
 			handler->Init(statement->tokens_[1], *(statement->child_block_).get());
