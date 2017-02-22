@@ -9,7 +9,7 @@ TEST(NotFoundHandlerTest, SimpleString) {
 	// generate header info from the request
 	auto request = Request::Parse(raw_req.c_str());
 	// create an echo handler
-	NotFoundHandler not_found_handler("");
+	NotFoundHandler not_found_handler;
 
 	Response response;
 	not_found_handler.HandleRequest(*request, &response);

@@ -10,11 +10,8 @@
 
 class NotFoundHandler : public RequestHandler {
 public:
-	NotFoundHandler(const std::string& reason);
+	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
-
-private:
-	std::string reason_;
 };
 
 

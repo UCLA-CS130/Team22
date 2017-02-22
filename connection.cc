@@ -40,10 +40,10 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 		// get the correct handler based on the header
 		const RequestHandler* handler = GetRequestHandler(request->uri());
-		
+
 		if (handler == nullptr) {
 			// TODO generalize, fit with the StaticFileHandler
-			NotFoundHandler not_found_handler("Bad Path");
+			NotFoundHandler not_found_handler;
 			not_found_handler.HandleRequest(*request, &response);
 		}
 		else {
@@ -109,7 +109,7 @@ const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 		// check if handler key (/echo) is at the beginning of the path
 		if (search_path.compare(handlerPair.first) == 0) {
 			// return the handler pointer
-			return handlerPair.second.get();
+			return handlerPair.second;
 		}
 	}
 

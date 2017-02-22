@@ -25,20 +25,6 @@ class NginxConfig {
  public:
 	std::string ToString(int depth = 0);
 	std::vector<std::shared_ptr<NginxConfigStatement>> statements_;
-    NginxConfig();
-	// performs a full scan, inefficient, change later for more config options
-	// return bool depending on success or not
-    bool ParseStatements();
-
-    //getters
-	int GetPort();
-    std::shared_ptr<std::vector<std::string>> GetEchoPaths();
-    std::shared_ptr<std::map<std::string, std::string>> GetFilePaths();
-
-private:
-    int port_;
-    std::shared_ptr<std::vector<std::string>> echo_paths_;
-    std::shared_ptr<std::map<std::string, std::string>> file_paths_;
 };
 
 // The driver that parses a config file and generates an NginxConfig.
