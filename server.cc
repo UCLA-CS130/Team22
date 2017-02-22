@@ -2,6 +2,7 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
+#include <map>
 #include "server.h"
 #include "config_parser.h"
 #include "echo_handler.h"
@@ -12,11 +13,11 @@ using boost::asio::ip::tcp;
 Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config)
 {
 	// generate request handlers
-	HandlerContainer *handlers = new HandlerContainer();
+	auto handlers = new HandlerContainer();
 	int port = 0;
 
 	//make sure parse succeeds in finding all relavant attributes
-	bool parse_status = out_config.parse_config(out_config, &port, handlers);
+	bool parse_status = parse_config(out_config, port, handlers);
 	if (!parse_status) {
 		return nullptr;
 
@@ -60,13 +61,14 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 	start_accept();
 }
 
-bool parse_config(const NginxConfig* const config, int* const port, HandlerContainer* const handlers)
+bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers)
 {
 	//then look for keyword 'port' that indicates the specific port number.
 	//assert that port value must be found in server{...}
+
 	bool port_found = false;
 
-	for (auto statement : config->statements_) {
+	for (auto statement : config.statements_) {
 		//catch port number OR default handler instantiations
 		if (statement->tokens_.size() == 2 ) {
 			//port
@@ -80,38 +82,51 @@ bool parse_config(const NginxConfig* const config, int* const port, HandlerConta
 				}
 
 				//error check that port is in bounds, break if not
-				if (port <= 0 || port > 65535)
+				if (parsed_port <= 0 || parsed_port > 65535)
+				{
 					return false;
+				}
 
-				*port = parsed_port;
+				port = parsed_port;
 				port_found = true;
 			}
 
 			//default handler
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
-				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1].c_str());
-				handler.Init("", statement->child_block_); //default handler to use "" as uri?
-				std::pair<std::map<char,int>::iterator, bool> insert_result = handlers -> insert(std::make_pair("", handler));
+				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
+				std::string empty_string = "";
+				handler->Init(empty_string, *(statement->child_block_).get()); //default handler to use "" as uri?
+				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
 
 				//default already exists
 				if (!insert_result.second)
+				{
 					return false;
+				}
 			}
 		}
 		//generic handler instantiation
 		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
-			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2].c_str());
-			handler.Init(statement->tokens_[1], statement->child_block_);
-			std::pair<std::map<char,int>::iterator, bool> insert_result = handlers -> insert(std::make_pair(statement->tokens_[1], handler));
+			std::cout << "TEST1" << std::endl;
+			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
+			std::cout << "TEST2" << std::endl;
+			handler->Init(statement->tokens_[1], *(statement->child_block_).get());
+			std::cout << "TEST3" << std::endl;
+			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
+			std::cout << "TEST4" << std::endl;
 
 			//prevent duplicate uri keys
 			if (!insert_result.second)
+			{
 				return false;
+			}
 
 		}
 	}
 	if(!port_found)
+	{
 		return false;
+	}
 
 	return true;
 }

@@ -109,7 +109,7 @@ const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 		// check if handler key (/echo) is at the beginning of the path
 		if (search_path.compare(handlerPair.first) == 0) {
 			// return the handler pointer
-			return handlerPair.second.get();
+			return handlerPair.second;
 		}
 	}
 
