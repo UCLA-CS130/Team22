@@ -2,18 +2,18 @@
 #define FILE_HANDLER_H
 
 #include <string>
-#include <memory>
 #include <unordered_map>
 #include "request_handler.h"
 #include "config_parser.h"
 #include "request.h"
+#include "response.h"
 
 class FileHandler : public RequestHandler {
 public:
 	FileHandler(const std::string& directory);
 	// data is the full http request
 	// request is the parsed request
-	virtual std::string HandleRequest(const Request& request) const;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 private:
 	enum { max_length = 8192 };

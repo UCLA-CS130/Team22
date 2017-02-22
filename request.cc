@@ -1,9 +1,9 @@
-#include "request.h"
 #include <string>
 #include <vector>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include "request.h"
 
 Request::Request(std::string raw_req) : raw_request_(raw_req) { }
 
