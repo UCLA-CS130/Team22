@@ -18,12 +18,18 @@ std::unordered_map<std::string,std::string> content_mappings
 	{ "png", "image/png" }
 };
 
-// Constructor to have directory
-FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
 RequestHandler::Status FileHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
-	return RequestHandler::OK;
+	for (auto statement : config.statements_) 
+	{
+		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "root")
+		{
+			directory_ = statement->tokens_[1];
+			return RequestHandler::OK;
+		}
+	}
+	return RequestHandler::ERROR;
 }
 
 

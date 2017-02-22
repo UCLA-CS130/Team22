@@ -11,7 +11,6 @@
 class FileHandler : public RequestHandler {
 public:
 	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
-	FileHandler(const std::string& directory);
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 private:
