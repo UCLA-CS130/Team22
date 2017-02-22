@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <fstream>
 
@@ -42,7 +43,8 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request, Respon
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
-		NotFoundHandler not_found_handler("Unknown File");
+		std::cerr << "Unknown File" << std::endl;
+		NotFoundHandler not_found_handler;
 		return not_found_handler.HandleRequest(request, response);
 	}
 	else
@@ -52,7 +54,8 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request, Respon
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
 		if (it == content_mappings.end())
 		{
-			NotFoundHandler not_found_handler("Extension not supported");
+			std::cerr << "Extension not supported" << std::endl;
+			NotFoundHandler not_found_handler;
 			return not_found_handler.HandleRequest(request, response);
 		}
 		else
@@ -70,7 +73,8 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request, Respon
 			}
 			else
 			{
-				NotFoundHandler not_found_handler("Unable to open file");
+				std::cerr << "Unable to open file" << std::endl;
+				NotFoundHandler not_found_handler;
 				return not_found_handler.HandleRequest(request, response);
 			}
 

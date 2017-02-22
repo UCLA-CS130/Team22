@@ -3,6 +3,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <map>
+#include <memory>
 #include "server.h"
 #include "config_parser.h"
 #include "echo_handler.h"
@@ -14,7 +15,7 @@ using boost::asio::ip::tcp;
 Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config)
 {
 	// generate request handlers
-	auto handlers = new HandlerContainer();
+	HandlerContainer* handlers = new HandlerContainer();
 	int port = 0;
 
 	//make sure parse succeeds in finding all relavant attributes
@@ -94,10 +95,12 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 
 			//default handler
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
-				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
+				// shared_ptr so that handlers are automatically destructed
+				std::shared_ptr<RequestHandler> handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
+				
 				handler->Init(empty_string, *(statement->child_block_).get()); //default handler to use "" as uri?
-				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
+				std::pair<std::map<std::string, std::shared_ptr<RequestHandler>>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
 
 				//default already exists
 				if (!insert_result.second)
@@ -108,26 +111,11 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 		}
 		//generic handler instantiation
 		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
-			RequestHandler* handler;
-			if(statement->tokens_[2] == "EchoHandler")
-			{
-				handler = new EchoHandler();
-			}
-			else if(statement->tokens_[2] == "StaticHandler")
-			{
-				handler = new FileHandler();
-			}
-			else if(statement->tokens_[2] == "NotFoundHandler")
-			{
-				handler = new NotFoundHandler("");
-			}
-			else
-			{
-				std::cerr << "Handler not found" << std::endl;
-				return false;
-			}
+			// shared_ptr so that handlers are automatically destructed
+			std::shared_ptr<RequestHandler> handler = RequestHandler::CreateByName(statement->tokens_[2]);
+			
 			handler->Init(statement->tokens_[1], *(statement->child_block_).get());
-			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
+			std::pair<std::map<std::string, std::shared_ptr<RequestHandler>>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
 
 			//prevent duplicate uri keys
 			if (!insert_result.second)

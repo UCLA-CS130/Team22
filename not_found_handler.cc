@@ -11,12 +11,9 @@ RequestHandler::Status NotFoundHandler::Init(const std::string& uri_prefix, cons
 	return RequestHandler::OK;
 }
 
-// Constructor to have reason
-NotFoundHandler::NotFoundHandler(const std::string& reason) : reason_(reason) {}
-
 RequestHandler::Status NotFoundHandler::HandleRequest(const Request& request, Response* response) const
 {
-	std::string reason = "404 NOT FOUND\r\n" + reason_;
+	std::string reason = "404 NOT FOUND\r\n";
 	
 	response->SetStatus(Response::not_found);
 	response->AddHeader("Content-Type", "text/html");

@@ -1,17 +1,36 @@
 #include <string>
 #include <map>
+#include <memory>
 
 #include "request_handler.h"
+#include "echo_handler.h"
+#include "file_handler.h"
+#include "not_found_handler.h"
 
 std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders = new std::map<std::string, RequestHandler* (*)(void)>();
 
-RequestHandler* RequestHandler::CreateByName(const std::string& type) {
-	std::cout << type << std::endl;
-	const auto type_and_builder = request_handler_builders->find(type);
-	std::cout << "TEST10" << std::endl;
-	if (type_and_builder == request_handler_builders->end()) {
-		std::cout << "TEST11" << std::endl;
+std::shared_ptr<RequestHandler> RequestHandler::CreateByName(const std::string& type) {
+	if(type == "EchoHandler")
+	{
+		return std::make_shared<EchoHandler>();
+	}
+	else if(type == "StaticHandler")
+	{
+		return std::make_shared<FileHandler>();
+	}
+	else if(type == "NotFoundHandler")
+	{
+		return std::make_shared<NotFoundHandler>();
+	}
+	else
+	{
+		std::cerr << "Handler not found" << std::endl;
 		return nullptr;
 	}
-	return (*type_and_builder->second)();
+
+	// const auto type_and_builder = request_handler_builders->find(type);
+	// if (type_and_builder == request_handler_builders->end()) {
+	// 	return nullptr;
+	// }
+	// return (*type_and_builder->second)();
 }
