@@ -7,6 +7,7 @@
 #include "config_parser.h"
 #include "echo_handler.h"
 #include "file_handler.h"
+#include "not_found_handler.h"
 
 using boost::asio::ip::tcp;
 
@@ -107,13 +108,26 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 		}
 		//generic handler instantiation
 		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
-			std::cout << "TEST1" << std::endl;
-			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
-			std::cout << "TEST2" << std::endl;
+			RequestHandler* handler;
+			if(statement->tokens_[2] == "EchoHandler")
+			{
+				handler = new EchoHandler();
+			}
+			else if(statement->tokens_[2] == "StaticHandler")
+			{
+				handler = new FileHandler();
+			}
+			else if(statement->tokens_[2] == "NotFoundHandler")
+			{
+				handler = new NotFoundHandler("");
+			}
+			else
+			{
+				std::cerr << "Handler not found" << std::endl;
+				return false;
+			}
 			handler->Init(statement->tokens_[1], *(statement->child_block_).get());
-			std::cout << "TEST3" << std::endl;
 			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
-			std::cout << "TEST4" << std::endl;
 
 			//prevent duplicate uri keys
 			if (!insert_result.second)

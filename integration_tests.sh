@@ -4,17 +4,17 @@ error_flag=0
 
 #test basic port listening
 printf "\ntesting simple port listen on 8080 in config...\n"
-printf "server {\n
-            listen 8080;\n
+printf "
+            port 8080;\n
             path /echo EchoHandler {}\n
             path /test EchoHandler {}\n
-            path /static StaticFileHandler {\n
+            path /static StaticHandler {\n
                 root static/;\n
             }\n
-            path /special StaticFileHandler {\n
+            path /special StaticHandler {\n
                 root static/more/;\n
             }\n
-        }" > config_temp;
+        " > config_temp;
 
 ./webserver config_temp &
 sleep 1
@@ -47,12 +47,12 @@ wait $! 2>/dev/null
 
 #testing invalid port number
 printf "\ntesting invalid port: port 100000...\n"
-printf "server {\n\tlisten 100000;\n}" > config_temp
+printf "port 100000;" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
 wait $! 2>/dev/null
 
-if cat temp_output | grep "invalid" > /dev/null; then
+if cat temp_output | grep "Error" > /dev/null; then
     printf "  --invalid port caught\n"
 else
     error_flag=1
@@ -67,12 +67,12 @@ rm temp_output
 #test invalid config syntax
 printf "\ntesting invalid config syntax: mismatched braces...\n"
 
-printf "server{ listen 8080\n echo_path /;\n file_path /static;" > config_temp
+printf "port 8080;\n path / EchoHandler {" > config_temp
 
 ./webserver config_temp > temp_output 2>&1 &
 sleep 1
 
-if cat temp_output | grep "Mismatched brackets" > /dev/null; then
+if cat temp_output | grep "Error parsing" > /dev/null; then
     printf "  --brace mismatch caught\n"
 else
     error_flag=1

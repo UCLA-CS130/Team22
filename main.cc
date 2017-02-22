@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 		auto server = std::auto_ptr<Server>(Server::MakeServer(io_service, out_config));
 		if(server.get() == nullptr)
 		{
-			std::cerr << "you fuked up\n";
+			std::cerr << "Error parsing server config\n";
 			return 1;
 		}
 
