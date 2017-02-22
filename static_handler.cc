@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include "request_handler.h"
-#include "file_handler.h"
+#include "static_handler.h"
 #include "response.h"
 #include "not_found_handler.h"
 #include "config_parser.h"
@@ -20,7 +20,7 @@ std::unordered_map<std::string,std::string> content_mappings
 };
 
 
-RequestHandler::Status FileHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
+RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
 	for (auto statement : config.statements_) 
 	{
@@ -34,7 +34,7 @@ RequestHandler::Status FileHandler::Init(const std::string& uri_prefix, const Ng
 }
 
 
-RequestHandler::Status FileHandler::HandleRequest(const Request& request, Response* response) const
+RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response) const
 {
 	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
