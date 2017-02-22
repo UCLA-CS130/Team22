@@ -12,8 +12,8 @@ default: webserver
 %.o: %.cc $(DEPS)
 	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $<
 
-webserver: $(OBJ)
-	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ main.cc $(BOOSTFLAG)
+webserver: main.cc $(OBJ)
+	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
 
 libgtest.a:
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
