@@ -14,7 +14,7 @@ printf "
             path /special StaticHandler {\n
                 root static/more/;\n
             }\n
-        " > config_temp;
+            default NotFoundHandler {}\n" > config_temp;
 
 ./webserver config_temp &
 sleep 1

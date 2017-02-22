@@ -10,3 +10,6 @@ path /static StaticHandler {
 path /special StaticHandler {
 	root static/more/;
 }
+
+# Default response handler if no handlers match.
+default NotFoundHandler {}
