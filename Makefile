@@ -5,22 +5,22 @@ BOOSTFLAG = -lboost_system -lboost_regex
 DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h file_handler.h not_found_handler.h
 OBJ=server.o connection.o config_parser.o request.o response.o echo_handler.o file_handler.o not_found_handler.o
 GTEST_DIR=googletest/googletest
-TESTS=config_parser_test connection_test server_test request_test echo_handler_test file_handler_test not_found_handler_test server_status_test
+TESTS=config_parser_test connection_test server_test request_test echo_handler_test file_handler_test not_found_handler_test
 
 default: webserver
 
 %.o: %.cc $(DEPS)
 	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $<
 
-webserver: $(OBJ)
-	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ main.cc $(BOOSTFLAG)
+webserver: $(OBJ) main.cc
+	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
 
 libgtest.a:
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
-%_test: libgtest.a $(OBJ)
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread $@.cc ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
+%_test: %_test.cc libgtest.a $(OBJ)
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
 	
 build-tests: $(TESTS)	
 	

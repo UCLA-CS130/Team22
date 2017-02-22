@@ -18,6 +18,19 @@ class Server
 public:
 	static Server* MakeServer(boost::asio::io_service& io_service, NginxConfig& out_config);
 
+	struct Status {
+		int port;
+		// std::chrono::duration<double> uptime_seconds;
+		std::map<std::string, int> requestCountByURL;
+		std::map<int, int> responseCountByCode;
+		std::list<std::string> requestHandlers;
+		// Open connections
+		// Last 10 requests
+	};
+	Status GetStatus();
+
+	void LogRequest(std::string url, int responseCode);
+
 private:
 	//private constructor for Server
 	Server(boost::asio::io_service& io_service, int port, HandlerContainer* handlers);
@@ -30,6 +43,9 @@ private:
 	tcp::acceptor acceptor_;
 
 	std::unique_ptr<HandlerContainer> requestHandlers_;
+	std::map<std::string, int> requestCountByURL_;
+	std::map<int, int> responseCountByCode_;
 };
+
 
 #endif // SERVER_H

@@ -73,3 +73,39 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 
 	start_accept();
 }
+
+void Server::LogRequest(std::string url, int responseCode)
+{
+	// if doesn't exist insert a 1
+	// pair<iterator,bool> insertPair
+	auto insertPair = responseCountByCode_.insert(std::make_pair(responseCode, 1));
+
+	// if already exists, increment
+	if (insertPair.second == false) {
+		// insertPair first is a pair<code,count> iterator
+		std::map<int, int>::iterator it = insertPair.first;
+		it->second++;
+	}
+
+	// the same thing with std::string url
+	auto insertPair2 = requestCountByURL_.insert(std::make_pair(url, 1));
+	if (insertPair2.second == false) {
+		auto it = insertPair2.first;
+		it->second++;
+	}
+}
+
+
+Server::Status Server::GetStatus()
+{
+	Status status;
+	status.port = acceptor_.local_endpoint().port();
+	status.requestCountByURL = requestCountByURL_;
+	status.responseCountByCode = responseCountByCode_;
+	for (auto& handlerPair : *requestHandlers_) {
+		status.requestHandlers.push_back(handlerPair.first);
+	}
+
+	return status;
+}
+
