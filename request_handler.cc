@@ -9,18 +9,18 @@
 
 std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders = new std::map<std::string, RequestHandler* (*)(void)>();
 
-std::shared_ptr<RequestHandler> RequestHandler::CreateByName(const std::string& type) {
+RequestHandler* RequestHandler::CreateByName(const std::string& type) {
 	if(type == "EchoHandler")
 	{
-		return std::make_shared<EchoHandler>();
+		return new EchoHandler();
 	}
 	else if(type == "StaticHandler")
 	{
-		return std::make_shared<FileHandler>();
+		return new FileHandler();
 	}
 	else if(type == "NotFoundHandler")
 	{
-		return std::make_shared<NotFoundHandler>();
+		return new NotFoundHandler();
 	}
 	else
 	{

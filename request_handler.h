@@ -22,7 +22,7 @@ public:
 	virtual Status Init(const std::string& uri_prefix, const NginxConfig& config) = 0;
 
 	// Creation Magic by name of handler as specified in config
-	static std::shared_ptr<RequestHandler> CreateByName(const std::string& type);
+	static RequestHandler* CreateByName(const std::string& type);
 
 	// Handles an HTTP request, and generates a response. Returns a response code
 	// indicating success or failure condition. If ResponseCode is not OK, the
@@ -32,7 +32,7 @@ public:
 };
 
 // map of k,v pairs, where k = path and v = pointer to request handler
-typedef std::map<const std::string, std::shared_ptr<RequestHandler>> HandlerContainer;
+typedef std::map<const std::string, RequestHandler*> HandlerContainer;
 
 // Notes:
 // * The trick here is that you can declare an object at file scope, but you

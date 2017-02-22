@@ -96,11 +96,11 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			//default handler
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				// shared_ptr so that handlers are automatically destructed
-				std::shared_ptr<RequestHandler> handler = RequestHandler::CreateByName(statement->tokens_[1]);
+				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
-				
+
 				handler->Init(empty_string, *(statement->child_block_).get()); //default handler to use "" as uri?
-				std::pair<std::map<std::string, std::shared_ptr<RequestHandler>>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
+				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
 
 				//default already exists
 				if (!insert_result.second)
@@ -112,10 +112,10 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 		//generic handler instantiation
 		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
 			// shared_ptr so that handlers are automatically destructed
-			std::shared_ptr<RequestHandler> handler = RequestHandler::CreateByName(statement->tokens_[2]);
-			
+			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
+
 			handler->Init(statement->tokens_[1], *(statement->child_block_).get());
-			std::pair<std::map<std::string, std::shared_ptr<RequestHandler>>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
+			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
 
 			//prevent duplicate uri keys
 			if (!insert_result.second)
