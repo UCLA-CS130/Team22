@@ -7,7 +7,7 @@
 #include "server.h"
 #include "config_parser.h"
 #include "echo_handler.h"
-#include "file_handler.h"
+#include "static_handler.h"
 #include "not_found_handler.h"
 
 using boost::asio::ip::tcp;
