@@ -106,10 +106,11 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
-
+				std::cout << "test1" << std::endl;
 				handler->Init(empty_string, *(statement->child_block_).get()); //default handler to use "" as uri?
+				std::cout << "test2" << std::endl;
 				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
-
+				std::cout << "test3" << std::endl;
 				//default already exists
 				if (!insert_result.second)
 				{
