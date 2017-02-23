@@ -9,6 +9,8 @@
 #include "echo_handler.h"
 #include "static_handler.h"
 #include "not_found_handler.h"
+#include "status_handler.h"
+
 
 using boost::asio::ip::tcp;
 
@@ -101,7 +103,7 @@ Server::Status Server::GetStatus()
 }
 
 
-bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers)
+bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers, Server* server)
 {
 	//then look for keyword 'port' that indicates the specific port number.
 	//assert that port value must be found in server{...}
@@ -157,6 +159,12 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			if (!insert_result.second)
 			{
 				return false;
+			}
+
+			// Special case initialization
+			if (statement->tokens_[2] == "StatusHandler") {
+				StatusHandler* statusHandler = dynamic_cast<StatusHandler*>(handler);
+				statusHandler->InitStatusHandler(server);
 			}
 
 		}

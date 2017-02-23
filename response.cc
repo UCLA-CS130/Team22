@@ -12,6 +12,7 @@ namespace status_string {
 
 void Response::SetStatus(const ResponseCode response_code)
 {
+	response_status_ = response_code;
 	switch(response_code)
 	{
 	case Response::ok:
@@ -34,6 +35,11 @@ void Response::AddHeader(const std::string& header_name, const std::string& head
 void Response::SetBody(const std::string& body)
 {
 	body_ = body;
+}
+
+ResponseCode Response::GetStatusCode() const
+{
+	return response_status_;
 }
 
 std::string Response::ToString() const

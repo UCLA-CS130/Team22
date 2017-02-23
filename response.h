@@ -27,10 +27,13 @@ public:
 	void AddHeader(const std::string& header_name, const std::string& header_value);
 	void SetBody(const std::string& body);
 
+	ResponseCode GetStatusCode() const;
+
 	std::string ToString() const;
 
 private:
 	std::vector<std::pair<std::string, std::string>> response_headers_;
+	ResponseCode response_status_;
 	std::string response_status_string_;
 	std::string body_;
 };

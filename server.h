@@ -41,7 +41,7 @@ private:
 	void handle_accept(Connection* new_connection, const boost::system::error_code& error);
 
 	//parse the out_config to create handlers and find port
-	static bool parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers);
+	static bool parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers, Server* server);
 
 	boost::asio::io_service& io_service_;
 	tcp::acceptor acceptor_;
@@ -50,7 +50,8 @@ private:
 	std::map<std::string, int> requestCountByURL_;
 	std::map<int, int> responseCountByCode_;
 	int totalRequests_ = 0;
-};
 
+	Status serverStatus_;
+};
 
 #endif // SERVER_H

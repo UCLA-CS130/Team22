@@ -12,7 +12,7 @@ using boost::asio::ip::tcp;
 class Connection
 {
 public:
-	Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers);
+	Connection(Server* server, boost::asio::io_service& io_service, const HandlerContainer* handlers);
 
 	tcp::socket& socket();
 
@@ -33,6 +33,7 @@ private:
 	enum { max_length = 8192 }; // 8KB max length
 	char data_[max_length];
 
+	Server* server_;
 	const HandlerContainer* handlers_;
 	std::string response_data_;
 };
