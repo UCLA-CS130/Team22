@@ -70,66 +70,6 @@ TEST_F(NginxStringConfigTest, ValidConfigs){
 	EXPECT_EQ(out_config.statements_[0]->tokens_.size(), 3);
 
 }
-/*
-//test that echo_path_ and file_path_ is populated properly
-TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
-	std::string config =
-	"server {"
-		"listen 8080;\n"
-		"path /echo EchoHandler;\n"
-		"path /echo2 EchoHandler;\n"
-		"path /static StaticHandler {\n"
-			"root static;\n"
-		"}\n"
-		"path /static2 StaticHandler {\n"
-			"root static2;\n"
-		"}\n"
-	"}\n";
-	ASSERT_TRUE(parseString(config));
-	ASSERT_TRUE(out_config.ParseStatements());
-
-	EXPECT_EQ(out_config.GetEchoPaths()->at(0), "/echo");
-	EXPECT_EQ(out_config.GetEchoPaths()->at(1), "/echo2");
-	EXPECT_EQ(out_config.GetFilePaths()->at("/static"), "static");
-	EXPECT_EQ(out_config.GetFilePaths()->at("/static2"), "static2");
-}
-
-
-TEST_F(NginxStringConfigTest, ConfigPathScan) {
-	//basic with staic and echo
-	ASSERT_TRUE(testParseStatements("server { listen 8080; path /echo2 EchoHandler; path /static StaticHandler {root static;}}"));
-	clear();
-
-	//no directory to map to /static: fail
-	ASSERT_FALSE(testParseStatements("server { listen 8080; path /static StaticHandler {no root;}}"));
-	clear();
-
-	//allowed to have no echo or root paths
-	ASSERT_TRUE(testParseStatements("server { listen 8080; }"));
-}
-
-// port test
-TEST_F(NginxStringConfigTest, ConfigPortScan){
-	ASSERT_TRUE(testParseStatements("server { listen 8080; }"));
-	EXPECT_EQ(out_config.GetPort(), 8080);
-	clear();
-
-	ASSERT_FALSE(testParseStatements("server { listen cats; }"));
-	clear();
-
-	ASSERT_FALSE(testParseStatements("server { listen; }"));
-	clear();
-
-	ASSERT_FALSE(testParseStatements("hey;"));
-	clear();
-
-	ASSERT_FALSE(testParseStatements("server { listen 65536; }"));
-	clear();
-
-	ASSERT_FALSE(testParseStatements("server { listen -1; }"));
-	clear();
-}
-*/
 
 // Tests ToString method that contains a block
 TEST(NginxConfigParserTest, ToStringBlock) {
