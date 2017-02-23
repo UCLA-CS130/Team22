@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <map>
 #include <memory>
+#include <boost/log/trivial.hpp>
+
 #include "server.h"
 #include "config_parser.h"
 #include "echo_handler.h"
@@ -21,9 +23,11 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 	int port = 0;
 	ServerStatus* serverStatus = new ServerStatus();
 
+	BOOST_LOG_TRIVIAL(trace) << "Scanning config for port and handlers...";
 	//make sure parse succeeds in finding all relavant attributes
 	bool parse_status = parse_config(out_config, port, handlers, serverStatus);
 	if (!parse_status) {
+		BOOST_LOG_TRIVIAL(fatal) << "Failed to extract keyword(s) from config.";
 		return nullptr;
 
 	}
@@ -47,12 +51,14 @@ Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* 
 	for (auto& handlerPair : *requestHandlers_) {
 		serverStatus_->sharedState_.requestHandlers_.push_back(handlerPair.first);
 	}
+	BOOST_LOG_TRIVIAL(info) << "Server constructed, listening on port " << port << "...";
 }
 
 void Server::start_accept()
 {
 	//create new connection for incoming request, send to handle_accept
 	Connection* new_connection = new Connection(io_service_, requestHandlers_.get(), serverStatus_.get());
+	BOOST_LOG_TRIVIAL(trace) << "New connection created...";
 	acceptor_.async_accept(new_connection->socket(),
 		boost::bind(&Server::handle_accept, this, new_connection,
 			boost::asio::placeholders::error));
@@ -63,10 +69,12 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 	//start the connection if no error, clean up otherwise. Go back to waiting at start_accept
 	if (!error)
 	{
+		BOOST_LOG_TRIVIAL(trace) << "starting new connection...";
 		new_connection->start();
 	}
 	else
 	{
+		BOOST_LOG_TRIVIAL(error) << "New connection failed to start.";
 		delete new_connection;
 	}
 
@@ -90,16 +98,20 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 					parsed_port = std::stoi(statement->tokens_[1]);
 				}
 				catch (...) { // conversion error
+					BOOST_LOG_TRIVIAL(fatal) << "Port number in config is not an integer.";
 					return false;
 				}
 
 				//error check that port is in bounds, break if not
 				if (parsed_port <= 0 || parsed_port > 65535)
 				{
+					BOOST_LOG_TRIVIAL(fatal) << "Port number in not in range [1, 65535].";
 					return false;
 				}
 
 				port = parsed_port;
+				BOOST_LOG_TRIVIAL(trace) << "Port found as " << port;
+
 				port_found = true;
 			}
 
@@ -107,15 +119,16 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
-
 				handler->Init(empty_string, *(statement->child_block_).get()); //default handler to use "" as uri?
 				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
-
 				//default already exists
 				if (!insert_result.second)
 				{
+					BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
 					return false;
 				}
+
+				BOOST_LOG_TRIVIAL(trace) << "Default handler found, called " << statement->tokens_[1];
 			}
 		}
 		//generic handler instantiation
@@ -128,6 +141,7 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			//prevent duplicate uri keys
 			if (!insert_result.second)
 			{
+				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
 				return false;
 			}
 
@@ -136,11 +150,13 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				StatusHandler* statusHandler = dynamic_cast<StatusHandler*>(handler);
 				statusHandler->InitStatusHandler(serverStatus);
 			}
+			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " to " << statement->tokens_[2];
 
 		}
 	}
 	if(!port_found)
 	{
+		BOOST_LOG_TRIVIAL(fatal) << "Port number failed to be parsed from config.";
 		return false;
 	}
 

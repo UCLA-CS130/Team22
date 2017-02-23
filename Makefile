@@ -1,16 +1,16 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
-BOOSTFLAG = -lboost_system -lboost_regex
+BOOSTFLAG = -DBOOST_LOG_DYN_LINK -lboost_system -lboost_regex -lboost_log -lboost_thread -lpthread -lboost_log_setup
 DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h static_handler.h not_found_handler.h status_handler.h
 OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o static_handler.o not_found_handler.o status_handler.o
 GTEST_DIR=googletest/googletest
-TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test status_handler_test
+TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test request_handler_test status_handler_test
 
 default: webserver
 
 %.o: %.cc $(DEPS)
-	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $<
+	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $< $(BOOSTFLAG)
 
 webserver: main.cc $(OBJ)
 	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)

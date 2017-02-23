@@ -7,6 +7,7 @@
 #include "not_found_handler.h"
 #include "request.h"
 #include "response.h"
+#include <boost/log/trivial.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -21,6 +22,7 @@ tcp::socket& Connection::socket()
 
 void Connection::start()
 {
+	BOOST_LOG_TRIVIAL(trace) << "======conection started==========";
 	socket_.async_read_some(boost::asio::buffer(data_, max_length),
 		boost::bind(&Connection::handle_request, this,
 			boost::asio::placeholders::error,
@@ -81,6 +83,8 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 std::string Connection::write_response(const Response& response)
 {
+	BOOST_LOG_TRIVIAL(trace) << "Writing response...";
+
 	response_data_ = response.ToString();
 	boost::asio::async_write(
 		socket_,
@@ -97,7 +101,9 @@ void Connection::close_socket(const boost::system::error_code& error)
 	if (!error) {
       socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
       socket_.close();
+	  BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
   } else {
+	  BOOST_LOG_TRIVIAL(error) << "error closing connection.";
       delete this;
   }
 }
