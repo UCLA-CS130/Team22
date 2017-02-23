@@ -14,6 +14,7 @@ path /static StaticHandler {
 path /special StaticHandler {
 	root static/more;
 }
+path /status StatusHandler {}
 
 # Default response handler if no handlers match.
 default NotFoundHandler {}

@@ -11,7 +11,7 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers) : socket_(io_service), handlers_(handlers)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) : socket_(io_service), handlers_(handlers), serverStatus_(serverStatus)
 {
 }
 
@@ -61,6 +61,9 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 		// write out the response
 		write_response(response);
+
+		if (serverStatus_) 
+			serverStatus_->LogRequest(request->uri(), response.GetStatusCode());
 
 		/*
 		// file server

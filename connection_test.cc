@@ -7,8 +7,9 @@
 
 TEST(ConnectionTest, SimpleString) {
 	boost::asio::io_service io_service;
-	HandlerContainer *handlers = new HandlerContainer();
-	Connection c = Connection(io_service, handlers);
+	std::unique_ptr<HandlerContainer> handlers(new HandlerContainer);
+	
+	Connection c = Connection(io_service, handlers.get(), NULL);
 
 	std::string body = "hello";
 
