@@ -15,15 +15,15 @@ public:
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 	// This handler has special initialization because it uses shared data
-	void InitStatusHandler(Server*);
+	void InitStatusHandler(ServerStatus*);
 
-	static std::string StatusToHtml(const Server::Status& status);
+	static std::string StatusToHtml(const ServerStatus::Snapshot& status);
 
 private:
 	template <typename A, typename B>
 	static void HttpPrintMap(std::stringstream& out, const std::map<A,B>& map);
 
-	Server* server_;
+	ServerStatus* serverStatus_;
 };
 
 REGISTER_REQUEST_HANDLER(StatusHandler);

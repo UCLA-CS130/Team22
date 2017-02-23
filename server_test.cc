@@ -38,17 +38,19 @@ TEST_F(MakeServerTest, MissingPortConfig) {
 	EXPECT_FALSE(parseConfigString(""));
 }
 
-TEST_F(MakeServerTest, SimpleStatusTest) {
-	std::unique_ptr<Server> server(parseConfigString("server { listen 4000;}"));
+TEST(ServerStatusTest, SimpleStatusTest) {
 
-	server->LogRequest("hello", 100);
-	server->LogRequest("world", 100);
-	server->LogRequest("world", 200);
+	ServerStatus serverStatus;
 
-	Server::Status status = server->GetStatus();
-	
+	serverStatus.LogRequest("hello", 100);
+	serverStatus.LogRequest("world", 100);
+	serverStatus.LogRequest("world", 200);
+
+	ServerStatus::Snapshot snapshot = serverStatus.GetSnapshot();
+	ASSERT_EQ(snapshot.totalRequests_, 3);
+
 	// check that the response code map is (100,2),(200,1)
-	auto& codeMap = status.responseCountByCode;
+	auto& codeMap = snapshot.responseCountByCode_;
 	ASSERT_EQ(codeMap.size(), 2);
 	auto it = codeMap.begin();
 	EXPECT_EQ(it->first, 100);
@@ -58,7 +60,7 @@ TEST_F(MakeServerTest, SimpleStatusTest) {
 	EXPECT_EQ(it->second, 1);
 
 	//// check that the url map is (hello,1),(world,2)
-	auto& urlMap = status.requestCountByURL;
+	auto& urlMap = snapshot.requestCountByURL_;
 	ASSERT_EQ(urlMap.size(), 2);
 	auto it2 = urlMap.begin();
 	EXPECT_EQ(it2->first, std::string("hello"));
@@ -67,5 +69,5 @@ TEST_F(MakeServerTest, SimpleStatusTest) {
 	EXPECT_EQ(it2->first, std::string("world"));
 	EXPECT_EQ(it2->second, 2);
 
-	EXPECT_EQ(status.port, 4000);
+	//EXPECT_EQ(status.port, 4000);
 }

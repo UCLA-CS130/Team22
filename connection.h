@@ -5,6 +5,9 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include "request_handler.h"
+#include "server.h"
+
+class ServerStatus;
 
 using boost::asio::ip::tcp;
 
@@ -12,7 +15,7 @@ using boost::asio::ip::tcp;
 class Connection
 {
 public:
-	Connection(Server* server, boost::asio::io_service& io_service, const HandlerContainer* handlers);
+	Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus);
 
 	tcp::socket& socket();
 
@@ -33,8 +36,8 @@ private:
 	enum { max_length = 8192 }; // 8KB max length
 	char data_[max_length];
 
-	Server* server_;
 	const HandlerContainer* handlers_;
+	ServerStatus* serverStatus_;
 	std::string response_data_;
 };
 

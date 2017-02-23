@@ -7,18 +7,18 @@ RequestHandler::Status StatusHandler::Init(const std::string & uri_prefix, const
 	return RequestHandler::OK;
 }
 
-void StatusHandler::InitStatusHandler(Server* server)
+void StatusHandler::InitStatusHandler(ServerStatus* serverStatus)
 {
-	server_ = server;
+	serverStatus_ = serverStatus;
 }
 
 RequestHandler::Status StatusHandler::HandleRequest(const Request & request, Response * response) const
 {
-	if (server_ == NULL) {
+	if (serverStatus_ == NULL) {
 		return RequestHandler::ERROR;
 	}
 
-	Server::Status status = server_->GetStatus();
+	ServerStatus::Snapshot status = serverStatus_->GetSnapshot();
 
 	std::string html = StatusToHtml(status);
 
@@ -30,7 +30,7 @@ RequestHandler::Status StatusHandler::HandleRequest(const Request & request, Res
 	return RequestHandler::OK;
 }
 
-std::string StatusHandler::StatusToHtml(const Server::Status& status)
+std::string StatusHandler::StatusToHtml(const ServerStatus::Snapshot& status)
 {
 	std::stringstream body;
 
@@ -41,20 +41,20 @@ std::string StatusHandler::StatusToHtml(const Server::Status& status)
 	body << "<title>Status Page</title>\n";
 	body << "<h1>Webserver Status Page</h1>\n";
 
-	body << "<h3>Webserver listening on port: " << status.port << "</h3>\n";
+	body << "<h3>Webserver listening on port: " << status.port_ << "</h3>\n";
 
-	body << "<h3>Total requests: " << status.totalRequests << "</h3>\n";
+	body << "<h3>Total requests: " << status.totalRequests_ << "</h3>\n";
 
 	body << "<h3>URL Request Counts</h3>\n";
-	HttpPrintMap(body, status.requestCountByURL);
+	HttpPrintMap(body, status.requestCountByURL_);
 
 	body << "<h3>Response Code Counts</h3>\n";
-	HttpPrintMap(body, status.responseCountByCode);
+	HttpPrintMap(body, status.responseCountByCode_);
 
 	// Print a list of handlers
 	body << "<h3>Handlers</h3>\n";
 	body << "<ul style = \"list-style-type:none\">\n";
-	for (auto& handlerName : status.requestHandlers) {
+	for (auto& handlerName : status.requestHandlers_) {
 		body << "<li>" << handlerName << "</li>\n";
 	}
 	body << "</ul>\n";

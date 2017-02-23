@@ -37,7 +37,7 @@ void Response::SetBody(const std::string& body)
 	body_ = body;
 }
 
-ResponseCode Response::GetStatusCode() const
+Response::ResponseCode Response::GetStatusCode() const
 {
 	return response_status_;
 }

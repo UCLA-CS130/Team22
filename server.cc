@@ -19,18 +19,19 @@ Server* Server::MakeServer(boost::asio::io_service& io_service, NginxConfig& out
 	// generate request handlers
 	HandlerContainer* handlers = new HandlerContainer();
 	int port = 0;
+	ServerStatus* serverStatus = new ServerStatus();
 
 	//make sure parse succeeds in finding all relavant attributes
-	bool parse_status = parse_config(out_config, port, handlers);
+	bool parse_status = parse_config(out_config, port, handlers, serverStatus);
 	if (!parse_status) {
 		return nullptr;
 
 	}
 
-	return new Server(io_service, port, handlers);
+	return new Server(io_service, port, handlers, serverStatus);
 }
 
-Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* handlers) : io_service_(io_service), acceptor_(io_service), requestHandlers_(handlers)
+Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* handlers, ServerStatus* serverStatus) : io_service_(io_service), acceptor_(io_service), requestHandlers_(handlers), serverStatus_(serverStatus)
 {
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	acceptor_.open(endpoint.protocol());
@@ -39,12 +40,19 @@ Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* 
 	acceptor_.listen();
 	start_accept();
 	std::cout << "Listening on port " << port << "..." << std::endl;
+
+	// initialize ServerStatus
+	serverStatus_->sharedState_.port_ = port;
+	serverStatus_->sharedState_.totalRequests_ = 0;
+	for (auto& handlerPair : *requestHandlers_) {
+		serverStatus_->sharedState_.requestHandlers_.push_back(handlerPair.first);
+	}
 }
 
 void Server::start_accept()
 {
 	//create new connection for incoming request, send to handle_accept
-	Connection* new_connection = new Connection(io_service_, requestHandlers_.get());
+	Connection* new_connection = new Connection(io_service_, requestHandlers_.get(), serverStatus_.get());
 	acceptor_.async_accept(new_connection->socket(),
 		boost::bind(&Server::handle_accept, this, new_connection,
 			boost::asio::placeholders::error));
@@ -65,45 +73,7 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 	start_accept();
 }
 
-void Server::LogRequest(std::string url, int responseCode)
-{
-	// if doesn't exist insert a 1
-	// pair<iterator,bool> insertPair
-	auto insertPair = responseCountByCode_.insert(std::make_pair(responseCode, 1));
-
-	// if already exists, increment
-	if (insertPair.second == false) {
-		// insertPair first is a pair<code,count> iterator
-		std::map<int, int>::iterator it = insertPair.first;
-		it->second++;
-	}
-
-	// the same thing with std::string url
-	auto insertPair2 = requestCountByURL_.insert(std::make_pair(url, 1));
-	if (insertPair2.second == false) {
-		auto it = insertPair2.first;
-		it->second++;
-	}
-
-	totalRequests_++;
-}
-
-
-Server::Status Server::GetStatus()
-{
-	Status status;
-	status.port = acceptor_.local_endpoint().port();
-	status.requestCountByURL = requestCountByURL_;
-	status.responseCountByCode = responseCountByCode_;
-	for (auto& handlerPair : *requestHandlers_) {
-		status.requestHandlers.push_back(handlerPair.first);
-	}
-
-	return status;
-}
-
-
-bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers, Server* server)
+bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer* const handlers, ServerStatus* serverStatus)
 {
 	//then look for keyword 'port' that indicates the specific port number.
 	//assert that port value must be found in server{...}
@@ -164,7 +134,7 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			// Special case initialization
 			if (statement->tokens_[2] == "StatusHandler") {
 				StatusHandler* statusHandler = dynamic_cast<StatusHandler*>(handler);
-				statusHandler->InitStatusHandler(server);
+				statusHandler->InitStatusHandler(serverStatus);
 			}
 
 		}
@@ -176,3 +146,31 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 
 	return true;
 }
+
+void ServerStatus::LogRequest(std::string url, int responseCode)
+{
+	// if doesn't exist insert a 1
+	// pair<iterator,bool> insertPair
+	auto insertPair = sharedState_.responseCountByCode_.insert(std::make_pair(responseCode, 1));
+
+	// if already exists, increment
+	if (insertPair.second == false) {
+		// insertPair first is a pair<code,count> iterator
+		std::map<int, int>::iterator it = insertPair.first;
+		it->second++;
+	}
+
+	// the same thing with std::string url
+	auto insertPair2 = sharedState_.requestCountByURL_.insert(std::make_pair(url, 1));
+	if (insertPair2.second == false) {
+		auto it = insertPair2.first;
+		it->second++;
+	}
+
+	sharedState_.totalRequests_++;
+}
+ServerStatus::Snapshot ServerStatus::GetSnapshot()
+{
+	return sharedState_;
+}
+
