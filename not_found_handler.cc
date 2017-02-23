@@ -3,13 +3,17 @@
 #include "request_handler.h"
 #include "not_found_handler.h"
 #include "response.h"
+#include "config_parser.h"
 
-// Constructor to have reason
-NotFoundHandler::NotFoundHandler(const std::string& reason) : reason_(reason) {}
+
+RequestHandler::Status NotFoundHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
+{
+	return RequestHandler::OK;
+}
 
 RequestHandler::Status NotFoundHandler::HandleRequest(const Request& request, Response* response) const
 {
-	std::string reason = "404 NOT FOUND\r\n" + reason_;
+	std::string reason = "404 NOT FOUND\r\n";
 	
 	response->SetStatus(Response::not_found);
 	response->AddHeader("Content-Type", "text/html");

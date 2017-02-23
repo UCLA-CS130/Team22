@@ -1,13 +1,15 @@
+#include <iostream>
 #include <string>
 #include <fstream>
 
 #include "request_handler.h"
-#include "file_handler.h"
+#include "static_handler.h"
 #include "response.h"
 #include "not_found_handler.h"
+#include "config_parser.h"
 
 
-std::unordered_map<std::string,std::string> FileHandler::content_mappings =
+std::unordered_map<std::string,std::string> content_mappings
 {
 	{ "gif", "image/gif" },
 	{ "htm", "text/html" },
@@ -17,11 +19,23 @@ std::unordered_map<std::string,std::string> FileHandler::content_mappings =
 	{ "png", "image/png" }
 };
 
-// Constructor to have directory
-FileHandler::FileHandler(const std::string& directory) : directory_(directory) {}
 
-RequestHandler::Status FileHandler::HandleRequest(const Request& request, Response* response) const
-{	
+RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
+{
+	for (auto statement : config.statements_) 
+	{
+		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "root")
+		{
+			directory_ = statement->tokens_[1];
+			return RequestHandler::OK;
+		}
+	}
+	return RequestHandler::ERROR;
+}
+
+
+RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response) const
+{
 	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
 	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);
@@ -29,7 +43,8 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request, Respon
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
-		NotFoundHandler not_found_handler("Unknown File");
+		std::cerr << "Unknown File" << std::endl;
+		NotFoundHandler not_found_handler;
 		return not_found_handler.HandleRequest(request, response);
 	}
 	else
@@ -39,7 +54,8 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request, Respon
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
 		if (it == content_mappings.end())
 		{
-			NotFoundHandler not_found_handler("Extension not supported");
+			std::cerr << "Extension not supported" << std::endl;
+			NotFoundHandler not_found_handler;
 			return not_found_handler.HandleRequest(request, response);
 		}
 		else
@@ -57,7 +73,8 @@ RequestHandler::Status FileHandler::HandleRequest(const Request& request, Respon
 			}
 			else
 			{
-				NotFoundHandler not_found_handler("Unable to open file");
+				std::cerr << "Unable to open file" << std::endl;
+				NotFoundHandler not_found_handler;
 				return not_found_handler.HandleRequest(request, response);
 			}
 

@@ -35,11 +35,6 @@ protected:
 		return parser.Parse(&config_stream, &out_config);
 	}
 
-	bool testParseStatements(const std::string config_string) {
-		parseString(config_string);
-		return out_config.ParseStatements();
-	}
-
 	bool clear(){
 		out_config = NginxConfig();
 	}
@@ -75,7 +70,7 @@ TEST_F(NginxStringConfigTest, ValidConfigs){
 	EXPECT_EQ(out_config.statements_[0]->tokens_.size(), 3);
 
 }
-
+/*
 //test that echo_path_ and file_path_ is populated properly
 TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 	std::string config =
@@ -83,10 +78,10 @@ TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 		"listen 8080;\n"
 		"path /echo EchoHandler;\n"
 		"path /echo2 EchoHandler;\n"
-		"path /static StaticFileHandler {\n"
+		"path /static StaticHandler {\n"
 			"root static;\n"
 		"}\n"
-		"path /static2 StaticFileHandler {\n"
+		"path /static2 StaticHandler {\n"
 			"root static2;\n"
 		"}\n"
 	"}\n";
@@ -102,11 +97,11 @@ TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 
 TEST_F(NginxStringConfigTest, ConfigPathScan) {
 	//basic with staic and echo
-	ASSERT_TRUE(testParseStatements("server { listen 8080; path /echo2 EchoHandler; path /static StaticFileHandler {root static;}}"));
+	ASSERT_TRUE(testParseStatements("server { listen 8080; path /echo2 EchoHandler; path /static StaticHandler {root static;}}"));
 	clear();
 
 	//no directory to map to /static: fail
-	ASSERT_FALSE(testParseStatements("server { listen 8080; path /static StaticFileHandler {no root;}}"));
+	ASSERT_FALSE(testParseStatements("server { listen 8080; path /static StaticHandler {no root;}}"));
 	clear();
 
 	//allowed to have no echo or root paths
@@ -134,7 +129,7 @@ TEST_F(NginxStringConfigTest, ConfigPortScan){
 	ASSERT_FALSE(testParseStatements("server { listen -1; }"));
 	clear();
 }
-
+*/
 
 // Tests ToString method that contains a block
 TEST(NginxConfigParserTest, ToStringBlock) {
