@@ -108,14 +108,12 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
-
 				if(handler->Init(empty_string, *(statement->child_block_).get()) == RequestHandler::ERROR)
 				{
 					BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for default";
 					return false;
 				}
 				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
-
 				//default already exists
 				if (!insert_result.second)
 				{
