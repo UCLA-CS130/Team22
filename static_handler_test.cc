@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "gtest/gtest.h"
+#include "request_handler.h"
 #include "static_handler.h"
 #include "request.h"
 #include "response.h"
@@ -22,14 +23,19 @@ protected:
 
 		// create an echo handler
 		StaticHandler staticHandler;
-		staticHandler.Init("static/", out_config);
-
-		Response response;
-		staticHandler.HandleRequest(*request, &response);
-		std::string response_string = response.ToString();
-		
-		int index = response_string.find("\r\n");
-		return response_string.substr(0, index);
+		if(staticHandler.Init("/static", out_config) == RequestHandler::OK)
+		{
+			Response response;
+			staticHandler.HandleRequest(*request, &response);
+			std::string response_string = response.ToString();
+			
+			int index = response_string.find("\r\n");
+			return response_string.substr(0, index);
+		}
+		else
+		{
+			return "";
+		}
 	}
 
 	NginxConfigParser parser;
@@ -52,10 +58,26 @@ TEST_F(StaticHandlerTest, Simple404Test) {
 	EXPECT_EQ(result, "HTTP/1.1 404 Not Found");
 }
 
+TEST_F(StaticHandlerTest, UnknownFileTest) {
+	parseString("root static/;");
+	std::string request_string = "GET /static/bad HTTP/1.1\r\n\r\n";
+	std::string result = runRequest(request_string);
+
+	EXPECT_EQ(result, "HTTP/1.1 404 Not Found");
+}
+
 TEST_F(StaticHandlerTest, UnsupportedTest) {
 	parseString("root static/;");
 	std::string request_string = "GET /static/static_handler.o HTTP/1.1\r\n\r\n";
 	std::string result = runRequest(request_string);
 
 	EXPECT_EQ(result, "HTTP/1.1 404 Not Found");
+}
+
+TEST_F(StaticHandlerTest, BadInit) {
+	parseString("");
+	std::string request_string = "GET /static/kinkakuji.jpg HTTP/1.1\r\n\r\n";
+	std::string result = runRequest(request_string);
+
+	EXPECT_EQ(result, "");
 }
