@@ -20,8 +20,13 @@ libgtest.a:
 	ar -rv libgtest.a gtest-all.o
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 %_test: libgtest.a %_test.cc $(OBJ)
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)
+=======
+%_test: libgtest.a $(OBJ)
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread $@.cc ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)
+>>>>>>> d20faa79c97a658895145185899a89d0807d1eb2
 =======
 %_test: libgtest.a $(OBJ)
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread $@.cc ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)
