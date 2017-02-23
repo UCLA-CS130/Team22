@@ -12,8 +12,10 @@ class EchoHandler : public RequestHandler {
 public:
 	virtual RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
-	
+
 };
+
+REGISTER_REQUEST_HANDLER(EchoHandler);
 
 
 #endif // ECHO_HANDLER_H

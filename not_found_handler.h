@@ -14,5 +14,6 @@ public:
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 };
 
+REGISTER_REQUEST_HANDLER(NotFoundHandler);
 
 #endif // NOT_FOUND_HANDLER_H

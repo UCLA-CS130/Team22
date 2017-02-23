@@ -42,7 +42,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		const RequestHandler* handler = GetRequestHandler(request->uri());
 
 		if (handler == nullptr) {
-			// TODO generalize, fit with the StaticFileHandler
+			// TODO generalize, fit with the StaticHandler
 			NotFoundHandler not_found_handler;
 			not_found_handler.HandleRequest(*request, &response);
 		}

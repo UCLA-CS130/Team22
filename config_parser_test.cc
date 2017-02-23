@@ -78,10 +78,10 @@ TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 		"listen 8080;\n"
 		"path /echo EchoHandler;\n"
 		"path /echo2 EchoHandler;\n"
-		"path /static StaticFileHandler {\n"
+		"path /static StaticHandler {\n"
 			"root static;\n"
 		"}\n"
-		"path /static2 StaticFileHandler {\n"
+		"path /static2 StaticHandler {\n"
 			"root static2;\n"
 		"}\n"
 	"}\n";
@@ -97,11 +97,11 @@ TEST_F(NginxStringConfigTest, ValidConfigsWithPaths) {
 
 TEST_F(NginxStringConfigTest, ConfigPathScan) {
 	//basic with staic and echo
-	ASSERT_TRUE(testParseStatements("server { listen 8080; path /echo2 EchoHandler; path /static StaticFileHandler {root static;}}"));
+	ASSERT_TRUE(testParseStatements("server { listen 8080; path /echo2 EchoHandler; path /static StaticHandler {root static;}}"));
 	clear();
 
 	//no directory to map to /static: fail
-	ASSERT_FALSE(testParseStatements("server { listen 8080; path /static StaticFileHandler {no root;}}"));
+	ASSERT_FALSE(testParseStatements("server { listen 8080; path /static StaticHandler {no root;}}"));
 	clear();
 
 	//allowed to have no echo or root paths

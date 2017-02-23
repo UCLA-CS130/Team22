@@ -2,10 +2,10 @@ CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
 BOOSTFLAG = -DBOOST_LOG_DYN_LINK -lboost_system -lboost_regex -lboost_log -lboost_thread -lpthread -lboost_log_setup
-DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h file_handler.h not_found_handler.h
-OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o file_handler.o not_found_handler.o
+DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h static_handler.h not_found_handler.h
+OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o static_handler.o not_found_handler.o
 GTEST_DIR=googletest/googletest
-TESTS=config_parser_test connection_test server_test request_test echo_handler_test file_handler_test not_found_handler_test
+TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test
 
 default: webserver
 
@@ -19,8 +19,13 @@ libgtest.a:
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
+<<<<<<< HEAD
 %_test: libgtest.a %_test.cc $(OBJ)
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)
+=======
+%_test: libgtest.a $(OBJ)
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread $@.cc ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)
+>>>>>>> d20faa79c97a658895145185899a89d0807d1eb2
 
 build-tests: $(TESTS)
 
