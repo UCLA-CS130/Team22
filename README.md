@@ -40,3 +40,4 @@ The server can be accessed with any method that can work over HTTP such as the f
 * `echo_handler.cc`: A class which inherits from RequestHandler to echo back the request as a response
 * `static_handler.cc`: A class which inherits from RequestHandler to serve up a static file from a directory on the server
 * `not_found_handler.cc`: A class which inherits from RequestHandler to serve a 404 error page
+* `status_handler.cc`: A class which inherits from RequestHandler to show statistics and status of server
