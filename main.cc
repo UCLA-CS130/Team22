@@ -7,7 +7,6 @@
 
 int main(int argc, char* argv[])
 {
-	BOOST_LOG_TRIVIAL(info) << "Starting up the server...";
 	try
 	{
 		//expect command to be './webserver config' or './webserver config -d'
@@ -20,8 +19,13 @@ int main(int argc, char* argv[])
 		//logging level is everything by default
 		if(argc == 3)
 		{
-			if(std::string(argv[2]) != "-d")
+			if(std::string(argv[2]) == "-d")
+				boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
+			else if(std::string(argv[2]) == "-s")
+				boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::error);
+			else
 				BOOST_LOG_TRIVIAL(warning) << "flag not recognized, ignoring flag.";
+
 
 		}
 
@@ -29,6 +33,7 @@ int main(int argc, char* argv[])
 		if(argc == 2)
 			boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 
+		BOOST_LOG_TRIVIAL(info) << "Starting up the server...";
 		NginxConfigParser parser;
 		NginxConfig out_config;
 		if (!parser.Parse(argv[1], &out_config)) {

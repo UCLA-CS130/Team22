@@ -16,6 +16,7 @@ public:
 private:
 	enum { max_length = 8192 };
 	std::string directory_;
+	std::string prefix_;
 };
 
 REGISTER_REQUEST_HANDLER(StaticHandler);
