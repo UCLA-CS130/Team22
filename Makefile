@@ -5,7 +5,7 @@ BOOSTFLAG = -lboost_system -lboost_regex
 DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h static_handler.h not_found_handler.h
 OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o static_handler.o not_found_handler.o
 GTEST_DIR=googletest/googletest
-TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test
+TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test request_handler_test
 
 default: webserver
 
