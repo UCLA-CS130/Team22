@@ -22,6 +22,8 @@ std::unordered_map<std::string,std::string> content_mappings
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
+	prefix_ = uri_prefix;
+
 	for (auto statement : config.statements_)
 	{
 		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "root")
@@ -30,6 +32,8 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const 
 			return RequestHandler::OK;
 		}
 	}
+
+	BOOST_LOG_TRIVIAL(error) << "root not specified in static handler for " << uri_prefix;
 	return RequestHandler::ERROR;
 }
 
@@ -39,14 +43,15 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
 
 	std::string full_path = request.uri();
-	std::size_t second_slash_pos = full_path.find("/", 1);
-	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);
+	BOOST_LOG_TRIVIAL(info) << "Full path: " << full_path;
+	BOOST_LOG_TRIVIAL(info) << "Prefix: " << prefix_;
+	std::string file_path = directory_ + full_path.substr(prefix_.length()); // get file path relative to server
 
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
-		BOOST_LOG_TRIVIAL(error) << "Unknown file.";
-;
+		BOOST_LOG_TRIVIAL(error) << "Unknown file: " << file_path;
+
 		NotFoundHandler not_found_handler;
 		return not_found_handler.HandleRequest(request, response);
 	}
@@ -57,7 +62,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
 		if (it == content_mappings.end())
 		{
-			BOOST_LOG_TRIVIAL(error) << "Extension not supported.";
+			BOOST_LOG_TRIVIAL(error) << "Extension not supported: " << file_extension;
 			NotFoundHandler not_found_handler;
 			return not_found_handler.HandleRequest(request, response);
 		}
@@ -76,7 +81,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			}
 			else
 			{
-				BOOST_LOG_TRIVIAL(error) << "Unable to open file";
+				BOOST_LOG_TRIVIAL(error) << "Unable to open file: " << file_path;
 				NotFoundHandler not_found_handler;
 				return not_found_handler.HandleRequest(request, response);
 			}

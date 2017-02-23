@@ -43,7 +43,7 @@ TEST_F(MakeServerTest, MissingPortConfig) {
 }
 //test handler population is working
 TEST_F(MakeServerTest, ValidHandlers) {
-    Server* s = parseConfigString("port 8080; path /static StaticHandler {} path /echo EchoHandler {}");
+    Server* s = parseConfigString("port 8080; path /static StaticHandler { root static; } path /echo EchoHandler {}");
     ASSERT_TRUE(s);
     delete s;
 
@@ -54,6 +54,6 @@ TEST_F(MakeServerTest, ValidHandlers) {
 
 //test duplicate URIs
 TEST_F(MakeServerTest, DuplicateURIs) {
-    EXPECT_FALSE(parseConfigString("port 8080; path /test StaticHandler {} path /test EchoHandler {}"));
+    EXPECT_FALSE(parseConfigString("port 8080; path /test StaticHandler { root static; } path /test EchoHandler {}"));
     EXPECT_FALSE(parseConfigString("port 8080; default NotFoundHandler {} default AnotherNotFoundHandler {}"));
 }
