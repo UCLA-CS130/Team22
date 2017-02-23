@@ -15,20 +15,23 @@ Connection::Connection(boost::asio::io_service& io_service, const HandlerContain
 {
 }
 
+// creates the socket
 tcp::socket& Connection::socket()
 {
 	return socket_;
 }
 
+// starts the connection and begins async_read_some
 void Connection::start()
 {
-	BOOST_LOG_TRIVIAL(trace) << "======conection started==========";
+	BOOST_LOG_TRIVIAL(trace) << "======connection started==========";
 	socket_.async_read_some(boost::asio::buffer(data_, max_length),
 		boost::bind(&Connection::handle_request, this,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
 }
 
+// handles an incoming request, gets the proper handler, and writes the response
 void Connection::handle_request(const boost::system::error_code& error, size_t bytes_transferred)
 {
 	if (!error)
@@ -64,16 +67,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 		if (serverStatus_) 
 			serverStatus_->LogRequest(request->uri(), response.GetStatusCode());
-
-		/*
-		// file server
-		//std::string data = RequestHandler::handle_file_server("static/kinkakuji.jpg");
-
-		// echo server
-		std::string data = RequestHandler::handle_echo(bytes_transferred, data_);
-
-		write_response(data);
-		*/
 	}
 	else
 	{
@@ -81,6 +74,8 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	}
 }
 
+// writes the response from Response object
+// returns the data that was written
 std::string Connection::write_response(const Response& response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Writing response...";
@@ -108,6 +103,7 @@ void Connection::close_socket(const boost::system::error_code& error)
   }
 }
 
+// returns a request handler if it was defined in the config, otherwise returns nullptr
 const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
 	//exact match
@@ -124,6 +120,7 @@ const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 	return nullptr;
 }
 
+// gets longest matching prefix
 std::string Connection::get_prefix(const std::string uri)
 {
 	std::string longest = "";

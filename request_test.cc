@@ -1,14 +1,6 @@
 #include "gtest/gtest.h"
 #include "request.h"
-/*
-class RequestTest : public ::testing:Test {
-protected:
-    Request* ParseRequest(const std::string req)
-    {
-        return Request::Parse(req);
-    }
-}
-*/
+
 
 TEST(RequestTest, SimpleRequest) {
     auto request = Request::Parse("GET /hello.htm HTTP/1.1\r\n\r\n");

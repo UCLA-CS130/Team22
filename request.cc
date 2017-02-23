@@ -21,36 +21,43 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_req)
     }
 }
 
+// returns the request as a string
 std::string Request::raw_request() const
 {
     return raw_request_;
 }
 
+// returns the method of the request (e.g. GET, POST)
 std::string Request::method() const
 {
     return method_;
 }
 
+// returns the uri of the request
 std::string Request::uri() const
 {
     return path_;
 }
 
+// returns the version of the request
 std::string Request::version() const
 {
     return version_;
 }
 
+// returns all of the headers of the request in a vector of paired strings
 Headers Request::headers() const
 {
     return fields_;
 }
 
+// returns the body of the request
 std::string Request::body() const
 {
     return body_;
 }
 
+//parse the first line of the request, involving GET, POST, etc
 bool Request::parse_first_line(const std::string& line)
 {
     std::vector<std::string> tokens;
@@ -70,6 +77,7 @@ bool Request::parse_first_line(const std::string& line)
     return true;
 }
 
+//parse the entire raw request and update the private member variables
 bool Request::parse_raw_request(const std::string& req){
     BOOST_LOG_TRIVIAL(trace) << "Parsing raw request text...";
     std::vector<std::string> lines;

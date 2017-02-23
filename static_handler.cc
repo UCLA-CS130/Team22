@@ -22,6 +22,7 @@ std::unordered_map<std::string,std::string> content_mappings
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
+	// initialiing uri prefix and directory
 	prefix_ = uri_prefix;
 
 	for (auto statement : config.statements_)
@@ -45,6 +46,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	std::string full_path = request.uri();
 	std::string file_path = directory_ + full_path.substr(prefix_.length()); // get file path relative to server
 
+	// Make sure extension exists
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
@@ -55,6 +57,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	}
 	else
 	{
+		// Check for how to serve extension
 		std::string file_extension = file_path.substr(last_dot_pos + 1);
 
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
@@ -66,6 +69,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 		}
 		else
 		{
+			// Set content type and find content length, then read file and place in response
 			std::string content_type = it->second;
 
 			std::string line;

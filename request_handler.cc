@@ -9,6 +9,7 @@
 
 std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders = new std::map<std::string, RequestHandler* (*)(void)>();
 
+// Creation Magic to find handler creation given the string of the class name
 RequestHandler* RequestHandler::CreateByName(const std::string& type) {
 	const auto type_and_builder = request_handler_builders->find(type);
 	if (type_and_builder == request_handler_builders->end()) {

@@ -11,6 +11,7 @@ namespace status_string {
 	const std::string internal_server_error = "HTTP/1.1 500 Internal Server Error\r\n";
 }
 
+// Sets the response status and status string accordingly
 void Response::SetStatus(const ResponseCode response_code)
 {
 	response_status_ = response_code;
@@ -28,21 +29,25 @@ void Response::SetStatus(const ResponseCode response_code)
 	}
 }
 
+// Adds a header to HTTP response
 void Response::AddHeader(const std::string& header_name, const std::string& header_value)
 {
 	response_headers_.push_back(std::make_pair(header_name, header_value));
 }
 
+// Sets body of the response
 void Response::SetBody(const std::string& body)
 {
 	body_ = body;
 }
 
+// Returns the response status
 Response::ResponseCode Response::GetStatusCode() const
 {
 	return response_status_;
 }
 
+// Converts Response object to a string
 std::string Response::ToString() const
 {
 	std::stringstream ss;

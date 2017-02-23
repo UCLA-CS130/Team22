@@ -23,12 +23,19 @@ public:
         internal_server_error = 500
 	};
 
+	// sets status code of HTTP response
 	void SetStatus(const ResponseCode response_code);
+
+	// adds a header to the HTTP response
 	void AddHeader(const std::string& header_name, const std::string& header_value);
+
+	// sets the body of the HTTP response
 	void SetBody(const std::string& body);
 
+	// get the status code that was given back
 	ResponseCode GetStatusCode() const;
 
+	// convert response to a string
 	std::string ToString() const;
 
 private:
