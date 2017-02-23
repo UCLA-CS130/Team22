@@ -1,6 +1,7 @@
 # Team22 - CS130 Web Server
 **Members: Justin Teo, Kevin Zhu, David Stephan**
-Simple web server implementation.
+
+## Simple web server implementation.
 
 ### Usage
 To properly clone repository to own maching, run the following command:
