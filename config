@@ -4,7 +4,7 @@ port 8080;
 
 path /echo EchoHandler {}
 path /test EchoHandler {}
-path /static StaticHandler {
+path /static/yes StaticHandler {
 	root static/;
 }
 path /special StaticHandler {

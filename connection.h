@@ -28,6 +28,7 @@ private:
 
 	// returns a request handler if it was defined in the config, otherwise returns NULL
 	const RequestHandler* GetRequestHandler(const std::string & path);
+	std::string get_prefix(const std::string uri);
 
 	tcp::socket socket_;
 	enum { max_length = 8192 }; // 8KB max length

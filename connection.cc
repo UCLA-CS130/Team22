@@ -107,17 +107,34 @@ void Connection::close_socket(const boost::system::error_code& error)
 
 const RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
-	// for each k,v pair
-	for (auto& handlerPair : *handlers_) {
-		std::size_t second_slash_pos = path.find("/", 1);
-		std::string search_path = path.substr(0, second_slash_pos);
+	//exact match
+	std::map<const std::string, RequestHandler*>::const_iterator match = handlers_->find(path);
+	if(match != handlers_->end())
+		return match->second;
 
-		// check if handler key (/echo) is at the beginning of the path
-		if (search_path.compare(handlerPair.first) == 0) {
-			// return the handler pointer
-			return handlerPair.second;
-		}
-	}
+	//longest prefix match
+	std::string prefix = get_prefix(path);
+	match = handlers_->find(prefix);
+	if(match != handlers_->end())
+		return match->second;
 
 	return nullptr;
+}
+
+std::string Connection::get_prefix(const std::string uri)
+{
+	std::string longest = "";
+	size_t index = uri.find_last_of("/");
+	std::string prefix = uri.substr(0, index);
+
+	for (auto& handlerPair : *handlers_)
+	{
+		std::string uri_key = handlerPair.first;
+
+		//uri_key is within this prefix
+		if(prefix.find(uri_key) == 0 && uri_key.length() > longest.length())
+			longest = uri_key;
+	}
+
+	return longest;
 }
