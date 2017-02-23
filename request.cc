@@ -3,6 +3,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include <boost/log/trivial.hpp>
 #include "request.h"
 
 Request::Request(std::string raw_req) : raw_request_(raw_req) { }
@@ -54,7 +55,7 @@ bool Request::parse_first_line(const std::string& line)
 {
     std::vector<std::string> tokens;
     boost::split(tokens, line, boost::is_any_of(" "));
-    
+
     unsigned int expected_num_of_tokens = 3;
     if(tokens.size() != expected_num_of_tokens)
         return false;
@@ -70,6 +71,7 @@ bool Request::parse_first_line(const std::string& line)
 }
 
 bool Request::parse_raw_request(const std::string& req){
+    BOOST_LOG_TRIVIAL(trace) << "Parsing raw request text...";
     std::vector<std::string> lines;
 
     //separate the request body, denoted by \r\n\r\n.
@@ -77,8 +79,10 @@ bool Request::parse_raw_request(const std::string& req){
     size_t end_fields_index = req.find("\r\n\r\n");
 
     if(end_fields_index == std::string::npos)
+    {
+        BOOST_LOG_TRIVIAL(error) << "error in raw request: couldn't find the end of the request fields preceding request body";
         return false;
-
+    }
     size_t begin_body_index = end_fields_index + 4; //Add 4 to skip to the body.
     if(begin_body_index < req.size())
         body_ = req.substr(begin_body_index, req.size() - begin_body_index - 2); //minus 2 to ignore the last \r\n
@@ -97,15 +101,19 @@ bool Request::parse_raw_request(const std::string& req){
 
     //parse the method and path separately, return 0 if it fails
     if(!parse_first_line(lines[0]))
+    {
+        BOOST_LOG_TRIVIAL(error) << "error in raw request format: first line not exactly 3 tokens or uses something other than GET or POST";
         return false;
-
+    }
     //populate the map with the fields
     for(unsigned int i = 1; i < lines.size(); ++i)
     {
         std::size_t index = lines[i].find(": ");
         if(index == std::string::npos)
+        {
+            BOOST_LOG_TRIVIAL(error) << "error in raw request format: field line doesn't contain a colon character";
             return false;
-
+        }
         std::string key = lines[i].substr(0, index);
         std::string value = lines[i].substr(index+2); //add 2 to skip the ": "
 
