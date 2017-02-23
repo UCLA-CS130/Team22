@@ -9,7 +9,9 @@ Run server using:
 $ make
 $ ./webserver config
 ```
-The server runs by default on an info logging level, but the option `-d` can be specified to run in debugging mode which prints out all debugging statements.
+The server runs by default on an info logging level, but the following options can specify the severity level to print:
+* `-d` debugging mode which prints out all statements including trace and debugging
+* `-s` surpress mode which prevents all logging statements
 
 The server can be accessed with any method that can work over HTTP such as the following:
 * Use your browser to view the page: `http://localhost:8080/`
