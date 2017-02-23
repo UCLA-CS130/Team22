@@ -3,7 +3,12 @@
 Simple web server implementation.
 
 ### Usage
-Edit `config` to specify the port for the server to run on along with handlers that are supported.
+To properly clone repository to own maching, run the following command:
+```
+git clone --recursive https://github.com/UCLA-CS130/Team22.git
+```
+Edit `config` file to specify the port for the server to run on along with handlers that are supported.
+
 Run server using:
 ```
 $ make
