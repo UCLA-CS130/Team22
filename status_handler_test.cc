@@ -25,18 +25,18 @@ protected:
 TEST(StatusHandlerTest, SimpleTest) {
 	using namespace std;
 
-	Server::Status status;
-	status.port = 1234;
-	status.requestCountByURL = {
+	ServerStatus::Snapshot status;
+	status.port_ = 1234;
+	status.requestCountByURL_ = {
 		{"url1", 200},
 		{"url2", 45},
 	};
-	status.responseCountByCode = {
+	status.responseCountByCode_ = {
 		{200, 100140},
 		{404, 6}
 	};
-	status.requestHandlers = { "one", "two", "three" };
-	status.totalRequests = 140;
+	status.requestHandlers_ = { "one", "two", "three" };
+	status.totalRequests_ = 140;
 
 	std::string html = StatusHandler::StatusToHtml(status);
 	std::cout << html;

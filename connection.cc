@@ -60,7 +60,8 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		// write out the response
 		write_response(response);
 
-		serverStatus_->LogRequest(request->uri(), response.GetStatusCode());
+		if (serverStatus_) 
+			serverStatus_->LogRequest(request->uri(), response.GetStatusCode());
 
 		/*
 		// file server
