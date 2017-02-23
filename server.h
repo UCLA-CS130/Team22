@@ -21,6 +21,7 @@ public:
 	struct Status {
 		int port;
 		// std::chrono::duration<double> uptime_seconds;
+		int totalRequests;
 		std::map<std::string, int> requestCountByURL;
 		std::map<int, int> responseCountByCode;
 		std::list<std::string> requestHandlers;
@@ -48,6 +49,7 @@ private:
 	std::unique_ptr<HandlerContainer> requestHandlers_;
 	std::map<std::string, int> requestCountByURL_;
 	std::map<int, int> responseCountByCode_;
+	int totalRequests_ = 0;
 };
 
 

@@ -82,6 +82,8 @@ void Server::LogRequest(std::string url, int responseCode)
 		auto it = insertPair2.first;
 		it->second++;
 	}
+
+	totalRequests_++;
 }
 
 

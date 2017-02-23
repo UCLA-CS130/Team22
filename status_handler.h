@@ -2,26 +2,40 @@
 #define STATUS_HANDLER_H
 
 #include <string>
+#include <sstream>
 
 #include "request_handler.h"
 #include "config_parser.h"
 #include "request.h"
-#include "server_status.h"
+#include "server.h"
 
 class StatusHandler : public RequestHandler {
 public:
-	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
+	virtual RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 	// This handler has special initialization because it uses shared data
-	void InitStatusHandler(const HandlerContainer*, const ServerStatus*);
+	void InitStatusHandler(Server*);
 
-	RequestHandler::Status HandleRequest(const Request& request, Response* response);
+	static std::string StatusToHtml(const Server::Status& status);
 
 private:
-	const HandlerContainer* handlers_;
-	const ServerStatus* serverStatus_;
+	template <typename A, typename B>
+	static void HttpPrintMap(std::stringstream& out, const std::map<A,B>& map);
+
+	Server* server_;
 };
 
-REGISTER_REQUEST_HANDLER(StaticFileHandler);
+REGISTER_REQUEST_HANDLER(StatusHandler);
+
+template<typename A, typename B>
+inline void StatusHandler::HttpPrintMap(std::stringstream& out, const std::map<A, B>& map)
+{
+	out << "<ul style = \"list-style-type:none\">\n";
+	for (auto& mapPair : map) {
+		out << "<li>" << mapPair.first << " : " << mapPair.second << "</li>\n";
+	}
+	out << "</ul>\n";
+}
 
 #endif // STATUS_HANDLER_H
