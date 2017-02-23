@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
 OPTIMIZE=-O2
-BOOSTFLAG = -lboost_system -lboost_regex
+BOOSTFLAG = -DBOOST_LOG_DYN_LINK -lboost_system -lboost_regex -lboost_log -lboost_thread -lpthread -lboost_log_setup
 DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h file_handler.h not_found_handler.h
 OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o file_handler.o not_found_handler.o
 GTEST_DIR=googletest/googletest
@@ -10,7 +10,7 @@ TESTS=config_parser_test connection_test server_test request_test echo_handler_t
 default: webserver
 
 %.o: %.cc $(DEPS)
-	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $<
+	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $< $(BOOSTFLAG)
 
 webserver: main.cc $(OBJ)
 	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
@@ -20,10 +20,10 @@ libgtest.a:
 	ar -rv libgtest.a gtest-all.o
 
 %_test: libgtest.a %_test.cc $(OBJ)
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
-	
-build-tests: $(TESTS)	
-	
+	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)
+
+build-tests: $(TESTS)
+
 test: integration-test unit-test
 
 unit-test: build-tests
@@ -31,7 +31,7 @@ unit-test: build-tests
 
 integration-test: webserver
 	./integration_tests.sh
-	
+
 cov-%: COV += -fprofile-arcs -ftest-coverage -g
 cov-%: OPTIMIZE = -O0
 cov-test: test lcov
