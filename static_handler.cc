@@ -43,8 +43,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
 
 	std::string full_path = request.uri();
-	BOOST_LOG_TRIVIAL(info) << "Full path: " << full_path;
-	BOOST_LOG_TRIVIAL(info) << "Prefix: " << prefix_;
 	std::string file_path = directory_ + full_path.substr(prefix_.length()); // get file path relative to server
 
 	std::size_t last_dot_pos = file_path.find_last_of(".");
