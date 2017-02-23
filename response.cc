@@ -3,6 +3,7 @@
 #include <sstream>
 #include "response.h"
 
+
 // Status lines for status codes
 namespace status_string {
 	const std::string ok = "HTTP/1.1 200 OK\r\n";
