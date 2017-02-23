@@ -4,11 +4,15 @@ port 8080;
 
 path /echo EchoHandler {}
 path /test EchoHandler {}
+
+path /static/same StaticHandler {
+	root static;
+}
 path /static StaticHandler {
-	root static/;
+	root static;
 }
 path /special StaticHandler {
-	root static/more/;
+	root static/more;
 }
 
 # Default response handler if no handlers match.

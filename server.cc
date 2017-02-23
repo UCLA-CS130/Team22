@@ -4,12 +4,14 @@
 #include <stdexcept>
 #include <map>
 #include <memory>
+#include <boost/log/trivial.hpp>
+
 #include "server.h"
 #include "config_parser.h"
+#include "request_handler.h"
 #include "echo_handler.h"
 #include "static_handler.h"
 #include "not_found_handler.h"
-#include <boost/log/trivial.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -106,7 +108,11 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
 				std::string empty_string = "";
-				handler->Init(empty_string, *(statement->child_block_).get()); //default handler to use "" as uri?
+				if(handler->Init(empty_string, *(statement->child_block_).get()) == RequestHandler::ERROR)
+				{
+					BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for default";
+					return false;
+				}
 				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
 				//default already exists
 				if (!insert_result.second)
@@ -122,7 +128,11 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
 
-			handler->Init(statement->tokens_[1], *(statement->child_block_).get());
+			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
+			{
+				BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for " << statement->tokens_[1];
+				return false;
+			}
 			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
 
 			//prevent duplicate uri keys
