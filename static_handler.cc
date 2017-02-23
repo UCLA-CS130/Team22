@@ -7,7 +7,7 @@
 #include "response.h"
 #include "not_found_handler.h"
 #include "config_parser.h"
-
+#include <boost/log/trivial.hpp>
 
 std::unordered_map<std::string,std::string> content_mappings
 {
@@ -22,7 +22,7 @@ std::unordered_map<std::string,std::string> content_mappings
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
-	for (auto statement : config.statements_) 
+	for (auto statement : config.statements_)
 	{
 		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "root")
 		{
@@ -36,6 +36,8 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const 
 
 RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response) const
 {
+	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
+
 	std::string full_path = request.uri();
 	std::size_t second_slash_pos = full_path.find("/", 1);
 	std::string file_path = directory_ + full_path.substr(second_slash_pos + 1);
@@ -43,7 +45,8 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	std::size_t last_dot_pos = file_path.find_last_of(".");
 	if(last_dot_pos == std::string::npos)
 	{
-		std::cerr << "Unknown File" << std::endl;
+		BOOST_LOG_TRIVIAL(error) << "Unknown file.";
+;
 		NotFoundHandler not_found_handler;
 		return not_found_handler.HandleRequest(request, response);
 	}
@@ -54,7 +57,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
 		if (it == content_mappings.end())
 		{
-			std::cerr << "Extension not supported" << std::endl;
+			BOOST_LOG_TRIVIAL(error) << "Extension not supported.";
 			NotFoundHandler not_found_handler;
 			return not_found_handler.HandleRequest(request, response);
 		}
@@ -73,7 +76,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			}
 			else
 			{
-				std::cerr << "Unable to open file" << std::endl;
+				BOOST_LOG_TRIVIAL(error) << "Unable to open file";
 				NotFoundHandler not_found_handler;
 				return not_found_handler.HandleRequest(request, response);
 			}
@@ -90,6 +93,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			response->SetBody(body_data);
 		}
 	}
-	
+
 	return RequestHandler::OK;
 }

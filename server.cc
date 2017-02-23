@@ -38,7 +38,7 @@ Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* 
 	acceptor_.bind(endpoint);
 	acceptor_.listen();
 	start_accept();
-	BOOST_LOG_TRIVIAL(trace) << "Server constructed, listening on port " << port << "...";
+	BOOST_LOG_TRIVIAL(info) << "Server constructed, listening on port " << port << "...";
 }
 
 void Server::start_accept()
@@ -56,7 +56,7 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 	//start the connection if no error, clean up otherwise. Go back to waiting at start_accept
 	if (!error)
 	{
-		BOOST_LOG_TRIVIAL(trace) << "New connection starting...";
+		BOOST_LOG_TRIVIAL(trace) << "starting new connection...";
 		new_connection->start();
 	}
 	else
@@ -113,11 +113,11 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				//default already exists
 				if (!insert_result.second)
 				{
-					BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected." << std::endl;
+					BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
 					return false;
 				}
 
-				BOOST_LOG_TRIVIAL(trace) << "Default handler found called " << statement->tokens_[1] << std::endl;
+				BOOST_LOG_TRIVIAL(trace) << "Default handler found, called " << statement->tokens_[1];
 			}
 		}
 		//generic handler instantiation
@@ -130,17 +130,17 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			//prevent duplicate uri keys
 			if (!insert_result.second)
 			{
-				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected." << std::endl;
+				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
 				return false;
 			}
 
-			BOOST_LOG_TRIVIAL(trace) << "Generic handled found called " << statement->tokens_[2] << std::endl;
+			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " to " << statement->tokens_[2];
 
 		}
 	}
 	if(!port_found)
 	{
-		BOOST_LOG_TRIVIAL(fatal) << "Port number failed to be parsed from config." << std::endl;
+		BOOST_LOG_TRIVIAL(fatal) << "Port number failed to be parsed from config.";
 		return false;
 	}
 
