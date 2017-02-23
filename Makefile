@@ -21,9 +21,9 @@ libgtest.a:
 
 %_test: libgtest.a %_test.cc $(OBJ)
 	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
-	
-build-tests: $(TESTS)	
-	
+
+build-tests: $(TESTS)
+
 test: integration-test unit-test
 
 unit-test: build-tests
