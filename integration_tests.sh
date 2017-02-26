@@ -5,43 +5,43 @@ error_flag=0
 #test basic port listening
 printf "\ntesting simple port listen on 8080 in config...\n"
 printf "
-            port 8080;\n
-            path /echo EchoHandler {}\n
-            path /test EchoHandler {}\n
-            path /static StaticHandler {\n
-                root static;\n
-            }\n
-            path /special StaticHandler {\n
-                root static/more;\n
-            }\n
-            path /static/same StaticHandler {\n
-                root static;\n
-            }\n
-            default NotFoundHandler {}\n" > config_temp;
+			port 8080;\n
+			path /echo EchoHandler {}\n
+			path /test EchoHandler {}\n
+			path /static StaticHandler {\n
+				root static;\n
+			}\n
+			path /special StaticHandler {\n
+				root static/more;\n
+			}\n
+			path /static/same StaticHandler {\n
+				root static;\n
+			}\n
+			default NotFoundHandler {}\n" > config_temp;
 
 ./webserver config_temp -s &
 sleep 1
 
 if netstat -vatn | grep 0.0.0.8080 > /dev/null; then
-    printf "  --tcp connection established at port 8080\n"
+	printf "  --tcp connection established at port 8080\n"
 else
-    error_flag=1
-    printf "  !!no tcp connection found at port 8080\n"
+	error_flag=1
+	printf "  !!no tcp connection found at port 8080\n"
 fi
 
 if curl -s localhost:8080/echo | tr "\n\r" " " | grep "GET /echo HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
-    printf "  --curl succeeded\n"
+	printf "  --curl succeeded\n"
 else
-    error_flag=1
-    printf "  !!curl failed\n"
+	error_flag=1
+	printf "  !!curl failed\n"
 fi
 
 #testing file handler
 printf "\ntesting file request of static/more/city.jpg ...\n"
 if diff <(curl -s localhost:8080/special/city.jpg) static/more/city.jpg; then
-    printf "  --city.jpg curled successfully\n"
+	printf "  --city.jpg curled successfully\n"
 else
-    printf "  !!city.jpg failed to curl\n"
+	printf "  !!city.jpg failed to curl\n"
 fi
 
 sleep 1
@@ -49,14 +49,14 @@ sleep 1
 #testing longest prefix match
 printf "\ntesting longest prefix match static/same/kinkakuji.jpg with uri 'static' and 'static/same' handler...\n"
 if diff <(curl -s localhost:8080/static/kinkakuji.jpg) static/kinkakuji.jpg; then
-    if diff <(curl -s localhost:8080/static/same/kinkakuji.jpg) static/kinkakuji.jpg; then
-        printf "  --kinkakuji.jpg works with both prefixes\n"
-    else
-        printf "  !!kinkakuji.jpg only matched static but not static/same\n"
-    fi
+	if diff <(curl -s localhost:8080/static/same/kinkakuji.jpg) static/kinkakuji.jpg; then
+		printf "  --kinkakuji.jpg works with both prefixes\n"
+	else
+		printf "  !!kinkakuji.jpg only matched static but not static/same\n"
+	fi
 
 else
-    printf "  !!kinkakuji.jpg failed to curl\n"
+	printf "  !!kinkakuji.jpg failed to curl\n"
 fi
 
 rm config_temp
@@ -71,10 +71,10 @@ printf "port 100000;" > config_temp
 wait $! 2>/dev/null
 
 if cat temp_output | grep "Error" > /dev/null; then
-    printf "  --invalid port caught\n"
+	printf "  --invalid port caught\n"
 else
-    error_flag=1
-    printf "  !!invalid port not caught\n"
+	error_flag=1
+	printf "  !!invalid port not caught\n"
 fi
 
 
@@ -91,10 +91,10 @@ printf "port 8080;\n path / EchoHandler {" > config_temp
 sleep 1
 
 if cat temp_output | grep "Error parsing" > /dev/null; then
-    printf "  --brace mismatch caught\n"
+	printf "  --brace mismatch caught\n"
 else
-    error_flag=1
-    printf "  !!brace mismatch not caught\n"
+	error_flag=1
+	printf "  !!brace mismatch not caught\n"
 fi
 
 rm config_temp
@@ -106,7 +106,7 @@ printf "\n"
 
 if [ $error_flag -eq 1 ]
 then
-    exit 1
+	exit 1
 else
-    exit 0
+	exit 0
 fi

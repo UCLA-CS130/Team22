@@ -14,7 +14,7 @@ class NginxConfig;
 
 // The parsed representation of a single config statement.
 class NginxConfigStatement {
- public:
+public:
 	std::string ToString(int depth);
 	std::vector<std::string> tokens_;
 	std::shared_ptr<NginxConfig> child_block_;
@@ -22,14 +22,14 @@ class NginxConfigStatement {
 
 // The parsed representation of the entire config.
 class NginxConfig {
- public:
+public:
 	std::string ToString(int depth = 0);
 	std::vector<std::shared_ptr<NginxConfigStatement>> statements_;
 };
 
 // The driver that parses a config file and generates an NginxConfig.
 class NginxConfigParser {
- public:
+public:
 	NginxConfigParser() {}
 
 	// Take a opened config file or file name (respectively) and store the
@@ -38,7 +38,7 @@ class NginxConfigParser {
 	bool Parse(std::istream* config_file, NginxConfig* config);
 	bool Parse(const char* file_name, NginxConfig* config);
 
- private:
+private:
 	enum TokenType {
 		TOKEN_TYPE_START = 0,
 		TOKEN_TYPE_NORMAL = 1,
