@@ -9,3 +9,5 @@ webserver
 
 covhtml
 coverage.info
+
+.vscode/
