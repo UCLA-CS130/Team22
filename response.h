@@ -19,8 +19,8 @@ class Response {
 public:
 	enum ResponseCode {
 		ok = 200,
-        not_found = 404,
-        internal_server_error = 500
+		not_found = 404,
+		internal_server_error = 500
 	};
 
 	// sets status code of HTTP response
