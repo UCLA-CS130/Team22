@@ -19,6 +19,7 @@ class Response {
 public:
 	enum ResponseCode {
 		ok = 200,
+		found = 302,
         not_found = 404,
         internal_server_error = 500
 	};
