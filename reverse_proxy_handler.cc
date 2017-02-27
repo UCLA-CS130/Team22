@@ -13,14 +13,25 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 
 	for (auto statement : config.statements_)
 	{
-		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "serve")
+		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "proxy_pass")
 		{
 			url_ = statement->tokens_[1];
+
+			std::string::size_type pos = url_.find('/');
+			if(pos != std::string::npos) {
+				host_ = url_.substr(0, pos);
+				path_ = url_.substr(pos);
+			}
+			else {
+				host_ = url_;
+				path_ = "/";
+			}
+			
 			return RequestHandler::OK;
 		}
 	}
 
-	BOOST_LOG_TRIVIAL(error) << "serve not specified in static handler for " << uri_prefix;
+	BOOST_LOG_TRIVIAL(error) << "proxy_pass not specified in static handler for " << uri_prefix;
 	return RequestHandler::ERROR;
 }
 
@@ -28,34 +39,24 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
 
-    Request OutgoingRequest = TransformRequest(request);
+    Request OutgoingRequest = TransformIncomingRequest(request);
 
-    for(int i = 0; i < MaxRedirectDepth; i++) {
+	// TODO: Send the outgoing request
+	
+    // for(int i = 0; i < MaxRedirectDepth + 1; i++) {
+	// 	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
         
-    }
+    // }
 
-
-
-
-
-
-
-
-
-
-    //
 
 	response->SetStatus(Response::ok);
-	response->AddHeader("Content-Type", "text/plain");
-	response->AddHeader("Content-Length", std::to_string(request.raw_request().length()));
-	response->SetBody("potatoes");
 	return RequestHandler::OK;
 }
 
 
-Request ReverseProxyHandler::TransformRequest(const Request& request) const {
+Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) const {
     Request transformed_request(request);
-	transformed_request.set_header();
-
+	transformed_request.set_header(std::make_pair("Host", host_));
+	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length()));
     return transformed_request;
 }

@@ -6,6 +6,8 @@
 #include <boost/log/trivial.hpp>
 #include "request.h"
 
+const std::string Request::line_break_ = "\r\n\r\n";
+
 Request::Request(std::string raw_req) : raw_request_(raw_req) { }
 
 std::unique_ptr<Request> Request::Parse(const std::string& raw_req)
@@ -55,6 +57,48 @@ Headers Request::headers() const
 std::string Request::body() const
 {
 	return body_;
+}
+
+void Request::set_header(std::pair<std::string, std::string> header) {
+	for(auto& header_ : fields_) {
+		if(header_.first == header.first) {
+			header_.second = header.second;
+			// Exit the function as the header has been set
+			return;
+		}
+	}
+	// Header not set
+	fields_.push_back(header);
+}
+
+void Request::set_uri(std::string uri) {
+	path_ = uri;
+}
+
+std::string Request::to_string() const {
+	std::string http_request;
+	
+	// Prepare the first line
+	http_request.append(method_);
+	http_request.append(" ");
+	http_request.append(path_);
+	http_request.append(" ");
+	http_request.append(version_);
+	http_request.append(line_break_);
+
+	// Attach the headers
+	for(auto const& header_ : fields_) {
+		http_request.append(header_.first);
+		http_request.append(": " );
+		http_request.append(header_.second);
+		http_request.append(line_break_);
+	}
+
+	// Beginning of Body
+	http_request.append(line_break_);
+	http_request.append(body_);
+
+	return http_request;
 }
 
 //parse the first line of the request, involving GET, POST, etc

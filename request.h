@@ -33,6 +33,16 @@ public:
 	// returns the body of the request
 	std::string body() const;
 
+	// setters
+
+	// sets the header with the key. If it doesn't exist, the header is added
+	void set_header(std::pair<std::string, std::string> header);
+
+	// sets the uri to the string passed in 
+	void set_uri(std::string uri);
+
+	std::string to_string() const;
+
 private:
 	//parse the first line of the request, involving GET,POST,etc
 	bool parse_first_line(const std::string& line);
@@ -47,6 +57,9 @@ private:
 	std::string version_;
 	Headers fields_;
 	std::string body_;
+
+	//constants
+	static const std::string line_break_;
 };
 
 #endif // REQUEST_H

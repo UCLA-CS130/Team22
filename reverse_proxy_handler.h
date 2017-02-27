@@ -16,13 +16,13 @@ public:
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 	
 	// 21 Redirects is the standard used by most modern web browers.
-
 	const int MaxRedirectDepth = 21;
 private:
 	// Transforms the request parameters into the Reverse Proxy paramters
-	Request TransformRequest(const Request& request) const;
+	Request TransformIncomingRequest(const Request& request) const;
 	std::string prefix_;
 	std::string host_;
+	std::string path_;
 	std::string url_;
 };
 
