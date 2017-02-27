@@ -94,13 +94,13 @@ std::string Connection::write_response(const Response& response)
 void Connection::close_socket(const boost::system::error_code& error)
 {
 	if (!error) {
-      socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
-      socket_.close();
-	  BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
-  } else {
-	  BOOST_LOG_TRIVIAL(error) << "error closing connection.";
-      delete this;
-  }
+		socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+		socket_.close();
+		BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
+	} else {
+		BOOST_LOG_TRIVIAL(error) << "error closing connection.";
+		delete this;
+	}
 }
 
 // returns a request handler if it was defined in the config, otherwise returns nullptr
