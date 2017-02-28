@@ -75,7 +75,7 @@ void Request::set_uri(std::string uri) {
 	path_ = uri;
 }
 
-std::string Request::to_string() const {
+std::string Request::ToString() const {
 	std::string http_request;
 	
 	// Prepare the first line

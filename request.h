@@ -41,7 +41,8 @@ public:
 	// sets the uri to the string passed in 
 	void set_uri(std::string uri);
 
-	std::string to_string() const;
+	// Converts the response to a http string
+	std::string ToString() const;
 
 private:
 	//parse the first line of the request, involving GET,POST,etc

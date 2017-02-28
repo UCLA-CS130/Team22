@@ -32,7 +32,7 @@ bool HTTPClient::EstablishConnection(boost::asio::ip::tcp::socket* socket, const
 std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 	boost::asio::streambuf request;
 	std::ostream request_stream(&request);
-	request_stream << req.to_string();
+	request_stream << req.ToString();
 
 	BOOST_LOG_TRIVIAL(trace) << "===== socket written to for reverse proxy =====";
 	boost::asio::write(socket_, request);
