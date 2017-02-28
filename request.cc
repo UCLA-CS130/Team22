@@ -6,7 +6,7 @@
 #include <boost/log/trivial.hpp>
 #include "request.h"
 
-const std::string Request::line_break_ = "\r\n\r\n";
+const std::string Request::line_break_ = "\r\n";
 
 Request::Request(std::string raw_req) : raw_request_(raw_req) { }
 
