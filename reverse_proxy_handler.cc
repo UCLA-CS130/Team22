@@ -60,3 +60,8 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length()));
     return transformed_request;
 }
+
+Response ReverseProxyHandler::VisitOutsideServer(const Request& request) const {
+	Response r;
+	return r;
+}

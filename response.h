@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 class Response {
 public:
@@ -23,6 +24,8 @@ public:
         not_found = 404,
         internal_server_error = 500
 	};
+	
+	static std::unique_ptr<Response> Parse(const std::string& raw_res);
 
 	// sets status code of HTTP response
 	void SetStatus(const ResponseCode response_code);

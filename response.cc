@@ -12,6 +12,18 @@ namespace status_string {
 	const std::string internal_server_error = "HTTP/1.1 500 Internal Server Error\r\n";
 }
 
+std::unique_ptr<Response> Response::Parse(const std::string& raw_req)
+{
+	// std::unique_ptr<Response> response(new Response(raw_req));
+	// if(response->parse_raw_request(raw_req))
+	// {
+	// 	return request;
+	// }
+	// else
+	// {
+		return nullptr;
+	// }
+}
 // Sets the response status and status string accordingly
 void Response::SetStatus(const ResponseCode response_code)
 {
