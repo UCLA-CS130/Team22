@@ -22,9 +22,12 @@ public:
 		ok = 200,
 		found = 302,
         not_found = 404,
-        internal_server_error = 500
+        internal_server_error = 500,
+
+		other = 600
 	};
-	
+	Response(std::string);
+	Response() {};
 	static std::unique_ptr<Response> Parse(const std::string& raw_res);
 
 	// sets status code of HTTP response
@@ -42,11 +45,21 @@ public:
 	// convert response to a string
 	std::string ToString() const;
 
+	static ResponseCode IntToResponseCode(int code);
+
 private:
+	//parse the first line of the request, involving GET,POST,etc
+	bool parse_first_line(const std::string& line);
+
+	//parse the entire raw request and update the private member variables
+	bool parse_raw_response(const std::string& raw_res);
 	std::vector<std::pair<std::string, std::string>> response_headers_;
 	ResponseCode response_status_;
-	std::string response_status_string_;
+	std::string response_status_first_line_;
 	std::string body_;
+	std::string raw_response_;
+	std::string version_;
+	std::string response_status_string_;
 };
 
 #endif // RESPONSE_H
