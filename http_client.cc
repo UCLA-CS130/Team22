@@ -14,12 +14,15 @@ bool HTTPClient::EstablishConnection(const std::string& host, const std::string&
 	// Get a list of endpoints corresponding to the server name.
 	boost::asio::ip::tcp::resolver resolver(io_service);
 	boost::asio::ip::tcp::resolver::query query(host, service);
-	boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query), end;
+	boost::system::error_code ec;
+	boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, ec), end;
+	if(ec) {
+		BOOST_LOG_TRIVIAL(error) << "Unable to resolve host and service";
+		return false;
+	}
 
 	// Try each endpoint until we successfully establish a connection.
-	boost::system::error_code ec;
 	socket_ = new boost::asio::ip::tcp::socket(io_service);
-	
 	
 
 	boost::asio::connect(*socket_, endpoint_iterator, end, ec);

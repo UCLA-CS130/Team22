@@ -25,5 +25,9 @@ path /proxy2 ReverseProxyHandler {
     proxy_pass http://www.example.com;
 }
 
+path /proxy3 ReverseProxyHandler {
+    proxy_pass http://www.google.com;
+}
+
 # Default response handler if no handlers match.
 default NotFoundHandler {}
