@@ -46,7 +46,7 @@ std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 
 	BOOST_LOG_TRIVIAL(trace) << "===== socket reading for reverse proxy =====";
 	// Now, we read data back.
-    boost::asio::streambuf raw_response;
+	boost::asio::streambuf raw_response;
 	boost::system::error_code ec;
 
 	std::string read_string;
