@@ -22,6 +22,7 @@ private:
 	// Transforms the request parameters into the Reverse Proxy paramters
 	Request TransformIncomingRequest(const Request& request) const;
 	std::string prefix_;
+	std::string protocol_;
 	std::string host_;
 	std::string path_;
 	std::string url_;

@@ -17,16 +17,24 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 		{
 			url_ = statement->tokens_[1];
 
-			std::string::size_type pos = url_.find('/');
-			if(pos != std::string::npos) {
-				host_ = url_.substr(0, pos);
-				path_ = url_.substr(pos);
+			std::string::size_type protocol_pos = url_.find("//");
+			if(protocol_pos == std::string::npos) {
+				BOOST_LOG_TRIVIAL(error) << "proxy_pass didn't specify protocol.'";
+				return RequestHandler::ERROR;
+			}
+			protocol_ = url_.substr(0, protocol_pos - 1);
+
+			std::string::size_type host_pos = url_.find('/', protocol_pos + 2);
+			if(host_pos != std::string::npos) {
+				host_ = url_.substr(protocol_pos + 2, host_pos);
+				path_ = url_.substr(host_pos);
 			}
 			else {
-				host_ = url_;
+				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
 			
+			printf("protocol: %s host: %s path_ %s\n", protocol_.c_str(), host_.c_str(), path_.c_str());
 			return RequestHandler::OK;
 		}
 	}
@@ -48,7 +56,7 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
         
     // }
 
-
+	printf("test: %s\n", OutgoingRequest.ToString().c_str());
 	response->SetStatus(Response::ok);
 	return RequestHandler::OK;
 }
