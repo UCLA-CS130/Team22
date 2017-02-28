@@ -66,7 +66,7 @@ std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 
 	if(ec != boost::asio::error::eof) {
 		// Error reading.
-		BOOST_LOG_TRIVIAL(ERROR) << "Reading errored out unexpectedly.";
+		BOOST_LOG_TRIVIAL(error) << "Reading errored out unexpectedly.";
 		return nullptr;
 	}
 
