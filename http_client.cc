@@ -9,7 +9,6 @@
 // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/example/http/client/sync_client.cpp
 // http://charette.no-ip.com:81/programming/doxygen/boost/group__connect.html#gac44f151131b02a286d4ef5d93d95869b
 bool HTTPClient::EstablishConnection(const std::string& host, const std::string& service) {
-	printf("host: %s, service: %s", host.c_str(), service.c_str());
 	boost::asio::io_service io_service;
 
 	// Get a list of endpoints corresponding to the server name.
@@ -67,7 +66,7 @@ std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 
 	if(ec != boost::asio::error::eof) {
 		// Error reading.
-		printf("**************errored out\n");
+		BOOST_LOG_TRIVIAL(ERROR) << "Reading errored out unexpectedly.";
 		return nullptr;
 	}
 

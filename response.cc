@@ -38,7 +38,6 @@ Response& Response::operator=(const Response& rhs) {
 std::unique_ptr<Response> Response::Parse(const std::string& raw_res)
 {
 	std::unique_ptr<Response> response(new Response(raw_res));
-	printf("result: %s\n", raw_res.c_str());
 	if(response->parse_raw_response(raw_res))
 	{
 		return response;

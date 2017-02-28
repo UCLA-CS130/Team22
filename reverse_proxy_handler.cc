@@ -51,20 +51,17 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
     Request OutgoingRequest = TransformIncomingRequest(request);
 	
 	// TODO: Send the outgoing request
-	
     // for(int i = 0; i < MaxRedirectDepth + 1; i++) {
 	// 	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
     // }
 	std::unique_ptr<Response> resp = VisitOutsideServer(OutgoingRequest, host_, protocol_);
-	printf("Outgoing Request: %s\n", OutgoingRequest.ToString().c_str());
 	
-	// printf("Incoming Response Precopy: %s\n", resp->ToString().c_str());
 	// This is horribly inefficient, as we make a copy. 
 	if(resp.get() == nullptr) {
 		return RequestHandler::ERROR;
 	}
+
 	*(response) = *(resp.get());
-	// printf("Incoming Response: %s\n", response->ToString().c_str());
 	
 	return RequestHandler::OK;
 }
