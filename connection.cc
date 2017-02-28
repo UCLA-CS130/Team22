@@ -81,6 +81,7 @@ std::string Connection::write_response(const Response& response)
 	BOOST_LOG_TRIVIAL(trace) << "Writing response...";
 
 	response_data_ = response.ToString();
+	printf("Outgoing response: %s \n", response_data_.c_str());
 	boost::asio::async_write(
 		socket_,
 		boost::asio::buffer(response_data_, response_data_.length()),

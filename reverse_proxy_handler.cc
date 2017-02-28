@@ -5,6 +5,8 @@
 #include "reverse_proxy_handler.h"
 #include "response.h"
 #include "config_parser.h"
+#include "http_client.h"
+
 #include <boost/log/trivial.hpp>
 
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
@@ -33,6 +35,7 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
+
 			return RequestHandler::OK;
 		}
 	}
@@ -46,16 +49,23 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
 
     Request OutgoingRequest = TransformIncomingRequest(request);
-
+	
 	// TODO: Send the outgoing request
 	
     // for(int i = 0; i < MaxRedirectDepth + 1; i++) {
 	// 	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
-        
     // }
-
-	printf("test: %s\n", OutgoingRequest.ToString().c_str());
-	response->SetStatus(Response::ok);
+	std::unique_ptr<Response> resp = VisitOutsideServer(OutgoingRequest, host_, protocol_);
+	printf("Outgoing Request: %s\n", OutgoingRequest.ToString().c_str());
+	
+	// printf("Incoming Response Precopy: %s\n", resp->ToString().c_str());
+	// This is horribly inefficient, as we make a copy. 
+	if(resp.get() == nullptr) {
+		return RequestHandler::ERROR;
+	}
+	*(response) = *(resp.get());
+	// printf("Incoming Response: %s\n", response->ToString().c_str());
+	
 	return RequestHandler::OK;
 }
 
@@ -67,7 +77,10 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
     return transformed_request;
 }
 
-Response ReverseProxyHandler::VisitOutsideServer(const Request& request) const {
-	Response r;
-	return r;
+std::unique_ptr<Response> ReverseProxyHandler::VisitOutsideServer(const Request& request, std::string host, std::string service) const {
+	HTTPClient c;
+	c.EstablishConnection(host, service);
+	auto resp = c.SendRequest(request);
+	// printf("%s\n",resp->ToString().c_str());
+	return resp;
 }

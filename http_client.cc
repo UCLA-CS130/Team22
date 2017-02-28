@@ -67,6 +67,7 @@ std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 
 	if(ec != boost::asio::error::eof) {
 		// Error reading.
+		printf("**************errored out\n");
 		return nullptr;
 	}
 
@@ -76,5 +77,5 @@ std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 }
 
 HTTPClient::~HTTPClient() {
-	free(socket_);
+	// free(socket_);
 }

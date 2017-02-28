@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror
-OPTIMIZE=-O2
+OPTIMIZE=-O0 -g
 BOOSTFLAG = -DBOOST_LOG_DYN_LINK -lboost_system -lboost_regex -lboost_log -lboost_thread -lpthread -lboost_log_setup
 DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h static_handler.h not_found_handler.h status_handler.h reverse_proxy_handler.h http_client.h
 OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o static_handler.o not_found_handler.o status_handler.o reverse_proxy_handler.o http_client.o

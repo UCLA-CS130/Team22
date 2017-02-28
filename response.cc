@@ -38,6 +38,7 @@ Response& Response::operator=(const Response& rhs) {
 std::unique_ptr<Response> Response::Parse(const std::string& raw_res)
 {
 	std::unique_ptr<Response> response(new Response(raw_res));
+	printf("result: %s\n", raw_res.c_str());
 	if(response->parse_raw_response(raw_res))
 	{
 		return response;
@@ -125,8 +126,8 @@ bool Response::parse_first_line(const std::string& line)
 	std::vector<std::string> tokens;
 	boost::split(tokens, line, boost::is_any_of(" "));
 
-	unsigned int expected_num_of_tokens = 3;
-	if(tokens.size() != expected_num_of_tokens)
+	unsigned int expected_num_of_tokens = 2;
+	if(tokens.size() <= expected_num_of_tokens)
 		return false;
 
 	version_ = tokens[0]; 
@@ -139,9 +140,11 @@ bool Response::parse_first_line(const std::string& line)
 		return false;
 	}
 	response_status_ = IntToResponseCode(response_code);
-	response_status_string_ = tokens[2];
+	for(int i = 2; i < tokens.size(); i++) {
+		response_status_string_ += tokens[i];
+	}
 
-	response_status_first_line_ = tokens[0] + " " + tokens[1] + " " + tokens[2] + "\r\n";	
+	response_status_first_line_ = tokens[0] + " " + tokens[1] + " " + response_status_string_ + "\r\n";	
 
 	return true;
 }

@@ -2,6 +2,7 @@
 #define REVERSE_PROXY_HANDLER_H
 
 #include <string>
+#include <memory>
 
 #include "request_handler.h"
 #include "config_parser.h"
@@ -18,7 +19,7 @@ public:
 	// 21 Redirects is the standard used by most modern web browers.
 	const int MaxRedirectDepth = 21;
 private:
-	Response VisitOutsideServer(const Request& request) const;
+	std::unique_ptr<Response> VisitOutsideServer(const Request& request, std::string host, std::string service) const;
 	// Transforms the request parameters into the Reverse Proxy paramters
 	Request TransformIncomingRequest(const Request& request) const;
 	std::string prefix_;

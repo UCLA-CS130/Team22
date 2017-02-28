@@ -18,7 +18,11 @@ path /special StaticHandler {
 path /status StatusHandler {}
 
 path /proxy ReverseProxyHandler {
-    proxy_pass http://www.ucla.edu/test;
+    proxy_pass http://www.ucla.edu;
+}
+
+path /proxy2 ReverseProxyHandler {
+    proxy_pass http://www.example.com;
 }
 
 # Default response handler if no handlers match.
