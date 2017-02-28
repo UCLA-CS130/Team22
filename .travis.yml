@@ -2,8 +2,6 @@ dist: trusty
 sudo: required
 language: cpp
 script: make test
-before_install:
-    - chmod +x http_client_test.cc
 addons:
   apt:
     packages:
