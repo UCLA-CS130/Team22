@@ -8,7 +8,7 @@
 
 // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/example/http/client/sync_client.cpp
 // http://charette.no-ip.com:81/programming/doxygen/boost/group__connect.html#gac44f151131b02a286d4ef5d93d95869b
-bool HTTPClient::EstablishConnection(boost::asio::ip::tcp::socket* socket, const std::string& host, const std::string& service) {
+bool HTTPClient::EstablishConnection(const std::string& host, const std::string& service) {
 	boost::asio::io_service io_service;
 
 	// Get a list of endpoints corresponding to the server name.
