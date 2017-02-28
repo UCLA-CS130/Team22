@@ -12,7 +12,6 @@ class HTTPClient {
 public:
 	bool EstablishConnection(const std::string& host, const std::string& service="http");
 	std::unique_ptr<Response> SendRequest(const Request& req);
-	~HTTPClient();
 private:
 	boost::asio::ip::tcp::socket* socket_;
 };

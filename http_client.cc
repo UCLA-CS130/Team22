@@ -74,7 +74,3 @@ std::unique_ptr<Response> HTTPClient::SendRequest(const Request& req) {
 	return resp;
 
 }
-
-HTTPClient::~HTTPClient() {
-	// free(socket_);
-}
