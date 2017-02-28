@@ -78,6 +78,5 @@ std::unique_ptr<Response> ReverseProxyHandler::VisitOutsideServer(const Request&
 	HTTPClient c;
 	c.EstablishConnection(host, service);
 	auto resp = c.SendRequest(request);
-	// printf("%s\n",resp->ToString().c_str());
 	return resp;
 }
