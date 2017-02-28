@@ -140,7 +140,7 @@ bool Response::parse_first_line(const std::string& line)
 		return false;
 	}
 	response_status_ = IntToResponseCode(response_code);
-	for(int i = 2; i < tokens.size(); i++) {
+	for(std::size_t i = 2; i < tokens.size(); i++) {
 		response_status_string_ += tokens[i];
 	}
 
