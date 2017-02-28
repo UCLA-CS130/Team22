@@ -10,37 +10,37 @@
 
 
 //Test fixture for creating configs and init RequestProxyHandler
-class ReverseProxyHandlerTest : public ::testing::Test {
-protected:
-	bool parseString(const std::string config_string) {
-		std::stringstream config_stream(config_string);
-		return parser.Parse(&config_stream, &out_config);
-	}
+// class ReverseProxyHandlerTest : public ::testing::Test {
+// protected:
+// 	bool parseString(const std::string config_string) {
+// 		std::stringstream config_stream(config_string);
+// 		return parser.Parse(&config_stream, &out_config);
+// 	}
 
-	std::string runRequest(std::string raw_req) {
-		// generate header info from the request
-		auto request = Request::Parse(raw_req.c_str());
+// 	std::string runRequest(std::string raw_req) {
+// 		// generate header info from the request
+// 		auto request = Request::Parse(raw_req.c_str());
 
-		// create an proxy handler
-		StaticHandler staticHandler;
-		if(staticHandler.Init("/proxy", out_config) == RequestHandler::OK)
-		{
-			Response response;
-			staticHandler.HandleRequest(*request, &response);
-			std::string response_string = response.ToString();
+// 		// create an proxy handler
+// 		StaticHandler staticHandler;
+// 		if(staticHandler.Init("/proxy", out_config) == RequestHandler::OK)
+// 		{
+// 			Response response;
+// 			staticHandler.HandleRequest(*request, &response);
+// 			std::string response_string = response.ToString();
 			
-			int index = response_string.find("\r\n");
-			return response_string.substr(0, index);
-		}
-		else
-		{
-			return "";
-		}
-	}
+// 			int index = response_string.find("\r\n");
+// 			return response_string.substr(0, index);
+// 		}
+// 		else
+// 		{
+// 			return "";
+// 		}
+// 	}
 
-	NginxConfigParser parser;
-	NginxConfig out_config;
-};
+// 	NginxConfigParser parser;
+// 	NginxConfig out_config;
+// };
 
 // TEST_F(StaticHandlerTest, SimpleTest) {
 // 	parseString("proxy_pass www.ucla.edu/;");
