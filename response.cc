@@ -18,7 +18,23 @@ namespace status_string {
 }
 
 Response::Response(std::string raw_res) : raw_response_(raw_res) { }
+Response::Response() { }
+Response& Response::operator=(const Response& rhs) {
+	// Check for self-assignment
+	if(this == &rhs) {
+		return *this;
+	}
 
+	this->response_headers_ = rhs.response_headers_;
+	this->response_status_ = rhs.response_status_;
+	this->response_status_first_line_ = rhs.response_status_first_line_;
+	this->body_ = rhs.body_;
+	this->raw_response_ = rhs.raw_response_;
+	this->version_ = rhs.version_;
+	this->response_status_string_ = rhs.response_status_string_;
+
+	return *this;
+}
 std::unique_ptr<Response> Response::Parse(const std::string& raw_res)
 {
 	std::unique_ptr<Response> response(new Response(raw_res));

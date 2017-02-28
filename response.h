@@ -27,7 +27,9 @@ public:
 		other = 600
 	};
 	Response(std::string);
-	Response() {};
+	Response();
+	Response& operator=(const Response& rhs);
+
 	static std::unique_ptr<Response> Parse(const std::string& raw_res);
 
 	// sets status code of HTTP response
