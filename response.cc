@@ -165,7 +165,7 @@ bool Response::parse_raw_response(const std::string& res){
 	}
 	size_t begin_body_index = end_fields_index + 4; //Add 4 to skip to the body.
 	if(begin_body_index < res.size())
-		body_ = res.substr(begin_body_index, res.size() - begin_body_index - 2); //minus 2 to ignore the last \r\n
+		body_ = res.substr(begin_body_index, res.size() - begin_body_index);
 
 	//truncate res to everything before the \r\n\r\n
 	std::string new_res = res.substr(0, end_fields_index + 1);
