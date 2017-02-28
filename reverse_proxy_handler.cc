@@ -33,8 +33,6 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
-			
-			printf("protocol: %s host: %s path_ %s\n", protocol_.c_str(), host_.c_str(), path_.c_str());
 			return RequestHandler::OK;
 		}
 	}
