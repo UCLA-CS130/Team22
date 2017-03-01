@@ -116,7 +116,13 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash	
 	std::string new_uri = path_;
 	if(request.uri().length() > prefix_.length()) {
-		new_uri += request.uri().substr(prefix_.length());
+		if(path_.back() == request.uri().substr(prefix_.length()).front()
+			&& request.uri().length() > prefix_.length() + 1) {
+			new_uri += request.uri().substr(prefix_.length() + 1);
+		}
+		else {
+			new_uri += request.uri().substr(prefix_.length());
+		}
 	}
 	transformed_request.set_uri(new_uri); 
 	return transformed_request;
