@@ -2,7 +2,6 @@
 #include <cstring>
 #include <memory>
 #include <fstream>
-#include <string.h>
 #include "connection.h"
 #include "request_handler.h"
 #include "not_found_handler.h"
