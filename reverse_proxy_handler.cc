@@ -72,6 +72,7 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) const {
     Request transformed_request(request);
 	transformed_request.set_header(std::make_pair("Host", host_));
+	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
 	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length()));
     return transformed_request;
 }

@@ -71,6 +71,15 @@ void Request::set_header(std::pair<std::string, std::string> header) {
 	fields_.push_back(header);
 }
 
+void Request::remove_header(std::string key) {
+	for(std::size_t i = 0; i < fields_.size(); i++) {
+		if(fields_[i].first == key) {
+			fields_.erase(fields_.begin() + i);
+			return; 
+		}
+	}
+}
+
 void Request::set_uri(std::string uri) {
 	path_ = uri;
 }
