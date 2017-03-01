@@ -6,6 +6,7 @@ error_flag=0
 printf "\ntesting simple port listen on 8080 in config...\n"
 printf "
 			port 8080;\n
+			threads 16;\n
 			path /echo EchoHandler {}\n
 			path /test EchoHandler {}\n
 			path /static StaticHandler {\n
@@ -16,6 +17,9 @@ printf "
 			}\n
 			path /static/same StaticHandler {\n
 				root static;\n
+			}\n
+			path /sleep SleepHandler {\n
+				seconds 1;
 			}\n
 			default NotFoundHandler {}\n" > config_temp;
 
@@ -59,6 +63,29 @@ else
 	printf "  !!kinkakuji.jpg failed to curl\n"
 fi
 
+# testing if multithreaded
+printf "\ntesting parallel capabilities of the server (running 16 sleep handlers)\n"
+processes=()
+tooslow=0
+for i in {1..15} ; do
+	curl localhost:8080/sleep &
+	processes+=($!)
+done
+sleep 2
+
+for i in "${processes[@]}"; do
+	if ps -p $i > /dev/null
+	then
+		echo "$  !!i too slow, server isn't running in multithreaded"
+		kill $i
+		tooslow=1
+	fi
+done
+if [ $tooslow -ne 1 ] ; then
+	echo "  --server is running multithreaded\n"
+fi
+
+# cleanup
 rm config_temp
 kill %1
 wait $! 2>/dev/null
