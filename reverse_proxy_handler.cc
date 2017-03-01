@@ -54,7 +54,6 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	std::string new_host = host_;
 	std::string new_uri = path_;
 	for(int i = 0; i < MaxRedirectDepth; i++) {
-		printf("-----------------\nTransformed:\n%s\n--------------\n", OutgoingRequest.ToString().c_str());
 		BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << new_host << " with URI: " << new_uri;
 		resp.reset(); // we don't need the old response
 		resp = VisitOutsideServer(OutgoingRequest, new_host, protocol_);
@@ -62,7 +61,6 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 			return RequestHandler::ERROR;
 		}
 		BOOST_LOG_TRIVIAL(trace) << "response received";
-		printf("-------------\nReceived:\n%s\n--------------\n", resp->ToString().c_str());
 		if(resp->GetStatusCode() == Response::ResponseCode::found) {
 			std::string url = resp->get_header("Location");
 			if(url == "") { //error, response syntax doesn't tell us where to go
@@ -87,7 +85,6 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 				new_host = url.substr(protocol_pos + 2);
 				new_uri = "/";
 			}
-			printf("url is: %s new_host is: %s new_uri is: %s\n", url.c_str(), new_host.c_str(), new_uri.c_str());
 			
 			
 			OutgoingRequest.set_header(std::make_pair("Host", new_host));
