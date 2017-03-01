@@ -48,6 +48,7 @@ public:
 
 	static ResponseCode IntToResponseCode(int code);
 
+	std::string get_header(const std::string key);
 private:
 	//parse the first line of the request, involving GET,POST,etc
 	bool parse_first_line(const std::string& line);

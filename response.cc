@@ -95,7 +95,7 @@ std::string Response::ToString() const
 {
 	std::stringstream ss;
 	ss << response_status_first_line_;
-	for(auto response_header : response_headers_)
+	for(const auto& response_header : response_headers_)
 	{
 		ss << response_header.first << ": " << response_header.second << "\r\n";
 	}
@@ -118,6 +118,15 @@ Response::ResponseCode Response::IntToResponseCode(int code) {
 		default:
 			return ResponseCode::other;
 	}
+}
+
+std::string Response::get_header(const std::string key) {
+	for(const auto& header : response_headers_) {
+		if(header.first == key) {
+			return header.second;
+		}
+	}
+	return "";
 }
 //parse the first line of the response
 bool Response::parse_first_line(const std::string& line)

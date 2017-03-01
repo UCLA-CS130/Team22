@@ -17,7 +17,7 @@ bool HTTPClient::EstablishConnection(const std::string& host, const std::string&
 	boost::system::error_code ec;
 	boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, ec), end;
 	if(ec) {
-		BOOST_LOG_TRIVIAL(error) << "Unable to resolve host and service";
+		BOOST_LOG_TRIVIAL(error) << "Unable to resolve host: " << host << " and service: " << service;
 		return false;
 	}
 
