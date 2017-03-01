@@ -2,6 +2,7 @@
 #include <cstring>
 #include <memory>
 #include <fstream>
+#include <string.h>
 #include "connection.h"
 #include "request_handler.h"
 #include "not_found_handler.h"
@@ -11,7 +12,7 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) : socket_(io_service), handlers_(handlers), serverStatus_(serverStatus)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) : socket_(io_service), data_stream_(max_length), handlers_(handlers), serverStatus_(serverStatus)
 {
 }
 
@@ -25,7 +26,8 @@ tcp::socket& Connection::socket()
 void Connection::start()
 {
 	BOOST_LOG_TRIVIAL(trace) << "======connection started==========";
-	socket_.async_read_some(boost::asio::buffer(data_, max_length),
+
+	boost::asio::async_read_until(socket_, data_stream_, "\r\n\r\n",
 		boost::bind(&Connection::handle_request, this,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
@@ -38,38 +40,47 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	{
 		Response response;
 
-		// parse header
-		std::string data = std::string(data_, bytes_transferred);
+		// there is some issue where the stream holds extra read data
+		// since we don't use POST, deal with it later
+		std::string data((std::istreambuf_iterator<char>(&data_stream_)), std::istreambuf_iterator<char>());
 
 		auto request = Request::Parse(data);
-
-		// get the correct handler based on the header
-		const RequestHandler* handler = GetRequestHandler(request->uri());
-
-		if (handler == nullptr) {
-			// TODO generalize, fit with the StaticHandler
-			NotFoundHandler not_found_handler;
-			not_found_handler.HandleRequest(*request, &response);
+		if (!request) { // parse error -> nullptr
+			response.SetStatus(Response::bad_request);
+			response.SetBody("400 Bad Request");
 		}
 		else {
-			// have the handler generate a response
-			RequestHandler::Status status = handler->HandleRequest(*request, &response);
-			if(status != RequestHandler::OK)
-			{
-				response = Response();
-				response.SetStatus(Response::internal_server_error);
-				response.SetBody("500 Internal Server Error");
+			// get the correct handler based on the header
+			const RequestHandler* handler = GetRequestHandler(request->uri());
+
+			if (handler == nullptr) {
+				// TODO generalize, fit with the StaticHandler
+				NotFoundHandler not_found_handler;
+				not_found_handler.HandleRequest(*request, &response);
+			}
+			else {
+				printf("stuff %s\n", request->raw_request().c_str());
+				// have the handler generate a response
+				RequestHandler::Status status = handler->HandleRequest(*request, &response);
+				if (status != RequestHandler::OK)
+				{
+					response.SetStatus(Response::internal_server_error);
+					response.SetBody("500 Internal Server Error");
+				}
 			}
 		}
 
 		// write out the response
 		write_response(response);
 
-		if (serverStatus_) 
-			serverStatus_->LogRequest(request->uri(), response.GetStatusCode());
+		if (serverStatus_) {
+			std::string uri = request ? request->uri() : "invalid";
+			serverStatus_->LogRequest(uri, response.GetStatusCode());
+		}
 	}
 	else
 	{
+		BOOST_LOG_TRIVIAL(error) << "async_read_until failed (probably early termination or header was probably too long) " << error.message();
 		delete this;
 	}
 }
