@@ -35,6 +35,7 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
+			printf("path_: %s\n", path_.c_str());
 			return RequestHandler::OK;
 		}
 	}
@@ -117,7 +118,6 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	if(request.uri().length() > prefix_.length()) {
 		new_uri += request.uri().substr(prefix_.length());
 	}
-
 	transformed_request.set_uri(new_uri); 
 	return transformed_request;
 }
