@@ -2,6 +2,9 @@
 
 port 8080;
 
+# max number of threads, defaults to 1
+threads 8; 
+
 path / EchoHandler {}
 path /echo EchoHandler {}
 path /test EchoHandler {}
@@ -16,6 +19,9 @@ path /special StaticHandler {
 	root static/more;
 }
 path /status StatusHandler {}
+path /sleep SleepHandler {
+	seconds 3;
+}
 
 # Default response handler if no handlers match.
 default NotFoundHandler {}

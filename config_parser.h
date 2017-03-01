@@ -9,6 +9,7 @@
 #include <vector>
 #include <cstdint>
 #include <map>
+#include <sstream>
 
 class NginxConfig;
 
@@ -25,6 +26,23 @@ class NginxConfig {
 public:
 	std::string ToString(int depth = 0);
 	std::vector<std::shared_ptr<NginxConfigStatement>> statements_;
+
+	// simple generic find method
+	// returns true on success and changes *out, returns false of failure and doesn't touch *out
+	template <typename T> 
+	bool Find(const std::string& key, T* out) const {
+		for (auto statement : statements_)
+		{
+			if (statement->tokens_.size() == 2 && statement->tokens_[0] == key)
+			{
+				// lexical cast using streams
+				std::istringstream stream(statement->tokens_[1]);
+				stream >> *out;
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 // The driver that parses a config file and generates an NginxConfig.

@@ -58,7 +58,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 				not_found_handler.HandleRequest(*request, &response);
 			}
 			else {
-				printf("stuff %s\n", request->raw_request().c_str());
 				// have the handler generate a response
 				RequestHandler::Status status = handler->HandleRequest(*request, &response);
 				if (status != RequestHandler::OK)
