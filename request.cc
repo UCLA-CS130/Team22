@@ -103,9 +103,11 @@ std::string Request::ToString() const {
 		http_request.append(line_break_);
 	}
 
+	
 	// Beginning of Body
 	http_request.append(line_break_);
 	http_request.append(body_);
+	http_request.append(line_break_);
 
 	return http_request;
 }
