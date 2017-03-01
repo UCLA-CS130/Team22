@@ -77,9 +77,12 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	transformed_request.set_header(std::make_pair("Host", host_));
 	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
 	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash	
-	std::string new_uri = path_;
+	
+	//if path is "/", get rid of the preceding "/" to avoid something like "//image.jpg"
+	//just a quick fix
+	std::string new_uri = path_ == "/" ? "" : path_ ;
 	if(request.uri().length() > prefix_.length()) {
-		new_uri += request.uri().substr(prefix_.length() + 1);
+		new_uri += request.uri().substr(prefix_.length());
 	}
 
 	transformed_request.set_uri(new_uri); // +1 to ignore the /

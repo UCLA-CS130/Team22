@@ -93,8 +93,7 @@ TEST_F(ReverseProxyHandlerTest, TransformRequestNoPath){
 	initProxy("/proxy");
 	auto req = Request::Parse("GET /proxy/yo.txt HTTP/1.1\r\n\r\n");
 	std::string new_req = TransformIncomingRequest(*req).ToString();
-	// new_req is GET //yo.txt HTTP/1.1\r\r\nHost: www.ucla.edu\r\nConnection: close\r\n\r\n\r\n
-	// EXPECT_EQ("GET /yo.txt HTTP/1.1\r\r\nHost: www.ucla.edu\r\nConnection: close\r\n\r\n\r\n", new_req);
+	EXPECT_EQ("GET /yo.txt HTTP/1.1\r\r\nHost: www.ucla.edu\r\nConnection: close\r\n\r\n\r\n", new_req);
 
 }
 
