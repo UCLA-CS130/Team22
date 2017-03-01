@@ -17,7 +17,7 @@ path /special StaticHandler {
 path /status StatusHandler {}
 
 path / ReverseProxyHandler {
-	proxy_pass http://ucla.edu;
+	proxy_pass http://www.ucla.edu/;
 }
 
 path /proxy1 ReverseProxyHandler {
