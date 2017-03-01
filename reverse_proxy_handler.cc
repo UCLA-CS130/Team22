@@ -28,14 +28,13 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 
 			std::string::size_type host_pos = url_.find('/', protocol_pos + 2);
 			if(host_pos != std::string::npos) {
-				host_ = url_.substr(protocol_pos + 2, host_pos);
+				host_ = url_.substr(protocol_pos + 2, host_pos - protocol_pos - 2);
 				path_ = url_.substr(host_pos);
 			}
 			else {
 				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
-
 			return RequestHandler::OK;
 		}
 	}
@@ -47,9 +46,11 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request, Response* response) const
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
-
+	printf("before transform: \n%s", request.ToString().c_str());
+	printf("-------------------------\n");
     Request OutgoingRequest = TransformIncomingRequest(request);
-	
+	printf("after transform: \n%s", OutgoingRequest.ToString().c_str());
+	printf("-------------------------\n");
 	// TODO: Send the outgoing request
     // for(int i = 0; i < MaxRedirectDepth + 1; i++) {
 	// 	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
@@ -60,6 +61,7 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	if(resp.get() == nullptr) {
 		return RequestHandler::ERROR;
 	}
+	
 
 	*(response) = *(resp.get());
 	
