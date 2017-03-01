@@ -2,7 +2,6 @@
 
 port 8080;
 
-path / EchoHandler {}
 path /echo EchoHandler {}
 path /test EchoHandler {}
 
@@ -17,7 +16,7 @@ path /special StaticHandler {
 }
 path /status StatusHandler {}
 
-path /proxy ReverseProxyHandler {
+path / ReverseProxyHandler {
 	proxy_pass http://www.ucla.edu;
 }
 
