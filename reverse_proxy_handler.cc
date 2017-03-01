@@ -89,7 +89,8 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 		new_uri += request.uri().substr(prefix_.length());
 	}
 
-	std::string::iterator temp_itr_for_erase = std::unique(new_uri.begin(), new_uri.end(), BothAreSlahes);
+	//remove repeated '/' with single '/'
+ 	std::string::iterator temp_itr_for_erase = std::unique(new_uri.begin(), new_uri.end(), BothAreSlahes);
 	new_uri.erase(temp_itr_for_erase, new_uri.end());
 
 	transformed_request.set_uri(new_uri); 
