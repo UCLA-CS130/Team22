@@ -27,7 +27,7 @@ build-tests: $(TESTS)
 test: integration-test unit-test
 
 unit-test: build-tests
-	for TEST in $(TESTS); do ./$$TEST ; done
+	for TEST in $(TESTS); do ./$$TEST || exit 1 ; done
 
 integration-test: webserver
 	./integration_tests.sh
