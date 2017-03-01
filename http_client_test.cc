@@ -22,8 +22,9 @@ TEST(HttpClientTest, EstablishConnection) {
 
 TEST(HttpClientTest, SendRequest) {
     HTTPClient c;
-    auto req= Request::Parse("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n");
+    auto req= Request::Parse("GET / HTTP/1.1\r\nHost: www.example.com\r\nConnection: close\r\n\r\n");
     ASSERT_NE(req.get(), nullptr);
     ASSERT_TRUE(c.EstablishConnection("www.example.com", "http"));
-    EXPECT_NE(c.SendRequest(*req.get()).get(), nullptr);
+    auto res = c.SendRequest(*req.get());
+    EXPECT_NE(res.get(), nullptr); // Got a response?
 }
