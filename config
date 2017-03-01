@@ -25,7 +25,7 @@ path /proxy1 ReverseProxyHandler {
 }
 
 path /proxy2 ReverseProxyHandler {
-	proxy_pass http://www.example.com/test;
+	proxy_pass http://web.cs.ucla.edu/~palsberg;
 }
 
 path /proxy3 ReverseProxyHandler {

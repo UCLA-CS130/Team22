@@ -7,6 +7,8 @@
 #include "config_parser.h"
 #include "http_client.h"
 
+#include <algorithm>
+
 #include <boost/log/trivial.hpp>
 
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
@@ -71,6 +73,10 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	return RequestHandler::OK;
 }
 
+//very ugly fix....
+bool BothAreSlahes(char lhs, char rhs) { 
+	return (lhs == rhs) && (lhs == '/'); 
+}
 
 Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) const {
 	Request transformed_request(request);
@@ -78,14 +84,15 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
 	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash	
 	
-	//if path is "/", get rid of the preceding "/" to avoid something like "//image.jpg"
-	//just a quick fix
-	std::string new_uri = path_ == "/" ? "" : path_ ;
+	std::string new_uri = path_;
 	if(request.uri().length() > prefix_.length()) {
 		new_uri += request.uri().substr(prefix_.length());
 	}
 
-	transformed_request.set_uri(new_uri); // +1 to ignore the /
+	std::string::iterator temp_itr_for_erase = std::unique(new_uri.begin(), new_uri.end(), BothAreSlahes);
+	new_uri.erase(temp_itr_for_erase, new_uri.end());
+
+	transformed_request.set_uri(new_uri); 
 	return transformed_request;
 }
 
