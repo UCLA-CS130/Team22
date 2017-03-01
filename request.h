@@ -41,6 +41,9 @@ public:
 	// sets the uri to the string passed in 
 	void set_uri(std::string uri);
 
+	// removes a header
+	void remove_header(std::string key);
+
 	// Converts the response to a http string
 	std::string ToString() const;
 

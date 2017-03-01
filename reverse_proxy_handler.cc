@@ -28,14 +28,13 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 
 			std::string::size_type host_pos = url_.find('/', protocol_pos + 2);
 			if(host_pos != std::string::npos) {
-				host_ = url_.substr(protocol_pos + 2, host_pos);
+				host_ = url_.substr(protocol_pos + 2, host_pos - protocol_pos - 2);
 				path_ = url_.substr(host_pos);
 			}
 			else {
 				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
-
 			return RequestHandler::OK;
 		}
 	}
@@ -48,18 +47,19 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
 
-    Request OutgoingRequest = TransformIncomingRequest(request);
-	
+	Request OutgoingRequest = TransformIncomingRequest(request);
+	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.headers()[0].second << " with URI: " << OutgoingRequest.uri();
 	// TODO: Send the outgoing request
-    // for(int i = 0; i < MaxRedirectDepth + 1; i++) {
-	// 	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
-    // }
+	// for(int i = 0; i < MaxRedirectDepth + 1; i++) {
+	// BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
+	// }
 	std::unique_ptr<Response> resp = VisitOutsideServer(OutgoingRequest, host_, protocol_);
 	
 	// This is horribly inefficient, as we make a copy. 
 	if(resp.get() == nullptr) {
 		return RequestHandler::ERROR;
 	}
+	
 
 	*(response) = *(resp.get());
 	
@@ -68,10 +68,12 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 
 
 Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) const {
-    Request transformed_request(request);
+	Request transformed_request(request);
 	transformed_request.set_header(std::make_pair("Host", host_));
-	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length()));
-    return transformed_request;
+	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
+	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash	
+	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length())); // +1 to ignore the /
+	return transformed_request;
 }
 
 std::unique_ptr<Response> ReverseProxyHandler::VisitOutsideServer(const Request& request, std::string host, std::string service) const {

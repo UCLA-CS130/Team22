@@ -2,7 +2,6 @@
 
 port 8080;
 
-path / EchoHandler {}
 path /echo EchoHandler {}
 path /test EchoHandler {}
 
@@ -17,16 +16,16 @@ path /special StaticHandler {
 }
 path /status StatusHandler {}
 
-path /proxy ReverseProxyHandler {
-    proxy_pass http://www.ucla.edu;
+path / ReverseProxyHandler {
+	proxy_pass http://www.ucla.edu;
 }
 
 path /proxy2 ReverseProxyHandler {
-    proxy_pass http://www.example.com;
+	proxy_pass http://www.example.com/test;
 }
 
 path /proxy3 ReverseProxyHandler {
-    proxy_pass http://www.google.com;
+	proxy_pass http://www.google.com;
 }
 
 # Default response handler if no handlers match.
