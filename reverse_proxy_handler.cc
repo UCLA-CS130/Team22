@@ -46,11 +46,8 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request, Response* response) const
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
-	printf("before transform: \n%s", request.ToString().c_str());
-	printf("-------------------------\n");
+
     Request OutgoingRequest = TransformIncomingRequest(request);
-	printf("after transform: \n%s", OutgoingRequest.ToString().c_str());
-	printf("-------------------------\n");
 	// TODO: Send the outgoing request
     // for(int i = 0; i < MaxRedirectDepth + 1; i++) {
 	// 	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
@@ -73,6 +70,7 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
     Request transformed_request(request);
 	transformed_request.set_header(std::make_pair("Host", host_));
 	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
+	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash
 	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length()));
     return transformed_request;
 }
