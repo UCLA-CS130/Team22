@@ -48,12 +48,17 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
 
 	Request OutgoingRequest = TransformIncomingRequest(request);
-	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.headers()[0].second << " with URI: " << OutgoingRequest.uri();
 	// TODO: Send the outgoing request
-	// for(int i = 0; i < MaxRedirectDepth + 1; i++) {
-	// BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
-	// }
-	std::unique_ptr<Response> resp = VisitOutsideServer(OutgoingRequest, host_, protocol_);
+	std::unique_ptr<Response> resp;
+	for(int i = 0; i < MaxRedirectDepth; i++) {
+		BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.headers()[0].second << " with URI: " << OutgoingRequest.uri();
+		resp.reset(); // we don't need the old response
+		resp = VisitOutsideServer(OutgoingRequest, host_, protocol_);
+		if(resp->GetStatusCode() == Response::ResponseCode::found) {
+
+		}
+	}
+	
 	
 	// This is horribly inefficient, as we make a copy. 
 	if(resp.get() == nullptr) {
@@ -72,7 +77,12 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	transformed_request.set_header(std::make_pair("Host", host_));
 	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
 	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash	
-	transformed_request.set_uri(path_ + request.uri().substr(prefix_.length())); // +1 to ignore the /
+	std::string new_uri = path_;
+	if(request.uri().length() > prefix_.length()) {
+		new_uri += request.uri().substr(prefix_.length() + 1);
+	}
+
+	transformed_request.set_uri(new_uri); // +1 to ignore the /
 	return transformed_request;
 }
 
