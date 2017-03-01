@@ -173,6 +173,9 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 
 void ServerStatus::LogRequest(std::string url, int responseCode)
 {
+	// multiple connections will be touching this, so we should lock it
+	std::lock_guard<std::mutex> lock(sharedStateLock_);
+
 	// if doesn't exist insert a 1
 	// pair<iterator,bool> insertPair
 	auto insertPair = sharedState_.responseCountByCode_.insert(std::make_pair(responseCode, 1));

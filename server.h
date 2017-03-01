@@ -5,6 +5,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include <mutex>
 
 #include "connection.h"
 #include "config_parser.h"
@@ -57,6 +58,7 @@ public:
 	Snapshot GetSnapshot(); // returns a copy of the status
 	void LogRequest(std::string url, int responseCode);
 private:
+	std::mutex sharedStateLock_;
 	Snapshot sharedState_;
 };
 
