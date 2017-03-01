@@ -33,7 +33,7 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 			}
 			else {
 				host_ = url_.substr(protocol_pos + 2);
-				path_ = "";
+				path_ = "/";
 			}
 			return RequestHandler::OK;
 		}
@@ -48,7 +48,7 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	BOOST_LOG_TRIVIAL(trace) << "Creating Reverse Proxy Response...";
 
 	Request OutgoingRequest = TransformIncomingRequest(request);
-	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
+	BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.headers()[0].second << " with URI: " << OutgoingRequest.uri();
 	// TODO: Send the outgoing request
 	// for(int i = 0; i < MaxRedirectDepth + 1; i++) {
 	// BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << OutgoingRequest.uri();
