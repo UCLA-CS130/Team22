@@ -10,9 +10,10 @@
 #include "response.h"
 #include <boost/asio.hpp>
 
-
+class ReverseProxyHandlerTest;//used in reverse_proxy_handler_test.cc
 class ReverseProxyHandler : public RequestHandler {
 public:
+	friend class ReverseProxyHandlerTest;
 	virtual RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 	

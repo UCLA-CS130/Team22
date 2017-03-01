@@ -7,6 +7,8 @@
 #include "config_parser.h"
 #include "http_client.h"
 
+#include <algorithm>
+
 #include <boost/log/trivial.hpp>
 
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
@@ -108,12 +110,12 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	return RequestHandler::OK;
 }
 
-
 Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) const {
 	Request transformed_request(request);
 	transformed_request.set_header(std::make_pair("Host", host_));
 	transformed_request.remove_header("Cookie"); // Passing arbitrary cookies will cause many websites to crash
 	transformed_request.set_header(std::make_pair("Connection", "close")); // Passing arbitrary cookies will cause many websites to crash	
+	
 	std::string new_uri = path_;
 	if(request.uri().length() > prefix_.length()) {
 		if(path_.back() == request.uri().substr(prefix_.length()).front()
@@ -124,6 +126,7 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 			new_uri += request.uri().substr(prefix_.length());
 		}
 	}
+
 	transformed_request.set_uri(new_uri); 
 	return transformed_request;
 }
