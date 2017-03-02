@@ -28,7 +28,6 @@ int main(int argc, char* argv[])
 			else
 				BOOST_LOG_TRIVIAL(warning) << "flag not recognized, ignoring flag.";
 
-
 		}
 
 		//set default logging level to everything above and including info
@@ -52,17 +51,18 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		// multithreading stuff
+		// Multithreading
 		// TODO: encapsulate in server?
 
-		int max_threads = 1;
-		out_config.Find<int>("threads", &max_threads);
+		// assume 1 thread, if we can find a definition in the config then take it
+		size_t max_threads = 1;  
+		out_config.Find<size_t>("threads", &max_threads);
 
 		if (max_threads > 128) { // beautiful arbitrary constraints
 			BOOST_LOG_TRIVIAL(fatal) << "Please no more than 128 threads";
 		}
 
-		int numThreads;
+		size_t numThreads;
 		std::vector<std::thread> threads;
 		threads.reserve(max_threads);
 		for (numThreads = 0; numThreads < max_threads; numThreads++) {
@@ -76,13 +76,15 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		io_service.run();
+		for (size_t i = 0; i < numThreads; i++) {
+			threads[i].join(); // these joins should never happen since each is in an infinite loop
+			BOOST_LOG_TRIVIAL(trace) << "Joining thread: " << i;
+		}
 	}
 	catch (std::exception& e)
 	{
 		BOOST_LOG_TRIVIAL(fatal) << "Exception: " << e.what();
 	}
-
 
 	return 0;
 }
