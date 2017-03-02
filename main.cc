@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
 		boost::asio::io_service io_service;
 
-		auto server = std::auto_ptr<Server>(Server::MakeServer(io_service, out_config));
+		auto server = std::unique_ptr<Server>(Server::MakeServer(io_service, out_config));
 		if (server.get() == nullptr)
 		{
 			BOOST_LOG_TRIVIAL(fatal) << "Error starting server after parsing config.";

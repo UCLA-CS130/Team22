@@ -1,0 +1,8 @@
+http {
+    include x;
+    index y;
+    server {
+        listen 80;
+        server_name z;
+    }
+}
