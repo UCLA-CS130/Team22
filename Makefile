@@ -10,17 +10,17 @@ TESTS=config_parser_test connection_test server_test request_test echo_handler_t
 default: webserver
 
 %.o: %.cc $(DEPS)
-	$(CC) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $< $(BOOSTFLAG)
+	$(CXX) $(CXXFLAGS) $(OPTIMIZE) $(COV) -c -o $@ $< $(BOOSTFLAG)
 
 webserver: main.cc $(OBJ)
-	g++ $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
+	$(CXX) $(CXXFLAGS) $(OPTIMIZE) $(COV) -o $@ $^ $(BOOSTFLAG)
 
 libgtest.a:
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
+	$(CXX) -std=c++0x -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
 
 %_test: libgtest.a %_test.cc $(OBJ)
-	g++ -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
+	$(CXX) -std=c++0x -isystem ${GTEST_DIR}/include $(COV) -pthread ${GTEST_DIR}/src/gtest_main.cc $^ -o $@ $(BOOSTFLAG)	
 
 build-tests: $(TESTS)
 
