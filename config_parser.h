@@ -35,9 +35,10 @@ public:
 		{
 			if (statement->tokens_.size() == 2 && statement->tokens_[0] == key)
 			{
-				// lexical cast using streams
 				std::istringstream stream(statement->tokens_[1]);
-				stream >> *out;
+				T tmp;
+				if (!(stream >> tmp)) return false; // cast error, return false
+				*out = tmp;
 				return true;
 			}
 		}

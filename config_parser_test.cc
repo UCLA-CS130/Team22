@@ -71,6 +71,44 @@ TEST_F(NginxStringConfigTest, ValidConfigs){
 
 }
 
+//test Find<>
+TEST_F(NginxStringConfigTest, GenericFindTest) {
+	//test comments read properly
+	std::string test_string = "normal 10;\n"
+		"badcast fifty;\n"
+		"tooshort;\n"
+		"way too long;\n"
+		"afloat 14.92926;\n"
+		"astring hello;\n";
+
+	ASSERT_TRUE(parseString(test_string));
+
+	//out_config;
+	int normal = 0;
+	EXPECT_EQ(out_config.Find<int>("normal", &normal), true);
+	EXPECT_EQ(normal, 10);
+
+	int badcast = 400;
+	EXPECT_EQ(out_config.Find<int>("badcast", &badcast), false);
+	EXPECT_EQ(badcast, 400);
+
+	int tooshort = 12;
+	EXPECT_EQ(out_config.Find<int>("tooshort", &tooshort), false);
+	EXPECT_EQ(tooshort, 12);
+
+	int way = 12;
+	EXPECT_EQ(out_config.Find<int>("way", &tooshort), false);
+	EXPECT_EQ(way, 12);
+
+	float afloat;
+	EXPECT_EQ(out_config.Find<float>("afloat", &afloat), true);
+	EXPECT_LT(abs(afloat-14.92926), .001); // does this actually work? there might be rounding errors
+
+	std::string astring;
+	EXPECT_EQ(out_config.Find<std::string>("astring", &astring), true);
+	EXPECT_EQ(astring, "hello");
+}
+
 // Tests ToString method that contains a block
 TEST(NginxConfigParserTest, ToStringBlock) {
 	NginxConfigStatement statement;

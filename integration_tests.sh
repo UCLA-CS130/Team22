@@ -76,7 +76,7 @@ sleep 2
 for i in "${processes[@]}"; do
 	if ps -p $i > /dev/null
 	then
-		echo "$  !!i too slow, server isn't running in multithreaded"
+		echo "  !!server is too slow, server isn't running in multithreaded"
 		kill $i
 		tooslow=1
 	fi
