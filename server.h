@@ -45,9 +45,9 @@ class ServerStatus {
 	friend class Server;
 public:
 	struct Snapshot {
-		int port_;
+		int port_ = 0;
 		// std::chrono::duration<double> uptime_seconds;
-		int totalRequests_;
+		int totalRequests_ = 0;
 		std::map<std::string, int> requestCountByURL_;
 		std::map<int, int> responseCountByCode_;
 		std::list<std::string> requestHandlers_;
