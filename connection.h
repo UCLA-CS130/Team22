@@ -42,7 +42,7 @@ private:
 
 	tcp::socket socket_;
 	enum { max_length = 8192 }; // 8KB max length
-	char data_[max_length];
+	boost::asio::streambuf data_stream_;
 
 	const HandlerContainer* handlers_;
 	ServerStatus* serverStatus_;
