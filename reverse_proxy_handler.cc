@@ -63,7 +63,8 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 			return RequestHandler::ERROR;
 		}
 		BOOST_LOG_TRIVIAL(trace) << "response received";
-		if(resp->GetStatusCode() == Response::ResponseCode::found) {
+		if(resp->GetStatusCode() == Response::ResponseCode::found
+			|| resp->GetStatusCode() == Response::ResponseCode::moved_permanently) {
 			std::string url = resp->get_header("Location");
 			if(url == "") { //error, response syntax doesn't tell us where to go
 				BOOST_LOG_TRIVIAL(error) << "Error in redirect received, location to go to not specified";

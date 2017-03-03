@@ -20,6 +20,7 @@ class Response {
 public:
 	enum ResponseCode {
 		ok = 200,
+		moved_permanently = 301,
 		found = 302,
 		bad_request = 400,
 		not_found = 404,

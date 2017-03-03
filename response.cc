@@ -13,6 +13,7 @@
 namespace status_string {
 	const std::string ok = "HTTP/1.1 200 OK\r\n";
 	const std::string found = "HTTP/1.1 302 Found\r\n";
+	const std::string moved_permanently = "HTTP/1.1 301 Moved Permanently\r\n";
 	const std::string bad_request = "HTTP/1.1 400 Bad Request\r\n";
 	const std::string not_found = "HTTP/1.1 404 Not Found\r\n";
 	const std::string internal_server_error = "HTTP/1.1 500 Internal Server Error\r\n";
@@ -57,6 +58,9 @@ void Response::SetStatus(const ResponseCode response_code)
 	{
 	case Response::ok:
 		response_status_first_line_ = status_string::ok;
+		break;
+	case Response::moved_permanently:
+		response_status_first_line_ = status_string::moved_permanently;
 		break;
 	case Response::found:
 		response_status_first_line_ = status_string::found;
@@ -113,6 +117,8 @@ Response::ResponseCode Response::IntToResponseCode(int code) {
 	switch(code) {
 		case 200:
 			return ResponseCode::ok;
+		case 301:
+			return ResponseCode::moved_permanently;
 		case 302:
 			return ResponseCode::found;
 		case 404:
