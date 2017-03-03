@@ -20,6 +20,7 @@ printf "
 			}\n
 			path /sleep SleepHandler {\n
 				seconds 1;\n
+			}\n
 			path /proxy1 ReverseProxyHandler {\n
 				proxy_pass http://www.ucla.edu;\n
 			}\n
