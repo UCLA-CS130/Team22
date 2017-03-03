@@ -17,6 +17,18 @@ printf "
 			path /static/same StaticHandler {\n
 				root static;\n
 			}\n
+			path /proxy1 ReverseProxyHandler {
+				proxy_pass http://www.ucla.edu;\n
+			}\n
+			path /proxy2 ReverseProxyHandler {
+				proxy_pass http://ucla.edu;\n
+			}\n
+			path /proxy3 ReverseProxyHandler {
+				proxy_pass http://www.ucla.edu/static;\n
+			}\n
+			path /proxy4 ReverseProxyHandler {
+				proxy_pass http://google.com;\n
+			}\n
 			default NotFoundHandler {}\n" > config_temp;
 
 ./webserver config_temp -s &
@@ -41,7 +53,74 @@ printf "\ntesting file request of static/more/city.jpg ...\n"
 if diff <(curl -s localhost:8080/special/city.jpg) static/more/city.jpg; then
 	printf "  --city.jpg curled successfully\n"
 else
+	error_flag=1
 	printf "  !!city.jpg failed to curl\n"
+fi
+
+sleep 1
+
+#testing reverse proxy handler base
+printf "\ntesting reverse proxy handler on http://www.ucla.edu ...\n"
+if diff <(curl -s localhost:8080/proxy1) <(curl -s http://www.ucla.edu); then
+	printf "  --ReverseProxyHandler base case curls properly\n"
+else
+	error_flag=1
+	printf "  !!ReverseProxyHandler failed to curl properly\n"
+fi
+
+sleep 1
+
+#testing reverse proxy handler subpath
+printf "\ntesting reverse proxy handler subpath on http://www.ucla.edu ...\n"
+if diff <(curl -s localhost:8080/proxy1/asdf.txt) <(curl -s http://www.ucla.edu/asdf.txt); then
+	printf "  --ReverseProxyHandler curl subpath properly\n"
+else
+	error_flag=1
+	printf "  !!ReverseProxyHandler failed to curl subpath properly\n"
+fi
+
+sleep 1
+
+#testing reverse proxy handler 302 redirect
+printf "\ntesting reverse proxy handler 302 redirect on http://www.ucla.edu ...\n"
+if diff <(curl -s localhost:8080/proxy2) <(curl -s http://www.ucla.edu/); then # we curl www.ucla.edu because ucla.edu redirects there
+	printf "  --ReverseProxyHandler curl 302 redirect properly\n"
+else
+	error_flag=1
+	printf "  !!ReverseProxyHandler failed to curl 302 redirect properly\n"
+fi
+
+sleep 1
+
+#testing reverse proxy handler subpath in config
+printf "\ntesting reverse proxy handler subpath in config on http://www.ucla.edu ...\n"
+if diff <(curl -s localhost:8080/proxy3) <(curl -s http://www.ucla.edu/static); then
+	printf "  --ReverseProxyHandler curl subpath in config properly\n"
+else
+	error_flag=1
+	printf "  !!ReverseProxyHandler failed to subpath in config properly\n"
+fi
+
+sleep 1
+
+#testing reverse proxy handler subpath in config and url
+printf "\ntesting reverse proxy handler subpath in config and url on http://www.ucla.edu ...\n"
+if diff <(curl -s localhost:8080/proxy3/asdf.txt) <(curl -s http://www.ucla.edu/static/asdf.txt); then
+	printf "  --ReverseProxyHandler curl subpath in config and url properly\n"
+else
+	error_flag=1
+	printf "  !!ReverseProxyHandler failed to subpath in config and url properly\n"
+fi
+
+sleep 1
+
+#testing reverse proxy handler subpath in config and url
+printf "\ntesting reverse proxy handler subpath in config and url on http://www.ucla.edu ...\n"
+if diff <(curl -s localhost:8080/proxy3/asdf.txt) <(curl -s http://www.ucla.edu/static/asdf.txt); then
+	printf "  --ReverseProxyHandler curl subpath in config and url properly\n"
+else
+	error_flag=1
+	printf "  !!ReverseProxyHandler failed to subpath in config and url properly\n"
 fi
 
 sleep 1
@@ -52,6 +131,7 @@ if diff <(curl -s localhost:8080/static/kinkakuji.jpg) static/kinkakuji.jpg; the
 	if diff <(curl -s localhost:8080/static/same/kinkakuji.jpg) static/kinkakuji.jpg; then
 		printf "  --kinkakuji.jpg works with both prefixes\n"
 	else
+		error_flag=1
 		printf "  !!kinkakuji.jpg only matched static but not static/same\n"
 	fi
 
