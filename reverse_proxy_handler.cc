@@ -37,7 +37,6 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 				host_ = url_.substr(protocol_pos + 2);
 				path_ = "/";
 			}
-			printf("path_: %s\n", path_.c_str());
 			return RequestHandler::OK;
 		}
 	}
@@ -99,12 +98,13 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	}
 	
 	
-	// This is horribly inefficient, as we make a copy. 
+	
 	if(resp.get() == nullptr) {
 		return RequestHandler::ERROR;
 	}
 	
-
+	// This is horribly inefficient, as we make a copy. 
+	// The proper behavior would be to simply set the values associated.
 	*(response) = *(resp.get());
 	
 	return RequestHandler::OK;
