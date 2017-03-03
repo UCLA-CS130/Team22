@@ -43,7 +43,6 @@ Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* 
 	acceptor_.bind(endpoint);
 	acceptor_.listen();
 	start_accept();
-	std::cout << "Listening on port " << port << "..." << std::endl;
 
 	// initialize ServerStatus
 	serverStatus_->sharedState_.port_ = port;
