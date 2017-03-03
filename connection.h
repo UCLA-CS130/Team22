@@ -11,6 +11,11 @@ class ServerStatus;
 
 using boost::asio::ip::tcp;
 
+// A connection is viewed as asynchronous from the view of the server
+//  1. construct a disconnected connection (listening for new connections) (async)
+//  2. wait for a connection - acceptor_.async_accept(new_connection->socket(),... (async)
+//  3. call start() (async)
+
 //handles each individual connection
 class Connection
 {
