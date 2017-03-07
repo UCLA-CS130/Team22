@@ -79,7 +79,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	else
 	{
 		BOOST_LOG_TRIVIAL(error) << "async_read_until failed (probably early termination or header was probably too long) " << error.message();
-		delete this;
+		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
 	}
 }
 
@@ -108,8 +108,8 @@ void Connection::close_socket(const boost::system::error_code& error)
 		BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
 	} else {
 		BOOST_LOG_TRIVIAL(error) << "error closing connection.";
-		delete this;
 	}
+	delete this;
 }
 
 // returns a request handler if it was defined in the config, otherwise returns nullptr
