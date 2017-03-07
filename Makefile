@@ -64,10 +64,10 @@ deploy:
 	ssh -i ~/team22-ec2-key-pair.pem ec2-user@ec2-54-218-71-128.us-west-2.compute.amazonaws.com 'docker load -i webserver-image'
 
 run-deployed:
-	ssh -i ~/Downloads/team22-ec2-key-pair.pem ec2-user@ec2-54-218-71-128.us-west-2.compute.amazonaws.com 'docker run --rm -t -p 80:8080 webserver &'
+	ssh -i ~/team22-ec2-key-pair.pem ec2-user@ec2-54-218-71-128.us-west-2.compute.amazonaws.com 'docker run --rm -t -p 80:8080 webserver &'
 
 kill-deployed:
-	ssh -i ~/Downloads/team22-ec2-key-pair.pem ec2-user@ec2-54-218-71-128.us-west-2.compute.amazonaws.com 'docker kill `docker ps -q`'
+	ssh -i ~/team22-ec2-key-pair.pem ec2-user@ec2-54-218-71-128.us-west-2.compute.amazonaws.com 'docker kill `docker ps -q`'
 
 clean:
 	rm -rf $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a $(DEPLOYS)
