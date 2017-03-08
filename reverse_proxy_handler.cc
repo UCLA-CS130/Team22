@@ -14,6 +14,7 @@
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
 	prefix_ = uri_prefix;
+	protocol_ = "80";
 
 	for (auto statement : config.statements_)
 	{
@@ -23,10 +24,13 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 
 			std::string::size_type protocol_pos = url_.find("//");
 			if(protocol_pos == std::string::npos) {
-				BOOST_LOG_TRIVIAL(error) << "proxy_pass didn't specify protocol.'";
-				return RequestHandler::ERROR;
+				BOOST_LOG_TRIVIAL(warning) << "proxy_pass didn't specify protocol. Using default 80";
 			}
-			protocol_ = url_.substr(0, protocol_pos - 1);
+			else {
+				std::string protocol_string = url_.substr(0, protocol_pos - 1);
+				if(protocol_string != "http")
+					BOOST_LOG_TRIVIAL(warning) << "Unknown protocol. Using default 80";
+			}
 
 			std::string::size_type host_pos = url_.find('/', protocol_pos + 2);
 			if(host_pos != std::string::npos) {
