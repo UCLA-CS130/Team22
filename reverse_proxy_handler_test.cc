@@ -55,7 +55,7 @@ TEST_F(ReverseProxyHandlerTest, Init) {
 	auto init_status = initProxy("/proxy");
 	EXPECT_EQ(init_status,RequestHandler::OK);
 	EXPECT_EQ(getPrefix(), "/proxy");
-	EXPECT_EQ(getProtocol(), "http");
+	EXPECT_EQ(getProtocol(), "80");
 	EXPECT_EQ(getHost(), "www.ucla.edu");
 	EXPECT_EQ(getPath(), "/static");
 	EXPECT_EQ(getUrl() , "http://www.ucla.edu/static");
@@ -74,7 +74,7 @@ TEST_F(ReverseProxyHandlerTest, IllegalConfig) {
 TEST_F(ReverseProxyHandlerTest, NoProtocol) {
 	parseString("proxy_pass www.ucla.edu;");
 	auto init_status = initProxy("/proxy");
-	EXPECT_EQ(init_status,RequestHandler::ERROR);
+	EXPECT_EQ(init_status, RequestHandler::OK);
 }
 
 //Issue 1: There are more \r\n then there should be at the end of the transformed request
