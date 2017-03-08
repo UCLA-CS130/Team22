@@ -38,4 +38,14 @@ inline void StatusHandler::HttpPrintMap(std::stringstream& out, const std::map<A
 	out << "</ul>\n";
 }
 
+template<typename A, typename B>
+inline void StatusHandler::HttpPrintList(std::stringstream& out, const std::list<std::string>& list)
+{
+	out << "<ul style = \"list-style-type:none\">\n";
+	for (auto& handlerName : list) {
+		out << "<li>" << handlerName << "</li>\n";
+	}
+	out << "</ul>\n";
+}
+
 #endif // STATUS_HANDLER_H

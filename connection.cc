@@ -11,7 +11,12 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) : socket_(io_service), data_stream_(max_length), handlers_(handlers), serverStatus_(serverStatus)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) 
+	: socket_(io_service)
+	, data_stream_(max_length)
+	, handlers_(handlers)
+	, serverStatus_(serverStatus)
+	, conn_state_(LISTENING)
 {
 }
 
@@ -26,6 +31,8 @@ void Connection::start()
 {
 	BOOST_LOG_TRIVIAL(trace) << "======connection started==========";
 
+	SetState(READING);
+	
 	boost::asio::async_read_until(socket_, data_stream_, "\r\n\r\n",
 		boost::bind(&Connection::handle_request, this,
 			boost::asio::placeholders::error,
@@ -35,6 +42,9 @@ void Connection::start()
 // handles an incoming request, gets the proper handler, and writes the response
 void Connection::handle_request(const boost::system::error_code& error, size_t bytes_transferred)
 {
+	BOOST_LOG_TRIVIAL(trace) << "Finished reading...";
+	SetState(PROCESSING);
+
 	if (!error)
 	{
 		Response response;
@@ -88,6 +98,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 std::string Connection::write_response(const Response& response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Writing response...";
+	SetState(WRITING);
 
 	response_data_ = response.ToString();
 	boost::asio::async_write(
@@ -102,6 +113,7 @@ std::string Connection::write_response(const Response& response)
 // Close socket after sending response
 void Connection::close_socket(const boost::system::error_code& error)
 {
+	SetState(CLOSING);
 	if (!error) {
 		socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
 		socket_.close();
@@ -147,3 +159,45 @@ std::string Connection::get_prefix(const std::string uri)
 
 	return longest;
 }
+
+std::string Connection::GetStatus()
+{
+	std::stringstream status;
+	ConnectionState state;
+	{
+		std::lock_guard<std::mutex>(conn_state_lock_);
+		state = conn_state_;
+	}
+
+	if (state != LISTENING) {
+		status << "Listening for new connections";
+	}
+	else {
+		std::string clientIP = socket().remote_endpoint().address().to_string();
+		unsigned short clientPort = socket().remote_endpoint().port();
+		status << "client IP: " << clientIP << ", client port: " << clientPort << " - ";
+		switch (state) {
+		case READING:
+			status << "reading from the socket";
+			break;
+		case PROCESSING:
+			status << "processing";
+			break;
+		case WRITING:
+			status << "writing to the socket";
+			break;
+		case CLOSING:
+			status << "closing";
+			break;
+		}
+	}
+
+	return status.str();
+}
+
+void Connection::SetState(ConnectionState s)
+{
+	std::lock_guard<std::mutex> lock(conn_state_lock_);
+	conn_state_ = s;
+}
+

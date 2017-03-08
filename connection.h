@@ -34,6 +34,8 @@ public:
 	// writes the response from Response object
 	// returns the data that was written
 	std::string write_response(const Response& response);
+	
+	std::string GetStatus();
 
 private:
 	// Close socket after sending response
@@ -52,6 +54,17 @@ private:
 	const HandlerContainer* handlers_;
 	ServerStatus* serverStatus_;
 	std::string response_data_;
+
+	enum ConnectionState {
+		LISTENING,
+		READING,
+		PROCESSING,
+		WRITING,
+		CLOSING
+	};
+	ConnectionStatus conn_state_ = LISTENING;
+	std::mutex conn_state_lock_;
+	void SetState(ConnectionState); // utility, set state with lock
 };
 
 

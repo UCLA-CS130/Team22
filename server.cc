@@ -197,6 +197,18 @@ void ServerStatus::LogRequest(std::string url, int responseCode)
 }
 ServerStatus::Snapshot ServerStatus::GetSnapshot()
 {
-	return sharedState_;
+	Snapshot snapshot;
+	{
+		// copy the existing state
+		std::lock_guard<std::mutex> lock(sharedStateLock_);
+		snapshot = sharedState_; 
+	}
+
+	// some extra dynamic info
+	for (auto i : connections_) {
+		snapshot.openConnections_.push_back(i->GetStatus());
+	}
+	
+	return snapshot;
 }
 
