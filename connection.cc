@@ -49,7 +49,17 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	BOOST_LOG_TRIVIAL(trace) << "Finished reading...";
 	SetState(PROCESSING);
 
-	if (!error)
+	if (error == boost::asio::error::eof){
+		BOOST_LOG_TRIVIAL(trace) << "EOF received";
+		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
+		return;
+	}
+	if (error == boost::asio::error::not_found){
+		BOOST_LOG_TRIVIAL(warning) << "Received a very long request";
+		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
+		return;
+	}
+	if (!error) // no error
 	{
 		Response response;
 
@@ -65,10 +75,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		else {
 			// log what we're up to
 			request_summary_ = request->uri();
-
-			if (request->uri() == ""){
-				BOOST_LOG_TRIVIAL(error) << "received a funky request:\n" << request->raw_request();
-			}
 
 			// get the correct handler based on the header
 			const RequestHandler* handler = GetRequestHandler(request->uri());
@@ -99,7 +105,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	}
 	else
 	{
-		BOOST_LOG_TRIVIAL(error) << "async_read_until failed (probably early termination or header was probably too long) " << error.message();
+		BOOST_LOG_TRIVIAL(error) << "async_read_until failed - " << error.message();
 		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
 	}
 }
