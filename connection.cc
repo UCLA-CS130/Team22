@@ -121,7 +121,6 @@ void Connection::close_socket(const boost::system::error_code& error)
 	} else {
 		BOOST_LOG_TRIVIAL(error) << "error closing connection.";
 	}
-	delete this;
 }
 
 // returns a request handler if it was defined in the config, otherwise returns nullptr

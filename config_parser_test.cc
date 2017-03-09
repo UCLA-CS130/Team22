@@ -35,7 +35,7 @@ protected:
 		return parser.Parse(&config_stream, &out_config);
 	}
 
-	bool clear(){
+	void clear(){
 		out_config = NginxConfig();
 	}
 

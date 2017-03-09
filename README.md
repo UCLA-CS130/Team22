@@ -23,12 +23,21 @@ The server can be accessed with any method that can work over HTTP such as the f
 * Use your browser to view the page: `http://localhost:8080/`
 * Use a curl request: `curl localhost:8080`
 
+The following paths are currently configured:
+* / = simple reverse proxy request to the UCLA website
+* /echo = echo server that echos back the request
+* /special/city.jpg = loads jpg image with static handler
+* /status = status page for statistics on requests to server
+
 ### Make Commands
 * `make` builds the server
 * `make test` builds all test files and runs both the integration test and all unit tests
 * `make unit-test` builds and runs only unit tests
 * `make integration-test` builds and runs only integration tests
 * `make cov-test` runs coverage test; run a `make clean` beforehand for more accurate results
+* `make deploy` builds a docker image and sends it to the currently configured ec2 server; needs private pem key in home directory to work
+* `make run-deployed` connects to the ec2 server and runs the docker image installed there
+* `make kill-deployed` kills any running docker process on the ec2 server
 
 ### Adding New Request Handlers
 * First, modify the Makefile to add the new corresponding .h file to the `DEPS` variable and corresponding .o file to the `OBJ` variable. Add the test file name to the `TESTS` variable for `make test` to also run the new request handler's test.
@@ -47,3 +56,6 @@ The server can be accessed with any method that can work over HTTP such as the f
 * `static_handler.cc`: A class which inherits from RequestHandler to serve up a static file from a directory on the server
 * `not_found_handler.cc`: A class which inherits from RequestHandler to serve a 404 error page
 * `status_handler.cc`: A class which inherits from RequestHandler to show statistics and status of server
+* `reverse_proxy_handler.cc`: A class which inherits from RequestHandler to load up another site as a reverse proxy
+* `sleep_handler.cc`: A class which inherits from RequestHandler that sleeps to test multithreading
+* `http_client.cc`: A class which helps open an HTTP connection to another site

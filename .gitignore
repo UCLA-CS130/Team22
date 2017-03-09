@@ -11,3 +11,5 @@ covhtml
 coverage.info
 
 .vscode/
+
+deploy/

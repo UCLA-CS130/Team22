@@ -20,11 +20,11 @@ public:
 	// 21 Redirects is the standard used by most modern web browers.
 	const int MaxRedirectDepth = 21;
 private:
-	std::unique_ptr<Response> VisitOutsideServer(const Request& request, std::string host, std::string service) const;
+	std::unique_ptr<Response> VisitOutsideServer(const Request& request, std::string host, std::string port) const;
 	// Transforms the request parameters into the Reverse Proxy paramters
 	Request TransformIncomingRequest(const Request& request) const;
 	std::string prefix_;
-	std::string protocol_;
+	std::string port_;
 	std::string host_;
 	std::string path_;
 	std::string url_;

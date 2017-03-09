@@ -11,12 +11,11 @@
 
 TEST(HttpClientTest, EstablishConnection) {
 	HTTPClient c;
-	EXPECT_TRUE(c.EstablishConnection("www.google.com", "http"));
+	EXPECT_TRUE(c.EstablishConnection("www.google.com", "80"));
 	EXPECT_TRUE(c.EstablishConnection("www.google.com"));
-	EXPECT_TRUE(c.EstablishConnection("www.google.com", "https"));
-	EXPECT_FALSE(c.EstablishConnection("www....google.com", "http"));
+	EXPECT_FALSE(c.EstablishConnection("www....google.com", "80"));
 	EXPECT_FALSE(c.EstablishConnection("www.google.com", "f"));
-	EXPECT_FALSE(c.EstablishConnection("www.google.com", "invalid_protocol"));
+	EXPECT_FALSE(c.EstablishConnection("www.google.com", "invalid_port"));
 	EXPECT_FALSE(c.EstablishConnection("http://www.google.com"));
 }
 
