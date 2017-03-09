@@ -18,10 +18,10 @@ Connection::Connection(boost::asio::io_service& io_service, const HandlerContain
 	, serverStatus_(serverStatus)
 	, conn_state_(LISTENING)
 {
-	serverStatus->AddConnection(this);
+	if (serverStatus) serverStatus->AddConnection(this);
 }
 Connection::~Connection(){
-	serverStatus_->RemoveConnection(this);
+	if (serverStatus_) serverStatus_->RemoveConnection(this);
 }
 
 // creates the socket
