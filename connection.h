@@ -21,6 +21,7 @@ class Connection
 {
 public:
 	Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus);
+	~Connection();
 
 	// creates the socket
 	tcp::socket& socket();
@@ -54,6 +55,8 @@ private:
 	const HandlerContainer* handlers_;
 	ServerStatus* serverStatus_;
 	std::string response_data_;
+	
+	std::string request_summary_;
 
 	enum ConnectionState {
 		LISTENING,
@@ -62,7 +65,7 @@ private:
 		WRITING,
 		CLOSING
 	};
-	ConnectionStatus conn_state_ = LISTENING;
+	ConnectionState conn_state_ = LISTENING;
 	std::mutex conn_state_lock_;
 	void SetState(ConnectionState); // utility, set state with lock
 };

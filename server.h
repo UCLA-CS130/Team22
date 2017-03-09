@@ -6,6 +6,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <set>
 
 #include "connection.h"
 #include "config_parser.h"

@@ -169,6 +169,15 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 	return true;
 }
 
+void ServerStatus::AddConnection(Connection* conn)
+{
+	connections_.insert(conn);
+}
+void ServerStatus::RemoveConnection(Connection* conn)
+{
+	connections_.erase(conn);
+}
+
 void ServerStatus::LogRequest(std::string url, int responseCode)
 {
 	// multiple connections will be touching this, so we should lock it
