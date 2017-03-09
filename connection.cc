@@ -11,8 +11,17 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) : socket_(io_service), data_stream_(max_length), handlers_(handlers), serverStatus_(serverStatus)
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) 
+	: socket_(io_service)
+	, data_stream_(max_length)
+	, handlers_(handlers)
+	, serverStatus_(serverStatus)
+	, conn_state_(LISTENING)
 {
+	if (serverStatus) serverStatus->AddConnection(this);
+}
+Connection::~Connection(){
+	if (serverStatus_) serverStatus_->RemoveConnection(this);
 }
 
 // creates the socket
@@ -26,6 +35,8 @@ void Connection::start()
 {
 	BOOST_LOG_TRIVIAL(trace) << "======connection started==========";
 
+	SetState(READING);
+
 	boost::asio::async_read_until(socket_, data_stream_, "\r\n\r\n",
 		boost::bind(&Connection::handle_request, this,
 			boost::asio::placeholders::error,
@@ -35,7 +46,20 @@ void Connection::start()
 // handles an incoming request, gets the proper handler, and writes the response
 void Connection::handle_request(const boost::system::error_code& error, size_t bytes_transferred)
 {
-	if (!error)
+	BOOST_LOG_TRIVIAL(trace) << "Finished reading...";
+	SetState(PROCESSING);
+
+	if (error == boost::asio::error::eof){
+		BOOST_LOG_TRIVIAL(trace) << "EOF received";
+		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
+		return;
+	}
+	if (error == boost::asio::error::not_found){
+		BOOST_LOG_TRIVIAL(warning) << "Received a very long request";
+		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
+		return;
+	}
+	if (!error) // no error
 	{
 		Response response;
 
@@ -49,6 +73,9 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 			response.SetBody("400 Bad Request");
 		}
 		else {
+			// log what we're up to
+			request_summary_ = request->uri();
+
 			// get the correct handler based on the header
 			const RequestHandler* handler = GetRequestHandler(request->uri());
 
@@ -78,7 +105,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	}
 	else
 	{
-		BOOST_LOG_TRIVIAL(error) << "async_read_until failed (probably early termination or header was probably too long) " << error.message();
+		BOOST_LOG_TRIVIAL(error) << "async_read_until failed - " << error.message();
 		close_socket(boost::system::errc::make_error_code(boost::system::errc::success));
 	}
 }
@@ -88,6 +115,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 std::string Connection::write_response(const Response& response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Writing response...";
+	SetState(WRITING);
 
 	response_data_ = response.ToString();
 	boost::asio::async_write(
@@ -102,13 +130,18 @@ std::string Connection::write_response(const Response& response)
 // Close socket after sending response
 void Connection::close_socket(const boost::system::error_code& error)
 {
+	SetState(CLOSING);
 	if (!error) {
-		socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
-		socket_.close();
-		BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
+		// we don't actually need these
+		//socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+		//socket_.close();
+		BOOST_LOG_TRIVIAL(trace) << "Finished writing";
 	} else {
-		BOOST_LOG_TRIVIAL(error) << "error closing connection.";
+		BOOST_LOG_TRIVIAL(error) << "Error writing connection.";
 	}
+	
+	delete this;
+	BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
 }
 
 // returns a request handler if it was defined in the config, otherwise returns nullptr
@@ -146,3 +179,56 @@ std::string Connection::get_prefix(const std::string uri)
 
 	return longest;
 }
+
+std::string Connection::GetStatus()
+{
+	std::stringstream status;
+	ConnectionState state;
+	{
+		std::lock_guard<std::mutex> lock(conn_state_lock_);
+		state = conn_state_;
+	}
+
+	if (state == LISTENING) {
+		status << "listening for new connections";
+	}
+	else {
+		std::string clientIP = "";
+		unsigned short clientPort = 0;
+
+		try {
+			clientIP = socket_.remote_endpoint().address().to_string();
+			clientPort = socket_.remote_endpoint().port();
+		}
+		catch (...){
+			BOOST_LOG_TRIVIAL(error) << "error getting port stuff in connection GetStatus";
+		}
+
+		status << request_summary_ << ", client IP: " << clientIP << ", client port: " << clientPort << ", ";
+		switch (state) {
+		case READING:
+			status << "reading from the socket";
+			break;
+		case PROCESSING:
+			status << "processing";
+			break;
+		case WRITING:
+			status << "writing to the socket";
+			break;
+		case CLOSING:
+			status << "closing";
+			break;
+		default:
+			break;
+		}
+	}
+
+	return status.str();
+}
+
+void Connection::SetState(ConnectionState s)
+{
+	std::lock_guard<std::mutex> lock(conn_state_lock_);
+	conn_state_ = s;
+}
+

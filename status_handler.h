@@ -23,6 +23,9 @@ private:
 	template <typename A, typename B>
 	static void HttpPrintMap(std::stringstream& out, const std::map<A,B>& map);
 
+	static void HttpPrintList(std::stringstream& out, const std::list<std::string>& list);
+
+
 	ServerStatus* serverStatus_;
 };
 
@@ -34,6 +37,15 @@ inline void StatusHandler::HttpPrintMap(std::stringstream& out, const std::map<A
 	out << "<ul style = \"list-style-type:none\">\n";
 	for (auto& mapPair : map) {
 		out << "<li>" << mapPair.first << " : " << mapPair.second << "</li>\n";
+	}
+	out << "</ul>\n";
+}
+
+inline void StatusHandler::HttpPrintList(std::stringstream& out, const std::list<std::string>& list)
+{
+	out << "<ul style = \"list-style-type:none\">\n";
+	for (auto& item : list) {
+		out << "<li>" << item << "</li>\n";
 	}
 	out << "</ul>\n";
 }

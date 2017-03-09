@@ -45,6 +45,9 @@ std::string StatusHandler::StatusToHtml(const ServerStatus::Snapshot& status)
 
 	body << "<h3>Total requests: " << status.totalRequests_ << "</h3>\n";
 
+	body << "<h3>Open Connections</h3>\n";
+	HttpPrintList(body, status.openConnections_);
+
 	body << "<h3>URL Request Counts</h3>\n";
 	HttpPrintMap(body, status.requestCountByURL_);
 
@@ -53,11 +56,8 @@ std::string StatusHandler::StatusToHtml(const ServerStatus::Snapshot& status)
 
 	// Print a list of handlers
 	body << "<h3>Handlers</h3>\n";
-	body << "<ul style = \"list-style-type:none\">\n";
-	for (auto& handlerName : status.requestHandlers_) {
-		body << "<li>" << handlerName << "</li>\n";
-	}
-	body << "</ul>\n";
+	HttpPrintList(body, status.requestHandlers_);
+
 	body << "</html>\n";
 
 	return body.str(); // is there a better way?

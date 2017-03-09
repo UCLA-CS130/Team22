@@ -6,6 +6,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <set>
 
 #include "connection.h"
 #include "config_parser.h"
@@ -53,13 +54,21 @@ public:
 		std::map<int, int> responseCountByCode_;
 		std::list<std::string> requestHandlers_;
 		// Open connections
+		std::list<std::string> openConnections_;
 		// Last 10 requests
+		
 	};
 	Snapshot GetSnapshot(); // returns a copy of the status
 	void LogRequest(std::string url, int responseCode);
+
+	void AddConnection(Connection*);
+	void RemoveConnection(Connection*);
+
 private:
 	std::mutex sharedStateLock_;
 	Snapshot sharedState_;
+
+	std::set<Connection*> connections_;
 };
 
 #endif // SERVER_H

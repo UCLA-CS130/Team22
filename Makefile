@@ -8,6 +8,7 @@ GTEST_DIR=googletest/googletest
 TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test request_handler_test status_handler_test reverse_proxy_handler_test http_client_test response_test
 DEPLOYS=deploy binary.tar webserver-image
 PRIVATE_KEY_LOC=~/team22-ec2-key-pair.pem
+EC2_HOST=ec2-54-218-71-128.us-west-2.compute.amazonaws.com
 EC2_SERVER=ec2-user@ec2-54-218-71-128.us-west-2.compute.amazonaws.com
 
 default: webserver
@@ -70,6 +71,12 @@ run-deployed:
 
 kill-deployed:
 	ssh -i $(PRIVATE_KEY_LOC) $(EC2_SERVER) 'docker kill `docker ps -q`'
+
+test-deployed:
+	curl $(EC2_HOST)/echo
+
+chrome-deployed:
+	google-chrome $(EC2_HOST)/proxy1
 
 clean:
 	rm -rf $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a $(DEPLOYS)
