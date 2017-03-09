@@ -23,6 +23,12 @@ The server can be accessed with any method that can work over HTTP such as the f
 * Use your browser to view the page: `http://localhost:8080/`
 * Use a curl request: `curl localhost:8080`
 
+The following paths are currently configured:
+* / = simple reverse proxy request to the UCLA website
+* /echo = echo server that echos back the request
+* /special/city.jpg = loads jpg image with static handler
+* /status = status page for statistics on requests to server
+
 ### Make Commands
 * `make` builds the server
 * `make test` builds all test files and runs both the integration test and all unit tests
@@ -47,3 +53,6 @@ The server can be accessed with any method that can work over HTTP such as the f
 * `static_handler.cc`: A class which inherits from RequestHandler to serve up a static file from a directory on the server
 * `not_found_handler.cc`: A class which inherits from RequestHandler to serve a 404 error page
 * `status_handler.cc`: A class which inherits from RequestHandler to show statistics and status of server
+* `reverse_proxy_handler.cc`: A class which inherits from RequestHandler to load up another site as a reverse proxy
+* `sleep_handler.cc`: A class which inherits from RequestHandler that sleeps to test multithreading
+* `http_client.cc`: A class which helps open an HTTP connection to another site
