@@ -24,10 +24,12 @@ The server can be accessed with any method that can work over HTTP such as the f
 * Use a curl request: `curl localhost:8080`
 
 The following paths are currently configured:
-* / = simple reverse proxy request to the UCLA website
+* / = simple reverse proxy request to the UCLA website http://www.ucla.edu/
 * /echo = echo server that echos back the request
 * /special/city.jpg = loads jpg image with static handler
 * /status = status page for statistics on requests to server
+* /sleep = server sleeps 3 seconds before responding
+* /proxy2 = reverse proxy to http://web.cs.ucla.edu/~palsberg
 
 ### Make Commands
 * `make` builds the server
@@ -37,6 +39,8 @@ The following paths are currently configured:
 * `make cov-test` runs coverage test; run a `make clean` beforehand for more accurate results
 * `make deploy` builds a docker image and sends it to the currently configured ec2 server; needs private pem key in home directory to work
 * `make run-deployed` connects to the ec2 server and runs the docker image installed there
+    * The server should be running on [ec2-54-218-71-128.us-west-2.compute.amazonaws.com](ec2-54-218-71-128.us-west-2.compute.amazonaws.com)
+    * `make curl-deployed`, `make chrome-deployed` - simple tests
 * `make kill-deployed` kills any running docker process on the ec2 server
 
 ### Adding New Request Handlers
