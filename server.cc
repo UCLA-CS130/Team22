@@ -74,7 +74,6 @@ void Server::handle_accept(Connection* new_connection, const boost::system::erro
 	else
 	{
 		BOOST_LOG_TRIVIAL(error) << "New connection failed to start.";
-		delete new_connection;
 	}
 
 	start_accept();
