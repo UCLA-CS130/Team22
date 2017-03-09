@@ -14,7 +14,7 @@
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
 	prefix_ = uri_prefix;
-	protocol_ = "80";
+	port_ = "80";
 
 	for (auto statement : config.statements_)
 	{
@@ -62,7 +62,7 @@ RequestHandler::Status ReverseProxyHandler::HandleRequest(const Request& request
 	for(int i = 0; i < MaxRedirectDepth; i++) {
 		BOOST_LOG_TRIVIAL(trace) << "Reaching out to " << new_host << " with URI: " << new_uri;
 		resp.reset(); // we don't need the old response
-		resp = VisitOutsideServer(OutgoingRequest, new_host, protocol_);
+		resp = VisitOutsideServer(OutgoingRequest, new_host, port_);
 		if(resp == nullptr) {
 			return RequestHandler::ERROR;
 		}
@@ -136,10 +136,10 @@ Request ReverseProxyHandler::TransformIncomingRequest(const Request& request) co
 	return transformed_request;
 }
 
-std::unique_ptr<Response> ReverseProxyHandler::VisitOutsideServer(const Request& request, std::string host, std::string service) const {
+std::unique_ptr<Response> ReverseProxyHandler::VisitOutsideServer(const Request& request, std::string host, std::string port) const {
 	HTTPClient c;
-	BOOST_LOG_TRIVIAL(debug) << "Binding connection to " << host << " and with service " << service;
-	if(!c.EstablishConnection(host, service)) {
+	BOOST_LOG_TRIVIAL(debug) << "Binding connection to " << host << " and with port " << port;
+	if(!c.EstablishConnection(host, port)) {
 		return nullptr;
 	}
 	auto resp = c.SendRequest(request);

@@ -10,7 +10,7 @@
 
 class HTTPClient {
 public:
-	bool EstablishConnection(const std::string& host, const std::string& service="http");
+	bool EstablishConnection(const std::string& host, const std::string& port="80");
 	std::unique_ptr<Response> SendRequest(const Request& req);
 private:
 	boost::asio::ip::tcp::socket* socket_;
