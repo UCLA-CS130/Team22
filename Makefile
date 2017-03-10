@@ -59,7 +59,7 @@ deploy:
 	rm binary.tar
 	cp config deploy
 	cp -r static deploy
-	printf 'FROM busybox:ubuntu-14.04\n\nWORKDIR /opt/webserver\nCOPY . /opt/webserver\n\nEXPOSE 8080:8080\nCMD ["./webserver", "config", "trace"]' > deploy/Dockerfile
+	printf 'FROM busybox:ubuntu-14.04\n\nWORKDIR /opt/webserver\nCOPY . /opt/webserver\n\nEXPOSE 8080:8080\nCMD ["./webserver", "config", "-d"]' > deploy/Dockerfile
 	docker build -t webserver deploy
 	docker save -o webserver-image webserver
 	scp -i $(PRIVATE_KEY_LOC) webserver-image $(EC2_SERVER):~
