@@ -53,7 +53,8 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_res)
 // Sets the response status and status string accordingly
 void Response::SetStatus(const ResponseCode response_code)
 {
-	try {
+	response_status_ = response_code;
+;	try {
 		response_status_first_line_ = status_strings.at(response_code);
 	}
 	catch (...) {
