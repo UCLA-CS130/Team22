@@ -35,12 +35,7 @@ RequestHandler::Status MarkdownHandler::HandleRequest(const Request& request, Re
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating markdown response";
 
-	std::string full_path = request.uri();
-	std::string file_path = file_ + full_path.substr(prefix_.length()); // get file path relative to server
-
-
-	std::string line;
-	std::ifstream infile(file_path.c_str());
+	std::ifstream infile(file_.c_str());
 	std::ostringstream out;
 	if (infile.is_open())
 	{
@@ -57,7 +52,7 @@ RequestHandler::Status MarkdownHandler::HandleRequest(const Request& request, Re
 	}
 	else
 	{
-		BOOST_LOG_TRIVIAL(error) << "Unable to open file: " << file_path;
+		BOOST_LOG_TRIVIAL(error) << "Unable to open file: " << file_;
 		NotFoundHandler not_found_handler;
 		return not_found_handler.HandleRequest(request, response);
 	}

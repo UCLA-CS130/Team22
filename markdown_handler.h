@@ -14,9 +14,6 @@ public:
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
 private:
-	// max buffer length for reading in file stream
-	enum { max_length = 8192 };
-
 	// directory path local to server
 	std::string file_;
 
