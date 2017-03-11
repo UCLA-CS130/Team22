@@ -226,5 +226,11 @@ bool StaticHandler::init_authentication_database(std::string file_name)
 		}
 	}
 
+
+	if(authentication_map_.size() == 0)
+	{
+		BOOST_LOG_TRIVIAL(error) << "No username password pairs found";
+		return false;
+	}
 	return true;
 }
