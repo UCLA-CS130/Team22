@@ -169,6 +169,15 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 	return true;
 }
 
+void ServerStatus::AddConnection(Connection* conn)
+{
+	connections_.insert(conn);
+}
+void ServerStatus::RemoveConnection(Connection* conn)
+{
+	connections_.erase(conn);
+}
+
 void ServerStatus::LogRequest(std::string url, int responseCode)
 {
 	// multiple connections will be touching this, so we should lock it
@@ -196,6 +205,18 @@ void ServerStatus::LogRequest(std::string url, int responseCode)
 }
 ServerStatus::Snapshot ServerStatus::GetSnapshot()
 {
-	return sharedState_;
+	Snapshot snapshot;
+	{
+		// copy the existing state
+		std::lock_guard<std::mutex> lock(sharedStateLock_);
+		snapshot = sharedState_; 
+	}
+
+	// some extra dynamic info
+	for (auto i : connections_) {
+		snapshot.openConnections_.push_back(i->GetStatus());
+	}
+	
+	return snapshot;
 }
 
