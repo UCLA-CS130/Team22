@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 class Response {
 public:
@@ -27,6 +28,8 @@ public:
 		internal_server_error = 500,
 		other = 600
 	};
+	static const std::unordered_map<ResponseCode, const std::string, std::hash<int>> status_strings;
+
 	Response(std::string);
 	Response();
 	Response& operator=(const Response& rhs);
