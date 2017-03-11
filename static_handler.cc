@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 
+#include "markdown.h"
 #include "request_handler.h"
 #include "static_handler.h"
 #include "response.h"
@@ -16,7 +18,8 @@ std::unordered_map<std::string,std::string> content_mappings
 	{ "html", "text/html" },
 	{ "jpg", "image/jpeg" },
 	{ "jpeg", "image/jpeg" },
-	{ "png", "image/png" }
+	{ "png", "image/png" },
+	{ "md", "text/html" }
 };
 
 
@@ -72,14 +75,33 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			// Set content type and find content length, then read file and place in response
 			std::string content_type = it->second;
 
-			std::string line;
-			std::ifstream infile(file_path.c_str(), std::ifstream::ate | std::ifstream::binary);
+			std::ifstream infile(file_path.c_str());
 			if (infile.is_open())
 			{
-				int filesize = infile.tellg();
 				response->SetStatus(Response::ok);
 				response->AddHeader("Content-Type", content_type);
-				response->AddHeader("Content-Length", std::to_string(filesize));
+
+				std::string body_data = "";
+
+				// Convert to html if in markdown
+				if(file_extension == "md")
+				{
+					std::ostringstream out;
+					markdown::Document doc;
+					doc.read(infile);
+					doc.write(out);
+					body_data = out.str();
+				}
+				else
+				{
+					char buf[max_length];
+					while (infile.read(buf, sizeof(buf)).gcount() > 0) {
+						body_data.append(buf, infile.gcount());
+					}
+				}
+
+				response->AddHeader("Content-Length", std::to_string(body_data.length()));
+				response->SetBody(body_data);
 			}
 			else
 			{
@@ -87,17 +109,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 				NotFoundHandler not_found_handler;
 				return not_found_handler.HandleRequest(request, response);
 			}
-
-			// reset back to beginning
-			infile.clear();
-			infile.seekg(0, std::ios::beg);
-
-			std::string body_data = "";
-			char buf[max_length];
-			while (infile.read(buf, sizeof(buf)).gcount() > 0) {
-				body_data.append(buf, infile.gcount());
-			}
-			response->SetBody(body_data);
 		}
 	}
 
