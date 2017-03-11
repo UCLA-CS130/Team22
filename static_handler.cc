@@ -5,11 +5,16 @@
 
 #include "markdown.h"
 #include "request_handler.h"
+#include "request.h"
 #include "static_handler.h"
 #include "response.h"
 #include "not_found_handler.h"
 #include "config_parser.h"
+
 #include <boost/log/trivial.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 std::unordered_map<std::string,std::string> content_mappings
 {
@@ -69,6 +74,59 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const 
 RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response) const
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
+
+	// Check if cookie exists
+	bool found_cookie = false;
+	std::string old_cookie = "";
+	for(auto header : request.headers())
+	{
+		if(header.first == "Cookie")
+		{
+			std::string::size_type prev_separation_pos = 0;
+			std::string::size_type separation_pos = header.second.find(";");
+
+			do
+			{
+				std::string::size_type equal_pos = header.second.find("=", prev_separation_pos);
+				if(equal_pos < separation_pos)
+				{
+					std::string key = header.second.substr(prev_separation_pos, equal_pos - prev_separation_pos);
+					if(key == "login")
+					{
+						separation_pos = header.second.find(";", prev_separation_pos + 1);
+						if(separation_pos == std::string::npos)
+						{
+							old_cookie = header.second.substr(equal_pos + 1);
+						}
+						else
+						{
+							old_cookie = header.second.substr(equal_pos + 1, separation_pos - equal_pos - 1);
+						}
+
+						found_cookie = true;
+						break;
+					}
+				}
+				prev_separation_pos = separation_pos + 2;
+				separation_pos = header.second.find(";", prev_separation_pos + 1);
+			} while(separation_pos != std::string::npos);
+
+			break;
+		}
+	}
+	// Did not find cookie, so set one
+	if(!found_cookie)
+	{
+		boost::uuids::random_generator gen;
+		boost::uuids::uuid u = gen();
+		std::string new_cookie = boost::uuids::to_string(u);
+
+		response->AddHeader("Set-Cookie", "login=" + new_cookie);
+	}
+	else
+	{
+		std::cout << "Found cookie: " << old_cookie << std::endl;
+	}
 
 	std::string full_path = request.uri();
 	std::string file_path = directory_ + full_path.substr(prefix_.length()); // get file path relative to server
