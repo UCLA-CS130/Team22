@@ -202,6 +202,7 @@ if cat temp_output | grep "Error" > /dev/null; then
 else
 	error_flag=1
 	printf "  !!invalid port not caught\n"
+	kill %1
 fi
 
 
@@ -222,11 +223,11 @@ if cat temp_output | grep "Error parsing" > /dev/null; then
 else
 	error_flag=1
 	printf "  !!brace mismatch not caught\n"
+	kill %1
 fi
 
 rm config_temp
 rm temp_output
-kill %1
 wait $! 2>/dev/null
 
 printf "\n"

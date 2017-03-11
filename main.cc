@@ -11,28 +11,29 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		//expect command to be './webserver config' or './webserver config -d'
-		if (argc > 3 || argc < 2)
-		{
-			BOOST_LOG_TRIVIAL(fatal) << "Incorrect command. Usage: web_server <config file>. Add \'-d\' to the end to enable all debugging trace logs.";
-			return 1;
-		}
-
 		//logging level is everything by default
-		if (argc == 3)
+		if (argc == 2)
+		{
+			boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+		}
+		//set default logging level to everything above and including info
+		else if (argc == 3)
 		{
 			if (std::string(argv[2]) == "-d")
 				boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
 			else if (std::string(argv[2]) == "-s")
 				boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::error);
-			else
-				BOOST_LOG_TRIVIAL(warning) << "flag not recognized, ignoring flag.";
-
+			else {
+				BOOST_LOG_TRIVIAL(fatal) << std::string(argv[2]) << " flag not recognized";
+				return 1;
+			}
 		}
-
-		//set default logging level to everything above and including info
-		if (argc == 2)
-			boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+		//expect command to be './webserver config' or './webserver config -d'
+		else
+		{
+			BOOST_LOG_TRIVIAL(fatal) << "Incorrect command. Usage: web_server <config file>. Add \'-d\' to the end to enable all debugging trace logs.";
+			return 1;
+		}
 
 		BOOST_LOG_TRIVIAL(info) << "Starting up the server...";
 		NginxConfigParser parser;
