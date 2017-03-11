@@ -57,7 +57,7 @@ void Response::SetStatus(const ResponseCode response_code)
 		response_status_first_line_ = status_strings.at(response_code);
 	}
 	catch (...) {
-		BOOST_LOG_TRIVIAL(error) << "Status code " << response_code << " has no corresponding status_string";
+		BOOST_LOG_TRIVIAL(error) << "Status code " << response_code << " has no corresponding status_string (SetStatus)";
 		response_status_first_line_ = "";
 	}
 }
@@ -100,6 +100,7 @@ Response::ResponseCode Response::IntToResponseCode(int code) {
 	// this is just easier to extend
 	auto it = status_strings.find(static_cast<ResponseCode>(code));
 	if (it == status_strings.end()){
+		BOOST_LOG_TRIVIAL(warning) << "Status code " << code << " has no corresponding status_string (IntToResponseCode)";
 		return ResponseCode::other;
 	}
 	return it->first;
