@@ -50,6 +50,14 @@ TEST_F(StaticHandlerTest, SimpleTest) {
 	EXPECT_EQ(result, "HTTP/1.1 200 OK");
 }
 
+TEST_F(StaticHandlerTest, MarkdownTest) {
+	parseString("root static/;");
+	std::string request_string = "GET /static/README.md HTTP/1.1\r\n\r\n";
+	std::string result = runRequest(request_string);
+	
+	EXPECT_EQ(result, "HTTP/1.1 200 OK");
+}
+
 TEST_F(StaticHandlerTest, Simple404Test) {
 	parseString("root static/;");
 	std::string request_string = "GET /static/error.jpg HTTP/1.1\r\n\r\n";
