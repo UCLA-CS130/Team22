@@ -2,8 +2,8 @@ CXX=g++
 CXXFLAGS=-std=c++11 -I. -Wall -Werror -static-libgcc -static-libstdc++ -pthread -Wl,-Bstatic
 LDLIBS= -lboost_log_setup -lboost_log -lboost_thread -lboost_regex -lboost_system
 OPTIMIZE=-O2
-DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h static_handler.h not_found_handler.h status_handler.h reverse_proxy_handler.h http_client.h sleep_handler.h
-OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o static_handler.o not_found_handler.o status_handler.o reverse_proxy_handler.o http_client.o sleep_handler.o
+DEPS=server.h connection.h config_parser.h request.h response.h request_handler.h echo_handler.h static_handler.h not_found_handler.h status_handler.h reverse_proxy_handler.h http_client.h sleep_handler.h markdown_handler.h markdown.h markdown-tokens.h
+OBJ=server.o connection.o config_parser.o request.o response.o request_handler.o echo_handler.o static_handler.o not_found_handler.o status_handler.o reverse_proxy_handler.o http_client.o sleep_handler.o markdown_handler.o markdown.o markdown-tokens.o
 GTEST_DIR=googletest/googletest
 TESTS=config_parser_test connection_test server_test request_test echo_handler_test static_handler_test not_found_handler_test request_handler_test status_handler_test reverse_proxy_handler_test http_client_test response_test
 DEPLOYS=deploy binary.tar webserver-image

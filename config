@@ -38,5 +38,9 @@ path /proxy3 ReverseProxyHandler {
 	proxy_pass http://ucla.edu;
 }
 
+path /readme MarkdownHandler {
+	file README.md;
+}
+
 # Default response handler if no handlers match.
 default NotFoundHandler {}
