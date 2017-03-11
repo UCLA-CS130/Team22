@@ -61,12 +61,13 @@ TEST(ServerStatusTest, SimpleStatusTest) {
 
 	ServerStatus serverStatus;
 
-	serverStatus.LogRequest("hello", 100);
-	serverStatus.LogRequest("world", 100);
-	serverStatus.LogRequest("world", 200);
+	serverStatus.LogRequest("/host1", "hello", 100);
+	serverStatus.LogRequest("/host1", "world", 100);
+	serverStatus.LogRequest("/host1", "world", 200);
+	serverStatus.LogRequest("/host2", "zzz", 200);
 
 	ServerStatus::Snapshot snapshot = serverStatus.GetSnapshot();
-	ASSERT_EQ(snapshot.totalRequests_, 3);
+	ASSERT_EQ(snapshot.totalRequests_, 4);
 
 	// check that the response code map is (100,2),(200,1)
 	auto& codeMap = snapshot.responseCountByCode_;
@@ -76,17 +77,17 @@ TEST(ServerStatusTest, SimpleStatusTest) {
 	EXPECT_EQ(it->second, 2);
 	it++;
 	EXPECT_EQ(it->first, 200);
-	EXPECT_EQ(it->second, 1);
+	EXPECT_EQ(it->second, 2);
 
-	//// check that the url map is (hello,1),(world,2)
+	//// check that the url map is (host1,((hello,1),(world,2)))
 	auto& urlMap = snapshot.requestCountByURL_;
 	ASSERT_EQ(urlMap.size(), 2);
-	auto it2 = urlMap.begin();
-	EXPECT_EQ(it2->first, std::string("hello"));
-	EXPECT_EQ(it2->second, 1);
-	it2++;
-	EXPECT_EQ(it2->first, std::string("world"));
-	EXPECT_EQ(it2->second, 2);
 
-	//EXPECT_EQ(status.port, 4000);
+	auto m = std::map<std::string, std::map<std::string,int>>(
+		{{"/host1",{{"hello", 1}, {"world", 2}}},
+		 {"/host2",{{"zzz", 1}}}
+		});
+	
+	EXPECT_EQ(urlMap, m);
+	
 }
