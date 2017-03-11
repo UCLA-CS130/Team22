@@ -67,9 +67,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		// since we don't use POST, deal with it later
 		std::string data((std::istreambuf_iterator<char>(&data_stream_)), std::istreambuf_iterator<char>());
 
-		BOOST_LOG_TRIVIAL(debug) << data;
-
-		std::string prefix = "";
+		std::string prefix = "unknown";
 		std::unique_ptr<Request> request = Request::Parse(data);
 		if (!request) { // parse error -> nullptr
 			response.SetStatus(Response::bad_request);
@@ -88,7 +86,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 				NotFoundHandler not_found_handler;
 				not_found_handler.HandleRequest(*request, &response);
 				prefix = "Not Found";
-				printf("using not found handler\n");
 			}
 			else {
 				// have the handler generate a response
