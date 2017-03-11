@@ -14,7 +14,6 @@
 RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
 	prefix_ = uri_prefix;
-	port_ = "80";
 
 	for (auto statement : config.statements_)
 	{
@@ -22,25 +21,50 @@ RequestHandler::Status ReverseProxyHandler::Init(const std::string& uri_prefix, 
 		{
 			url_ = statement->tokens_[1];
 
+			// protocol end position
 			std::string::size_type protocol_pos = url_.find("//");
 			if(protocol_pos == std::string::npos) {
-				BOOST_LOG_TRIVIAL(warning) << "proxy_pass didn't specify protocol. Using default 80";
+				BOOST_LOG_TRIVIAL(warning) << "proxy_pass didn't specify protocol";
 			}
 			else {
 				std::string protocol_string = url_.substr(0, protocol_pos - 1);
 				if(protocol_string != "http")
-					BOOST_LOG_TRIVIAL(warning) << "Unknown protocol. Using default 80";
+					BOOST_LOG_TRIVIAL(warning) << "Unknown protocol \"" << protocol_string << "\"";
 			}
 
-			std::string::size_type host_pos = url_.find('/', protocol_pos + 2);
-			if(host_pos != std::string::npos) {
-				host_ = url_.substr(protocol_pos + 2, host_pos - protocol_pos - 2);
-				path_ = url_.substr(host_pos);
+			// host end position
+			size_t host_pos = url_.find_first_of(":/", protocol_pos + 2);
+			size_t path_start = std::string::npos;
+			size_t port_start = std::string::npos;
+			
+			host_ = url_.substr(protocol_pos + 2, host_pos - protocol_pos - 2);
+			if(url_[host_pos] == ':'){
+				port_start = host_pos;
 			}
 			else {
-				host_ = url_.substr(protocol_pos + 2);
+				path_start = host_pos;
+			}
+
+			// port
+			if(port_start != std::string::npos){
+				path_start = url_.find("/", port_start + 1);
+				port_ = url_.substr(port_start + 1, path_start - port_start - 1);
+			}
+			else {
+				port_ = "80";
+			}
+
+			// path
+			if(path_start != std::string::npos){
+				path_ = url_.substr(path_start);
+			}
+			else {
 				path_ = "/";
 			}
+
+			//print("reverse proxy configured with:\n");
+			BOOST_LOG_TRIVIAL(debug) << "reverse proxy configured with: " << path_ << " " << port_ << " " << host_;
+
 			return RequestHandler::OK;
 		}
 	}

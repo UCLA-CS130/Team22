@@ -33,11 +33,21 @@ printf "
 			path /proxy4 ReverseProxyHandler {\n
 				proxy_pass http://google.com;\n
 			}\n
+			path /proxy5 ReverseProxyHandler {\n
+				proxy_pass http://localhost:8000/echo;\n
+			}
 			default NotFoundHandler {}\n" > config_temp;
+printf "
+			port 8000;\n
+			path /echo EchoHandler {}\n
+			" > config_temp2
+
 
 ./webserver config_temp -s &
+./webserver config_temp2 -s &
 sleep 1
 
+#port check
 if netstat -vatn | grep 0.0.0.8080 > /dev/null; then
 	printf "  --tcp connection established at port 8080\n"
 else
@@ -45,6 +55,7 @@ else
 	printf "  !!no tcp connection found at port 8080\n"
 fi
 
+#curl test
 if curl -s localhost:8080/echo | tr "\n\r" " " | grep "GET /echo HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
 	printf "  --curl succeeded\n"
 else
@@ -129,6 +140,15 @@ fi
 
 sleep 1
 
+#reverse proxy handler with out own server
+printf "\ntesting reverse proxy handler with a second webserver...\n"
+if curl -s localhost:8080/proxy5 | tr "\n\r" " " | grep "GET /echo HTTP/1.1" | grep "Host" | grep "User-Agent" > /dev/null; then
+	printf "  --proxy echo succeeded\n"
+else
+	error_flag=1
+	printf "  !!proxy echo failed\n"
+fi
+
 #testing longest prefix match
 printf "\ntesting longest prefix match static/same/kinkakuji.jpg with uri 'static' and 'static/same' handler...\n"
 if diff <(curl -s localhost:8080/static/kinkakuji.jpg) static/kinkakuji.jpg; then
@@ -210,6 +230,9 @@ kill %1
 wait $! 2>/dev/null
 
 printf "\n"
+
+# cleanup everything just in case
+pkill webserver
 
 if [ $error_flag -eq 1 ]
 then
