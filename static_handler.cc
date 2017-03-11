@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <ctime>
 
 #include "markdown.h"
 #include "request_handler.h"
@@ -75,61 +76,94 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
 
-	// Check if cookie exists
-	bool found_cookie = false;
-	std::string old_cookie = "";
-	for(auto header : request.headers())
-	{
-		if(header.first == "Cookie")
-		{
-			std::string::size_type prev_separation_pos = 0;
-			std::string::size_type separation_pos = header.second.find(";");
-
-			do
-			{
-				std::string::size_type equal_pos = header.second.find("=", prev_separation_pos);
-				if(equal_pos < separation_pos)
-				{
-					std::string key = header.second.substr(prev_separation_pos, equal_pos - prev_separation_pos);
-					if(key == "login")
-					{
-						separation_pos = header.second.find(";", prev_separation_pos + 1);
-						if(separation_pos == std::string::npos)
-						{
-							old_cookie = header.second.substr(equal_pos + 1);
-						}
-						else
-						{
-							old_cookie = header.second.substr(equal_pos + 1, separation_pos - equal_pos - 1);
-						}
-
-						found_cookie = true;
-						break;
-					}
-				}
-				prev_separation_pos = separation_pos + 2;
-				separation_pos = header.second.find(";", prev_separation_pos + 1);
-			} while(separation_pos != std::string::npos);
-
-			break;
-		}
-	}
-	// Did not find cookie, so set one
-	if(!found_cookie)
-	{
-		boost::uuids::random_generator gen;
-		boost::uuids::uuid u = gen();
-		std::string new_cookie = boost::uuids::to_string(u);
-
-		response->AddHeader("Set-Cookie", "login=" + new_cookie);
-	}
-	else
-	{
-		std::cout << "Found cookie: " << old_cookie << std::endl;
-	}
-
 	std::string full_path = request.uri();
 	std::string file_path = directory_ + full_path.substr(prefix_.length()); // get file path relative to server
+
+	// Check if cookie exists if authentication
+	if(!authentication_map_.empty())
+	{
+		std::string current_cookie = "";
+		// Gets the current cookie from browser request headers
+		for(auto header : request.headers())
+		{
+			if(header.first == "Cookie")
+			{
+				std::string::size_type prev_separation_pos = 0;
+				std::string::size_type separation_pos = header.second.find(";");
+
+				do
+				{
+					std::string::size_type equal_pos = header.second.find("=", prev_separation_pos);
+					if(equal_pos < separation_pos)
+					{
+						std::string key = header.second.substr(prev_separation_pos, equal_pos - prev_separation_pos);
+						if(key == "login")
+						{
+							separation_pos = header.second.find(";", prev_separation_pos + 1);
+							if(separation_pos == std::string::npos)
+							{
+								current_cookie = header.second.substr(equal_pos + 1);
+							}
+							else
+							{
+								current_cookie = header.second.substr(equal_pos + 1, separation_pos - equal_pos - 1);
+							}
+
+							break;
+						}
+					}
+					prev_separation_pos = separation_pos + 2;
+					separation_pos = header.second.find(";", prev_separation_pos + 1);
+				} while(separation_pos != std::string::npos);
+
+				break;
+			}
+		}
+
+		if(request.method() == "GET")
+		{
+			// TODO: check if cookie unordered_map has any expired and purge
+
+			// show login page if no cookie given or current_cookie is not in map
+			if(current_cookie == "") // TODO: add || !map.find(current_cookie)
+			{
+				// TODO: make login html
+				file_path = "login.html";
+			}
+			// else, login cookie exists and is valid so continue to serve normally
+		}
+		
+		else if(request.method() == "POST")
+		{
+			// Go through Post body to find login and password
+
+			// TODO: go through post body and set user and password properly
+			std::string user = "";
+			std::string password = "";
+
+			// If authenticated properly, assign cookie as part of response and serve file normally
+			auto got = authentication_map_.find(user);
+			if(got != authentication_map_.end() && got->second == password) {
+				// assign cookie
+				boost::uuids::random_generator gen;
+				boost::uuids::uuid u = gen();
+				std::string new_cookie = boost::uuids::to_string(u);
+
+				// generate expiration time
+				std::time_t expire_time = std::time(nullptr) + timeout_;
+				struct tm * timeinfo = std::gmtime(&expire_time);
+				char buffer[80];
+				strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S %Z", timeinfo);
+
+				response->AddHeader("Set-Cookie", "login=" + new_cookie + "; path=" + prefix_ + "; expires=" + buffer);
+			}
+			// Else, respond with login page
+			else
+			{
+				file_path = "login.html";
+			}
+		}
+	}
 
 	// Make sure extension exists
 	std::size_t last_dot_pos = file_path.find_last_of(".");
