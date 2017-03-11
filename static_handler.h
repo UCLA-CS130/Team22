@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <time.h>
 #include "request_handler.h"
 #include "config_parser.h"
 #include "request.h"
@@ -22,6 +23,14 @@ private:
 
 	// prefix of uri
 	std::string prefix_;
+
+	// "database" of usernames and passwords
+	std::unordered_map<std::string, std::string> authentication_map_;
+
+	//timeout for a user. only applicable if database of names and passwords is initiated, otherwise does nothing
+	time_t timeout_;
+
+	bool init_authentication_database(std::string file_name);
 };
 
 REGISTER_REQUEST_HANDLER(StaticHandler);

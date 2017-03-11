@@ -22,20 +22,44 @@ std::unordered_map<std::string,std::string> content_mappings
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
-	// initialiing uri prefix and directory
+	// initializing variables
 	prefix_ = uri_prefix;
+	timeout_ = -1;
 
 	for (auto statement : config.statements_)
 	{
+		//look for root
 		if(statement->tokens_.size() == 2 && statement->tokens_[0] == "root")
 		{
 			directory_ = statement->tokens_[1];
-			return RequestHandler::OK;
+		}
+
+		//look for authetication list for private files (optional)
+		else if(statement->tokens_.size() == 2 && statement->tokens_[0] == "authentication_list")
+		{
+			if(!init_authentication_database(statement->tokens_[1]))
+			{
+				BOOST_LOG_TRIVIAL(error) << "error parsing given authentication_list file";
+				return RequestHandler::ERROR;
+			}
+		}
+
+		//look for timeout value in seconds for authentication (optional)
+		else if(statement->tokens_.size() == 2 && statement->tokens_[0] == "timeout")
+		{
+			//exception will be thrown and caught from main if value isnt an int
+			timeout_ = std::stoi(statement->tokens_[1]);
 		}
 	}
 
-	BOOST_LOG_TRIVIAL(error) << "root not specified in static handler for " << uri_prefix;
-	return RequestHandler::ERROR;
+	//root not set
+	if(directory_ == "")
+	{
+		BOOST_LOG_TRIVIAL(error) << "root not specified in static handler for " << uri_prefix;
+		return RequestHandler::ERROR;
+	}
+
+	return RequestHandler::OK;
 }
 
 
@@ -102,4 +126,36 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	}
 
 	return RequestHandler::OK;
+}
+
+bool StaticHandler::init_authentication_database(std::string file_name)
+{
+	std::string line;
+	std::ifstream file(file_name);
+
+	while(std::getline(file, line))
+	{
+		size_t index_of_comma = line.find(",");
+		if (index_of_comma == std::string::npos)
+		{
+			BOOST_LOG_TRIVIAL(error) << "Comma missing in authentication file";
+			return false;
+		}
+
+		std::string username = line.substr(0, index_of_comma);
+		std::string password = line.substr(index_of_comma+1);
+
+		//check if username already exists
+		if(authentication_map_.find(username) != authentication_map_.end())
+		{
+			BOOST_LOG_TRIVIAL(error) << "Unallowed duplicate usernames exist";
+			return false;
+		}
+		else
+		{
+			authentication_map_[username] = password;
+		}
+	}
+
+	return true;
 }
