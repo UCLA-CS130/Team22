@@ -11,7 +11,7 @@
 #include "config_parser.h"
 #include <boost/log/trivial.hpp>
 
-std::unordered_map<std::string,std::string> content_mappings
+const std::unordered_map<std::string,std::string> content_mappings
 {
 	{ "gif", "image/gif" },
 	{ "htm", "text/html" },
@@ -19,9 +19,8 @@ std::unordered_map<std::string,std::string> content_mappings
 	{ "jpg", "image/jpeg" },
 	{ "jpeg", "image/jpeg" },
 	{ "png", "image/png" },
-	{ "md", "text/html" }
+	{ "md", "text/markdown" }
 };
-
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const NginxConfig& config)
 {
@@ -41,7 +40,6 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const 
 	return RequestHandler::ERROR;
 }
 
-
 RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response) const
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
@@ -49,68 +47,50 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	std::string full_path = request.uri();
 	std::string file_path = directory_ + full_path.substr(prefix_.length()); // get file path relative to server
 
-	// Make sure extension exists
-	std::size_t last_dot_pos = file_path.find_last_of(".");
-	if(last_dot_pos == std::string::npos)
-	{
-		BOOST_LOG_TRIVIAL(error) << "Unknown file: " << file_path;
+	std::ifstream infile(file_path.c_str());
+	if (infile.is_open()) {
+		std::stringstream ss;
+		ss << infile.rdbuf();
+		std::string body_data = ss.str();
 
+		std::string new_data;
+		std::string content_type;
+		if (!ProcessFile(file_path, body_data, &new_data, &content_type)){
+			return RequestHandler::ERROR;
+		}
+
+		if (content_type != ""){
+			response->AddHeader("Content-Type", content_type);
+		}
+
+		response->AddHeader("Content-Length", std::to_string(body_data.length()));
+		response->SetBody(new_data);
+		response->SetStatus(Response::ok);
+	}
+	else {
+		BOOST_LOG_TRIVIAL(error) << "Unable to open file: " << file_path;
 		NotFoundHandler not_found_handler;
 		return not_found_handler.HandleRequest(request, response);
 	}
-	else
-	{
-		// Check for how to serve extension
-		std::string file_extension = file_path.substr(last_dot_pos + 1);
-
-		std::unordered_map<std::string,std::string>::const_iterator it = content_mappings.find(file_extension);
-		if (it == content_mappings.end())
-		{
-			BOOST_LOG_TRIVIAL(error) << "Extension not supported: " << file_extension;
-			NotFoundHandler not_found_handler;
-			return not_found_handler.HandleRequest(request, response);
-		}
-		else
-		{
-			// Set content type and find content length, then read file and place in response
-			std::string content_type = it->second;
-
-			std::ifstream infile(file_path.c_str());
-			if (infile.is_open())
-			{
-				response->SetStatus(Response::ok);
-				response->AddHeader("Content-Type", content_type);
-
-				std::string body_data = "";
-
-				// Convert to html if in markdown
-				if(file_extension == "md")
-				{
-					std::ostringstream out;
-					markdown::Document doc;
-					doc.read(infile);
-					doc.write(out);
-					body_data = out.str();
-				}
-				else
-				{
-					char buf[max_length];
-					while (infile.read(buf, sizeof(buf)).gcount() > 0) {
-						body_data.append(buf, infile.gcount());
-					}
-				}
-
-				response->AddHeader("Content-Length", std::to_string(body_data.length()));
-				response->SetBody(body_data);
-			}
-			else
-			{
-				BOOST_LOG_TRIVIAL(error) << "Unable to open file: " << file_path;
-				NotFoundHandler not_found_handler;
-				return not_found_handler.HandleRequest(request, response);
-			}
-		}
-	}
 
 	return RequestHandler::OK;
+}
+
+
+bool StaticHandler::ProcessFile(const std::string& path, const std::string& data, std::string *new_data, std::string *content_type) const{
+	*new_data = data; // there must be a better way
+
+	// Find the content type
+	std::size_t last_dot_pos = path.find_last_of(".");
+	if(last_dot_pos != std::string::npos) {
+		std::string file_extension = path.substr(last_dot_pos + 1);
+	
+		auto it = content_mappings.find(file_extension);
+		if (it != content_mappings.end()) {
+			printf("found content type %s\n", it->second.c_str());
+
+			*content_type = it->second;
+		}
+	}
+	return true;
 }

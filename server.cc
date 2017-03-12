@@ -9,8 +9,8 @@
 #include "server.h"
 #include "config_parser.h"
 #include "request_handler.h"
-#include "echo_handler.h"
-#include "static_handler.h"
+//#include "echo_handler.h"
+//#include "static_handler.h"
 #include "not_found_handler.h"
 #include "status_handler.h"
 

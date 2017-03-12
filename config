@@ -38,7 +38,7 @@ path /proxy3 ReverseProxyHandler {
 }
 
 # MarkdownFileHandler inherits StaticHandler, converts the loaded md file into html
-path_regex /regex .md StaticHandler {
+path_regex /static \.md MarkdownHandler {
 	root static;
 }
 
