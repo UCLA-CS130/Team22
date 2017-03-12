@@ -27,10 +27,14 @@ private:
 	// "database" of usernames and passwords
 	std::unordered_map<std::string, std::string> authentication_map_;
 
-	//timeout for a user. only applicable if database of names and passwords is initiated, otherwise does nothing
+	// timeout for a user. only applicable if database of names and passwords is initiated, otherwise does nothing
 	time_t timeout_;
 
+	// initialize users and passwords who are valid from txt
 	bool init_authentication_database(std::string file_name);
+
+	// create login.html page
+	std::string LoginToHtml(std::string full_path, std::string reason) const;
 };
 
 REGISTER_REQUEST_HANDLER(StaticHandler);
