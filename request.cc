@@ -148,7 +148,7 @@ bool Request::parse_raw_request(const std::string& req){
 	}
 	size_t begin_body_index = end_fields_index + 4; //Add 4 to skip to the body.
 	if(begin_body_index < req.size())
-		body_ = req.substr(begin_body_index, req.size() - begin_body_index - 2); //minus 2 to ignore the last \r\n
+		body_ = req.substr(begin_body_index, req.size() - begin_body_index);
 
 	//truncate req to everything before the \r\n\r\n
 	std::string new_req = req.substr(0, end_fields_index + 1);

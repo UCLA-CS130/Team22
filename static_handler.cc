@@ -88,33 +88,35 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 		{
 			if(header.first == "Cookie")
 			{
+				std::string cookie_string = header.second;
 				std::string::size_type prev_separation_pos = 0;
-				std::string::size_type separation_pos = header.second.find(";");
+				std::string::size_type separation_pos = cookie_string.find(";");
 
-				do
+				while(prev_separation_pos != std::string::npos)
 				{
-					std::string::size_type equal_pos = header.second.find("=", prev_separation_pos);
+					std::string::size_type equal_pos = cookie_string.find("=", prev_separation_pos);
 					if(equal_pos < separation_pos)
 					{
-						std::string key = header.second.substr(prev_separation_pos, equal_pos - prev_separation_pos);
+						std::string key = cookie_string.substr(prev_separation_pos, equal_pos - prev_separation_pos);
 						if(key == "login")
 						{
-							separation_pos = header.second.find(";", prev_separation_pos + 1);
+							separation_pos = cookie_string.find(";", prev_separation_pos + 1);
 							if(separation_pos == std::string::npos)
-							{
-								current_cookie = header.second.substr(equal_pos + 1);
-							}
+								current_cookie = cookie_string.substr(equal_pos + 1);
 							else
-							{
-								current_cookie = header.second.substr(equal_pos + 1, separation_pos - equal_pos - 1);
-							}
+								current_cookie = cookie_string.substr(equal_pos + 1, separation_pos - equal_pos - 1);
 
 							break;
 						}
 					}
-					prev_separation_pos = separation_pos + 2;
-					separation_pos = header.second.find(";", prev_separation_pos + 1);
-				} while(separation_pos != std::string::npos);
+					if(separation_pos == std::string::npos)
+						prev_separation_pos = std::string::npos;
+					else
+					{
+						prev_separation_pos = separation_pos + 2;
+						separation_pos = cookie_string.find(";", prev_separation_pos + 1);
+					}
+				}
 
 				break;
 			}
@@ -127,8 +129,13 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			// show login page if no cookie given or current_cookie is not in map
 			if(current_cookie == "" || cookie_expiration_map_.find(current_cookie) == cookie_expiration_map_.end())
 			{
-				// TODO: make login html
-				file_path = "login.html";
+				std::string login_data = LoginToHtml(full_path, "Please login first");
+				response->SetStatus(Response::unauthorized);
+				response->AddHeader("WWW-Authenticate", "FormBased");
+				response->AddHeader("Content-Type", "text/html");
+				response->AddHeader("Content-Length", std::to_string(login_data.length()));
+				response->SetBody(login_data);
+				return RequestHandler::OK;
 			}
 			// else, login cookie exists and is valid so continue to serve normally
 		}
@@ -136,13 +143,61 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 		else if(request.method() == "POST")
 		{
 			// Go through Post body to find login and password
+			std::string login_body = request.body();
 
-			// TODO: go through post body and set user and password properly
-			std::string user = "";
+			std::string::size_type prev_separation_pos = 0;
+			std::string::size_type separation_pos = login_body.find("&");
+
+			std::string username = "";
 			std::string password = "";
 
+			while(prev_separation_pos != std::string::npos)
+			{
+				std::string::size_type equal_pos = login_body.find("=", prev_separation_pos);
+				if(equal_pos < separation_pos)
+				{
+					std::string key = login_body.substr(prev_separation_pos, equal_pos - prev_separation_pos);
+					if(key == "username")
+					{
+						separation_pos = login_body.find("&", prev_separation_pos + 1);
+						if(separation_pos == std::string::npos)
+							username = login_body.substr(equal_pos + 1);
+						else
+							username = login_body.substr(equal_pos + 1, separation_pos - equal_pos - 1);
+					}
+					else if(key == "password")
+					{
+						separation_pos = login_body.find("&", prev_separation_pos + 1);
+						if(separation_pos == std::string::npos)
+							password = login_body.substr(equal_pos + 1);
+						else
+							password = login_body.substr(equal_pos + 1, separation_pos - equal_pos - 1);
+					}
+					else
+					{
+						// bad argument found in post body
+						std::string login_data = LoginToHtml(full_path, "Bad request. Please try logging in again");
+						response->SetStatus(Response::bad_request);
+						response->AddHeader("Content-Type", "text/html");
+						response->AddHeader("Content-Length", std::to_string(login_data.length()));
+						response->SetBody(login_data);
+						return RequestHandler::OK;
+					}
+				}
+				if(separation_pos == std::string::npos)
+					prev_separation_pos = std::string::npos;
+				else
+				{
+					prev_separation_pos = separation_pos + 1;
+					separation_pos = login_body.find(";", prev_separation_pos + 1);
+				}
+			}
+
+			std::cout << username << std::endl;
+			std::cout << password << std::endl;
+
 			// If authenticated properly, assign cookie as part of response and serve file normally
-			auto got = authentication_map_.find(user);
+			auto got = authentication_map_.find(username);
 			if(got != authentication_map_.end() && got->second == password) {
 
 				// assign cookie, regenernate cookie if cookie already happens to belong to another user
@@ -171,10 +226,16 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 
 				response->AddHeader("Set-Cookie", "login=" + new_cookie + "; path=" + prefix_ + "; expires=" + buffer);
 			}
-			// Else, respond with login page
+			// Else, respond with login page because failed authentication
 			else
 			{
-				file_path = "login.html";
+				std::string login_data = LoginToHtml(full_path, "Username and/or password invalid");
+				response->SetStatus(Response::unauthorized);
+				response->AddHeader("WWW-Authenticate", "FormBased");
+				response->AddHeader("Content-Type", "text/html");
+				response->AddHeader("Content-Length", std::to_string(login_data.length()));
+				response->SetBody(login_data);
+				return RequestHandler::OK;
 			}
 		}
 	}
@@ -294,4 +355,34 @@ void StaticHandler::purge_expired_cookies()
 		else
 			it++;
 	}
+}
+
+std::string StaticHandler::LoginToHtml(std::string full_path, std::string reason) const
+{
+	std::stringstream body;
+
+	// html stuff
+	body << "<!DOCTYPE HTML>\n";
+
+	body << "<html>\n";
+	body << "<head>\n";
+	body << "<title>Login Page</title>\n";
+	body << "</head>\n";
+	body << "<body style='padding-left: 20px;''>\n";
+	body << "<h1>Login</h1>\n";
+	body << "<h4>" << reason << "</h4>\n";
+
+	body << "<form action='" << full_path << "' method='post'>\n";
+	body << "Username:<br>\n";
+	body << "<input type='text' name='username' required><br>\n";
+	body << "Password:<br>\n";
+	body << "<input type='password' name='password' required>\n";
+	body << "<br><br>\n";
+	body << "<input type='submit' value='Submit'>\n";
+
+	body << "</form>\n";
+	body << "</body>\n";
+	body << "</html>\n";
+
+	return body.str(); // is there a better way?
 }
