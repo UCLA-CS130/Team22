@@ -47,9 +47,9 @@ Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* 
 	// initialize ServerStatus
 	serverStatus_->sharedState_.port_ = port;
 	serverStatus_->sharedState_.totalRequests_ = 0;
-	for (auto& handlerPair : *requestHandlers_) {
-		serverStatus_->sharedState_.requestHandlers_.push_back(handlerPair.first);
-	}
+
+	serverStatus_->sharedState_.requestHandlers_ = handlers->GetList();
+
 	BOOST_LOG_TRIVIAL(info) << "Server constructed, listening on port " << port << "...";
 }
 
@@ -122,11 +122,9 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 					BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for default";
 					return false;
 				}
-				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
-				//default already exists
-				if (!insert_result.second)
-				{
-					BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
+
+				if (!handlers->AddPath("", handler)){
+					BOOST_LOG_TRIVIAL(fatal) << "Duplicate default handler detected.";
 					return false;
 				}
 
@@ -134,7 +132,9 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			}
 		}
 		//generic handler instantiation
-		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
+		else if (statement->tokens_.size() == 3 && 
+				statement->tokens_[0] == "path" &&
+				statement->child_block_ != nullptr) {
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
 
 			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
@@ -142,11 +142,8 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for " << statement->tokens_[1];
 				return false;
 			}
-			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
 
-			//prevent duplicate uri keys
-			if (!insert_result.second)
-			{
+			if (!handlers->AddPath(statement->tokens_[1], handler)){
 				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
 				return false;
 			}
@@ -157,7 +154,6 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				statusHandler->InitStatusHandler(serverStatus);
 			}
 			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " to " << statement->tokens_[2];
-
 		}
 	}
 	if(!port_found)
