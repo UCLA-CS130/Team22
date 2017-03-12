@@ -44,14 +44,19 @@ const RequestHandler* HandlerContainer::Find(const std::string& path) const {
 			longest_prefix = s;
 		}
 	}
+
 	printf("longest regex match: %zu, %s\n", longest, longest_prefix.c_str());
 	// scan through again, this time applying the regex condition
 	if (longest_prefix != ""){
 		for (auto& tuple : regex_paths_) {
 			if (path.find(longest_prefix) == 0) {
-				printf("testing regex match: %s\n", );
+				//printf("testing regex match: %s\n", );
 				// TODO: save the regex parse to save time later
-				if (std::regex_match(path, std::regex(std::get<1>(tuple)))){
+				std::smatch m;
+				std::regex re(std::get<1>(tuple));
+
+				if (std::regex_search(path, m, re)){
+					printf("handler %p\n", std::get<2>(tuple).get());
 					return std::get<2>(tuple).get();
 				}
 			}
@@ -85,7 +90,7 @@ std::list<std::string> HandlerContainer::GetList() const{
 }
 
 // gets longest matching prefix
-std::string HandlerContainer::get_prefix(const std::string& uri) const 
+std::string HandlerContainer::get_prefix(const std::string& uri) const
 {
 	std::string longest = "";
 	size_t index = uri.find_last_of("/");

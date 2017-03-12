@@ -160,6 +160,7 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				statement->tokens_[0] == "path_regex" &&
 				statement->child_block_ != nullptr) {
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[3]);
+			printf("created handler %p\n", handler);
 
 			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
 			{

@@ -6,7 +6,6 @@ port 8080;
 threads 8; 
 
 path /echo EchoHandler {}
-path /test EchoHandler {}
 
 path /static/same StaticHandler {
 	root static;
@@ -40,7 +39,7 @@ path /proxy3 ReverseProxyHandler {
 
 # MarkdownFileHandler inherits StaticHandler, converts the loaded md file into html
 path_regex /regex .md StaticHandler {
-	root /static;
+	root static;
 }
 
 # Default response handler if no handlers match.
