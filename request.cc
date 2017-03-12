@@ -84,6 +84,12 @@ void Request::set_uri(std::string uri) {
 	path_ = uri;
 }
 
+size_t Request::append_body(const std::string& data){
+	body_ += data;
+	raw_request_ += data;
+	return body_.size();
+}
+
 std::string Request::ToString() const {
 	std::string http_request;
 	

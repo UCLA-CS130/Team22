@@ -73,6 +73,52 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 			response.SetBody("400 Bad Request");
 		}
 		else {
+			
+			// read in the rest of a POST request
+			if (request->method() == "POST") {
+				printf("got a post\n");
+				size_t actual_bytes_transferred = request->raw_request().size();
+
+				// there should really be a GetHeader("Content-Length")
+				size_t content_length = 0;
+				Headers headers = request->headers();
+				bool found = false;
+				for (auto i : headers){
+					if (i.first == "Content-Length"){
+						printf("content length: %s\n", i.second.c_str());
+						content_length = std::stoi(i.second);
+						found = true;
+					}
+				}
+
+				if (!found) {
+					// 400 bad request
+				}
+				else {
+					char buff[1000];
+					size_t body_size = request->body().size();
+					while (body_size < content_length) {
+						int nread;
+						try {
+							nread = socket_.read_some(boost::asio::buffer(buff, 1000));
+						}
+						catch (...){
+							// client closed the connection
+							// would close_socket() work?
+							return;
+						}
+						printf("read %d extra bytes\n", nread);
+						body_size = request->append_body(std::string(buff, nread)); // append the body and raw_request, update
+					}
+
+				}
+
+				printf("original bytes transferred: %zu, final length: %zu, body-length: %zu/%zu\n", 
+					actual_bytes_transferred, request->raw_request().size(), request->body().size(), content_length);
+
+			}
+
+
 			// log what we're up to
 			request_summary_ = request->uri();
 

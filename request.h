@@ -44,6 +44,9 @@ public:
 	// removes a header
 	void remove_header(std::string key);
 
+	// adds to the body
+	size_t append_body(const std::string&);
+
 	// Converts the response to a http string
 	std::string ToString() const;
 
