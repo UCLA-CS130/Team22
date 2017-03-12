@@ -61,16 +61,23 @@ public:
 
 // Enapsulates prefix path searching, regex searching
 // Hides the internal storage structure for handlers
-// Calling Add gives ownership to this container
+
 class HandlerContainer {
 public:
+	// Tracks a handler + prefix
+	// - Calling Add gives ownership to this container
+	// - Duplicate AddPath prefixes are not allowed
 	bool AddPath(const std::string& prefix, const RequestHandler* handler);
 	bool AddRegexPath(const std::string& prefix, const std::string& regex, const RequestHandler* handler);
 
 	// returns a request handler if it was defined in the config, otherwise returns nullptr
+	// - longest matching prefix match
+	// - regex paths take priority over regular paths
+	// - picks the first regex match (after the longest match prefix)
 	const RequestHandler* Find(const std::string& path) const;
 
 	// returns a list of request handler paths (for the status page)
+	// - path in alphabetical order, then path_regex in alphabetical order
 	std::list<std::string> GetList() const;
 
 private:
@@ -78,6 +85,7 @@ private:
 	std::string get_prefix(const std::string& uri) const;
 
 	std::map<const std::string, std::unique_ptr<const RequestHandler>> paths_;
+	// {path, regex string, handler*, compiled regex}
 	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<const RequestHandler>, std::regex>> regex_paths_;
 };
 
