@@ -11,7 +11,7 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) 
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus)
 	: socket_(io_service)
 	, data_stream_(max_length)
 	, handlers_(handlers)
@@ -77,7 +77,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 			request_summary_ = request->uri();
 
 			// get the correct handler based on the header
-			const RequestHandler* handler = GetRequestHandler(request->uri());
+			RequestHandler* handler = GetRequestHandler(request->uri());
 
 			if (handler == nullptr) {
 				// TODO generalize, fit with the StaticHandler
@@ -139,13 +139,13 @@ void Connection::close_socket(const boost::system::error_code& error)
 	} else {
 		BOOST_LOG_TRIVIAL(error) << "Error writing connection.";
 	}
-	
+
 	delete this;
 	BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
 }
 
 // returns a request handler if it was defined in the config, otherwise returns nullptr
-const RequestHandler* Connection::GetRequestHandler(const std::string& path)
+RequestHandler* Connection::GetRequestHandler(const std::string& path)
 {
 	//exact match
 	std::map<const std::string, RequestHandler*>::const_iterator match = handlers_->find(path);
@@ -231,4 +231,3 @@ void Connection::SetState(ConnectionState s)
 	std::lock_guard<std::mutex> lock(conn_state_lock_);
 	conn_state_ = s;
 }
-

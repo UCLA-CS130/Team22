@@ -15,8 +15,8 @@ class ReverseProxyHandler : public RequestHandler {
 public:
 	friend class ReverseProxyHandlerTest;
 	virtual RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
-	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
-	
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response);
+
 	// 21 Redirects is the standard used by most modern web browers.
 	const int MaxRedirectDepth = 21;
 private:

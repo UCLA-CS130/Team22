@@ -35,7 +35,7 @@ public:
 	// writes the response from Response object
 	// returns the data that was written
 	std::string write_response(const Response& response);
-	
+
 	std::string GetStatus();
 
 private:
@@ -43,7 +43,7 @@ private:
 	void close_socket(const boost::system::error_code& error);
 
 	// returns a request handler if it was defined in the config, otherwise returns nullptr
-	const RequestHandler* GetRequestHandler(const std::string & path);
+	RequestHandler* GetRequestHandler(const std::string & path);
 
 	// gets longest matching prefix
 	std::string get_prefix(const std::string uri);
@@ -55,7 +55,7 @@ private:
 	const HandlerContainer* handlers_;
 	ServerStatus* serverStatus_;
 	std::string response_data_;
-	
+
 	std::string request_summary_;
 
 	enum ConnectionState {

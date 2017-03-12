@@ -12,7 +12,7 @@
 class StaticHandler : public RequestHandler {
 public:
 	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
-	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response);
 
 private:
 	// max buffer length for reading in file stream
@@ -30,8 +30,14 @@ private:
 	// timeout for a user. only applicable if database of names and passwords is initiated, otherwise does nothing
 	time_t timeout_;
 
-	// initialize users and passwords who are valid from txt
+	//map cookies to when they are expired
+	std::unordered_map<std::string, time_t> cookie_expiration_map_;
+
+	//read file for list of usernames and passwords, update authentication_map_
 	bool init_authentication_database(std::string file_name);
+
+	//remove old cookies from cookie_expiration_map_
+	void purge_expired_cookies();
 
 	// create login.html page
 	std::string LoginToHtml(std::string full_path, std::string reason) const;
