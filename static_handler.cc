@@ -72,7 +72,7 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix, const 
 }
 
 
-RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response) const
+RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Response* response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating static file response";
 
@@ -122,17 +122,17 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 
 		if(request.method() == "GET")
 		{
-			// TODO: check if cookie unordered_map has any expired and purge
+			purge_expired_cookies();
 
 			// show login page if no cookie given or current_cookie is not in map
-			if(current_cookie == "") // TODO: add || !map.find(current_cookie)
+			if(current_cookie == "" || cookie_expiration_map_.find(current_cookie) == cookie_expiration_map_.end())
 			{
 				// TODO: make login html
 				file_path = "login.html";
 			}
 			// else, login cookie exists and is valid so continue to serve normally
 		}
-		
+
 		else if(request.method() == "POST")
 		{
 			// Go through Post body to find login and password
@@ -144,14 +144,28 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			// If authenticated properly, assign cookie as part of response and serve file normally
 			auto got = authentication_map_.find(user);
 			if(got != authentication_map_.end() && got->second == password) {
-				// assign cookie
-				boost::uuids::random_generator gen;
-				boost::uuids::uuid u = gen();
-				std::string new_cookie = boost::uuids::to_string(u);
+
+				// assign cookie, regenernate cookie if cookie already happens to belong to another user
+				std::string new_cookie;
+				do
+				{
+					boost::uuids::random_generator gen;
+					boost::uuids::uuid u = gen();
+					new_cookie = boost::uuids::to_string(u);
+				} while (cookie_expiration_map_.find(new_cookie) == cookie_expiration_map_.end());
 
 				// generate expiration time
 				std::time_t expire_time = std::time(nullptr) + timeout_;
 				struct tm * timeinfo = std::gmtime(&expire_time);
+
+				//insert cookie with its expiration time in map
+				time_t time_in_seconds = mktime(timeinfo);
+				if(time_in_seconds != -1)
+					cookie_expiration_map_[new_cookie] = time_in_seconds;
+				else
+					BOOST_LOG_TRIVIAL(error) << "Failed to convert gmtime to time in seconds";
+
+
 				char buffer[80];
 				strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S %Z", timeinfo);
 
@@ -267,4 +281,15 @@ bool StaticHandler::init_authentication_database(std::string file_name)
 		return false;
 	}
 	return true;
+}
+
+void StaticHandler::purge_expired_cookies()
+{
+	//iterate through each element in map, remove those with expired values
+	for (auto it = cookie_expiration_map_.begin(); it != cookie_expiration_map_.end(); ++it)
+	{
+		time_t current_time = time(NULL);
+		if(difftime(it->second, current_time) <= 0.0)
+			cookie_expiration_map_.erase(it);
+	}
 }

@@ -17,10 +17,10 @@ RequestHandler::Status SleepHandler::Init(const std::string& uri_prefix, const N
 	return RequestHandler::OK;
 }
 
-RequestHandler::Status SleepHandler::HandleRequest(const Request& request, Response* response) const
+RequestHandler::Status SleepHandler::HandleRequest(const Request& request, Response* response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating a sleeper..." << seconds_;
-	
+
 	std::this_thread::sleep_for(std::chrono::seconds(seconds_));
 
 	std::string body = "good morning!\n";

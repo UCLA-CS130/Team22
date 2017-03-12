@@ -28,7 +28,7 @@ public:
 	// indicating success or failure condition. If ResponseCode is not OK, the
 	// contents of the response object are undefined, and the server will return
 	// HTTP code 500.
-	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const = 0;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) = 0;
 };
 
 // map of k,v pairs, where k = path and v = pointer to request handler
