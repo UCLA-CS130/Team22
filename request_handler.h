@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include <memory>
+#include <tuple>
 #include "request.h"
 #include "response.h"
 #include "config_parser.h"
@@ -76,7 +77,9 @@ private:
 	std::string get_prefix(const std::string& uri) const;
 
 	std::map<const std::string, std::unique_ptr<const RequestHandler>> paths_;
-	std::map<const std::string, std::pair<const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
+	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
+	//std::map<const std::string, std::pair<const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
+	//std::multimap<const std::string, std::pair<const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
 };
 
 

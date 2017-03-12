@@ -131,7 +131,7 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				BOOST_LOG_TRIVIAL(trace) << "Default handler found, called " << statement->tokens_[1];
 			}
 		}
-		//generic handler instantiation
+		//generic handler instantiation, path
 		else if (statement->tokens_.size() == 3 && 
 				statement->tokens_[0] == "path" &&
 				statement->child_block_ != nullptr) {
@@ -155,6 +155,30 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			}
 			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " to " << statement->tokens_[2];
 		}
+		//generic handler instantiation, path_regex
+		else if (statement->tokens_.size() == 4 && 
+				statement->tokens_[0] == "path_regex" &&
+				statement->child_block_ != nullptr) {
+			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[3]);
+
+			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
+			{
+				BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for " << statement->tokens_[1];
+				return false;
+			}
+
+			if (!handlers->AddRegexPath(statement->tokens_[1], statement->tokens_[2], handler)){
+				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected at " << statement->tokens_[1] << " " << statement->tokens_[2];
+				return false;
+			}
+
+			if (statement->tokens_[3] == "StatusHandler") {
+				StatusHandler* statusHandler = dynamic_cast<StatusHandler*>(handler);
+				statusHandler->InitStatusHandler(serverStatus);
+			}
+			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " " << statement->tokens_[2] << " to " << statement->tokens_[3];
+		}
+
 	}
 	if(!port_found)
 	{
