@@ -144,7 +144,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 		{
 			// Go through Post body to find login and password
 			std::string login_body = request.body();
-			std::cout << login_body << std::endl;
 
 			std::string::size_type prev_separation_pos = 0;
 			std::string::size_type separation_pos = login_body.find("&");
@@ -158,7 +157,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 				if(equal_pos < separation_pos)
 				{
 					std::string key = login_body.substr(prev_separation_pos, equal_pos - prev_separation_pos);
-					std::cout << "KEY: " << key << std::endl;
 					if(key == "username")
 					{
 						separation_pos = login_body.find("&", prev_separation_pos + 1);
