@@ -78,8 +78,6 @@ private:
 
 	std::map<const std::string, std::unique_ptr<const RequestHandler>> paths_;
 	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
-	//std::map<const std::string, std::pair<const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
-	//std::multimap<const std::string, std::pair<const std::string, std::unique_ptr<const RequestHandler>>> regex_paths_;
 };
 
 

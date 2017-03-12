@@ -32,7 +32,6 @@ bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string
 }
 
 const RequestHandler* HandlerContainer::Find(const std::string& path) const {
-
 	// scan the regex paths for matches
 	// longest prefix match the list
 	size_t longest = 0;
@@ -45,18 +44,19 @@ const RequestHandler* HandlerContainer::Find(const std::string& path) const {
 		}
 	}
 
-	printf("longest regex match: %zu, %s\n", longest, longest_prefix.c_str());
+	//printf("longest regex match: %zu, %s\n", longest, longest_prefix.c_str());
 	// scan through again, this time applying the regex condition
 	if (longest_prefix != ""){
 		for (auto& tuple : regex_paths_) {
 			if (path.find(longest_prefix) == 0) {
 				//printf("testing regex match: %s\n", );
 				// TODO: save the regex parse to save time later
+				// TODO: do error checking
 				std::smatch m;
 				std::regex re(std::get<1>(tuple));
 
 				if (std::regex_search(path, m, re)){
-					printf("handler %p\n", std::get<2>(tuple).get());
+					//printf("handler %p\n", std::get<2>(tuple).get());
 					return std::get<2>(tuple).get();
 				}
 			}

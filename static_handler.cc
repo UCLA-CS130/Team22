@@ -87,8 +87,6 @@ bool StaticHandler::ProcessFile(const std::string& path, const std::string& data
 	
 		auto it = content_mappings.find(file_extension);
 		if (it != content_mappings.end()) {
-			printf("found content type %s\n", it->second.c_str());
-
 			*content_type = it->second;
 		}
 	}
