@@ -37,7 +37,7 @@ path /proxy3 ReverseProxyHandler {
 	proxy_pass http://ucla.edu;
 }
 
-# MarkdownFileHandler inherits StaticHandler, converts the loaded md file into html
+# MarkdownHandler inherits StaticHandler, converts the loaded md file into html
 path_regex /static \.md MarkdownHandler {
 	root static;
 }

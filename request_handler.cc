@@ -2,6 +2,7 @@
 #include <map>
 #include <memory>
 #include <regex>
+#include <boost/log/trivial.hpp>
 
 #include "request_handler.h"
 #include "echo_handler.h"
@@ -27,8 +28,15 @@ bool HandlerContainer::AddPath(const std::string& prefix, const RequestHandler* 
 
 bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string& regex, const RequestHandler* handler){
 	//auto insert_result = paths_.insert(std::make_pair(prefix, std::unique_ptr<const RequestHandler>(handler)));
-	regex_paths_.push_back(std::make_tuple(prefix, regex, std::unique_ptr<const RequestHandler>(handler)));
-	return true; // TODO: duplicate checking?
+	// does the regex even compile?
+	try {
+		regex_paths_.push_back(std::make_tuple(prefix, regex, std::unique_ptr<const RequestHandler>(handler), std::regex(regex)));
+		return true; // TODO: duplicate checking?
+	}
+	catch (const std::exception& e){
+		BOOST_LOG_TRIVIAL(error) << prefix << " " << regex << " " << "failed to compile regex: " << e.what();
+		return false;
+	}
 }
 
 const RequestHandler* HandlerContainer::Find(const std::string& path) const {
@@ -53,9 +61,8 @@ const RequestHandler* HandlerContainer::Find(const std::string& path) const {
 				// TODO: save the regex parse to save time later
 				// TODO: do error checking
 				std::smatch m;
-				std::regex re(std::get<1>(tuple));
 
-				if (std::regex_search(path, m, re)){
+				if (std::regex_search(path, m, std::get<3>(tuple))){
 					//printf("handler %p\n", std::get<2>(tuple).get());
 					return std::get<2>(tuple).get();
 				}

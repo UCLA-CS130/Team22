@@ -169,7 +169,7 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			}
 
 			if (!handlers->AddRegexPath(statement->tokens_[1], statement->tokens_[2], handler)){
-				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected at " << statement->tokens_[1] << " " << statement->tokens_[2];
+				BOOST_LOG_TRIVIAL(fatal) << "Error creating handler " << statement->tokens_[1] << " " << statement->tokens_[2];
 				return false;
 			}
 
