@@ -6,7 +6,7 @@
 #include <list>
 #include <memory>
 #include <tuple>
-#include <regex>
+#include <boost/regex.hpp>
 #include "request.h"
 #include "response.h"
 #include "config_parser.h"
@@ -86,7 +86,7 @@ private:
 
 	std::map<const std::string, std::unique_ptr<const RequestHandler>> paths_;
 	// {path, regex string, handler*, compiled regex}
-	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<const RequestHandler>, std::regex>> regex_paths_;
+	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<const RequestHandler>, boost::regex>> regex_paths_;
 };
 
 

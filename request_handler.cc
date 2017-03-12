@@ -1,7 +1,7 @@
 #include <string>
 #include <map>
 #include <memory>
-#include <regex>
+#include <boost/regex.hpp>
 #include <boost/log/trivial.hpp>
 
 #include "request_handler.h"
@@ -30,7 +30,7 @@ bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string
 	//auto insert_result = paths_.insert(std::make_pair(prefix, std::unique_ptr<const RequestHandler>(handler)));
 	// does the regex even compile?
 	try {
-		regex_paths_.push_back(std::make_tuple(prefix, regex, std::unique_ptr<const RequestHandler>(handler), std::regex(regex)));
+		regex_paths_.push_back(std::make_tuple(prefix, regex, std::unique_ptr<const RequestHandler>(handler), boost::regex(regex)));
 		return true; // TODO: duplicate checking?
 	}
 	catch (const std::exception& e){
@@ -51,13 +51,14 @@ const RequestHandler* HandlerContainer::Find(const std::string& path) const {
 			longest_prefix = s;
 		}
 	}
+	//printf("longest regex match: %d, %s\n", longest, longest_prefix.c_str());
 	// scan through again, this time applying the regex condition
 	if (longest > -1){
 		for (auto& tuple : regex_paths_) {
 			if (std::get<0>(tuple) == longest_prefix) {
-				std::smatch m;
-
-				if (std::regex_search(path, m, std::get<3>(tuple))){
+				boost::smatch m;
+				//printf("%s ok %s %s\n", path.c_str(), std::get<0>(tuple).c_str(), std::get<1>(tuple).c_str());
+				if (boost::regex_search(path, m, std::get<3>(tuple))){
 					BOOST_LOG_TRIVIAL(trace) << "regex path: " << std::get<0>(tuple) << " " << std::get<1>(tuple) << " matches " << path;
 					return std::get<2>(tuple).get();
 				}
