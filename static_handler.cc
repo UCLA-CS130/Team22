@@ -286,10 +286,12 @@ bool StaticHandler::init_authentication_database(std::string file_name)
 void StaticHandler::purge_expired_cookies()
 {
 	//iterate through each element in map, remove those with expired values
-	for (auto it = cookie_expiration_map_.begin(); it != cookie_expiration_map_.end(); ++it)
+	for (auto it = cookie_expiration_map_.begin(); it != cookie_expiration_map_.end();)
 	{
 		time_t current_time = time(NULL);
 		if(difftime(it->second, current_time) <= 0.0)
-			cookie_expiration_map_.erase(it);
+			it = cookie_expiration_map_.erase(it);
+		else
+			it++;
 	}
 }
