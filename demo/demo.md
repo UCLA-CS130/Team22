@@ -10,7 +10,7 @@ Kevin Zhu, Justin Teo, David Stephan
 
 #### demo
 
-[DEMO](/private/axolotl.jpg)
+[/private/axolotl.jpg](/private/axolotl.jpg)
 
 Login with user1:password1. Cookie lasts for 10 seconds. Go to /private/seal.gif for alternate image
 
