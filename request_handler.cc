@@ -39,7 +39,7 @@ bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string
 	}
 }
 
-const RequestHandler* HandlerContainer::Find(const std::string& path) const {
+const RequestHandler* HandlerContainer::Find(const std::string& path, std::string* pref) const {
 	// scan the regex paths for matches
 	// longest prefix match the list
 	int longest = -1;
@@ -60,6 +60,7 @@ const RequestHandler* HandlerContainer::Find(const std::string& path) const {
 				//printf("%s ok %s %s\n", path.c_str(), std::get<0>(tuple).c_str(), std::get<1>(tuple).c_str());
 				if (boost::regex_search(path, m, std::get<3>(tuple))){
 					BOOST_LOG_TRIVIAL(trace) << "regex path: " << std::get<0>(tuple) << " " << std::get<1>(tuple) << " matches " << path;
+					if (pref) *pref = std::get<0>(tuple) + " " + std::get<1>(tuple); // return 
 					return std::get<2>(tuple).get();
 				}
 			}
@@ -69,13 +70,17 @@ const RequestHandler* HandlerContainer::Find(const std::string& path) const {
 	// scan the non-regex paths for matches
 	//exact match
 	auto match = paths_.find(path);
-	if(match != paths_.end())
+	if(match != paths_.end()) {
+		if (pref) *pref = match->first;
 		return match->second.get();
+	}
 	//longest prefix match
 	std::string prefix = get_prefix(path);
 	match = paths_.find(prefix);
-	if(match != paths_.end())
+	if(match != paths_.end()) {
+		if (pref) *pref = match->first;
 		return match->second.get();
+	}
 
 	// couldn't find anything
 	return nullptr;

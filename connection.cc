@@ -67,22 +67,25 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 		// since we don't use POST, deal with it later
 		std::string data((std::istreambuf_iterator<char>(&data_stream_)), std::istreambuf_iterator<char>());
 
-		auto request = Request::Parse(data);
+		std::string prefix = "unknown";
+		std::unique_ptr<Request> request = Request::Parse(data);
 		if (!request) { // parse error -> nullptr
 			response.SetStatus(Response::bad_request);
-			response.SetBody("400 Bad Request");
+			response.SetBody("400 Bad Request\r\n");
+			prefix = "Bad Request";
 		}
 		else {
 			// log what we're up to
 			request_summary_ = request->uri();
 
 			// get the correct handler based on the header
-			const RequestHandler* handler = handlers_->Find(request->uri());
+			const RequestHandler* handler = handlers_->Find(request->uri(), &prefix);
 
 			if (handler == nullptr) {
 				// TODO generalize, fit with the StaticHandler
 				NotFoundHandler not_found_handler;
 				not_found_handler.HandleRequest(*request, &response);
+				prefix = "Not Found";
 			}
 			else {
 				// have the handler generate a response
@@ -100,7 +103,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 		if (serverStatus_) {
 			std::string uri = request ? request->uri() : "invalid";
-			serverStatus_->LogRequest(uri, response.GetStatusCode());
+			serverStatus_->LogRequest(prefix, uri, response.GetStatusCode());
 		}
 	}
 	else

@@ -59,7 +59,7 @@ deploy:
 	rm binary.tar
 	cp config deploy
 	cp -r static deploy
-	printf 'FROM busybox:ubuntu-14.04\n\nWORKDIR /opt/webserver\nCOPY . /opt/webserver\n\nEXPOSE 8080:8080\nCMD ["./webserver", "config"]' > deploy/Dockerfile
+	printf 'FROM busybox:ubuntu-14.04\n\nWORKDIR /opt/webserver\nCOPY . /opt/webserver\n\nCMD ["./webserver", "config", "-d"]' > deploy/Dockerfile
 	docker build -t webserver deploy
 	docker save -o webserver-image webserver
 	scp -i $(PRIVATE_KEY_LOC) webserver-image $(EC2_SERVER):~
@@ -67,7 +67,7 @@ deploy:
 	ssh -i $(PRIVATE_KEY_LOC) $(EC2_SERVER) 'docker load -i webserver-image'
 
 run-deployed:
-	ssh -i $(PRIVATE_KEY_LOC) $(EC2_SERVER) 'docker run --rm -t -p 80:8080 webserver'
+	ssh -i $(PRIVATE_KEY_LOC) $(EC2_SERVER) 'docker run -t -p 80:8080 webserver >> log 2>&1'
 
 kill-deployed:
 	ssh -i $(PRIVATE_KEY_LOC) $(EC2_SERVER) 'docker kill `docker ps -q`'
@@ -77,6 +77,9 @@ test-deployed:
 
 chrome-deployed:
 	google-chrome $(EC2_HOST)/proxy1
+
+login:
+	ssh -i ~/team22-ec2-key-pair.pem $(EC2_SERVER)
 
 clean:
 	rm -rf $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a $(DEPLOYS)

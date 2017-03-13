@@ -74,7 +74,8 @@ public:
 	// - longest matching prefix match
 	// - regex paths take priority over regular paths
 	// - picks the first regex match (after the longest match prefix)
-	const RequestHandler* Find(const std::string& path) const;
+	// - stores the path+regex in pref (used for logging)
+	const RequestHandler* Find(const std::string& path, std::string* pref = nullptr) const;
 
 	// returns a list of request handler paths (for the status page)
 	// - path in alphabetical order, then path_regex in alphabetical order

@@ -77,6 +77,18 @@ TEST_F(ReverseProxyHandlerTest, NoProtocol) {
 	EXPECT_EQ(init_status, RequestHandler::OK);
 }
 
+TEST_F(ReverseProxyHandlerTest, Port) {
+	parseString("proxy_pass http://localhost:8080/images/cats.png;");
+	auto init_status = initProxy("/proxy");
+	ASSERT_EQ(init_status, RequestHandler::OK);
+
+	EXPECT_EQ(getPrefix(), "/proxy");
+	EXPECT_EQ(getPort(), "8080");
+	EXPECT_EQ(getHost(), "localhost");
+	EXPECT_EQ(getPath(), "/images/cats.png");
+	EXPECT_EQ(getUrl() , "http://localhost:8080/images/cats.png");
+}
+
 //Issue 1: There are more \r\n then there should be at the end of the transformed request
 TEST_F(ReverseProxyHandlerTest, TransformRequest){
 	parseString("proxy_pass http://www.ucla.edu/static;");
