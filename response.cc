@@ -58,8 +58,8 @@ void Response::SetStatus(const ResponseCode response_code)
 		response_status_first_line_ = status_strings.at(response_code);
 	}
 	catch (...) {
-		BOOST_LOG_TRIVIAL(error) << "Status code " << response_code << " has no corresponding status_string (SetStatus)";
-		response_status_first_line_ = "";
+		BOOST_LOG_TRIVIAL(error) << "Status code " << response_code << " has no corresponding status_string (SetStatus), defaulting to 404";
+		response_status_first_line_ = status_strings.at(not_found);
 	}
 }
 
