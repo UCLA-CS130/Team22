@@ -33,8 +33,7 @@ public:
 	void handle_request(const boost::system::error_code& error, size_t bytes_transferred);
 
 	// writes the response from Response object
-	// returns the data that was written
-	std::string write_response(const Response& response);
+	void write_response(const Response& response);
 
 	std::string GetStatus();
 

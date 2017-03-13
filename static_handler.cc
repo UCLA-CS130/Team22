@@ -22,6 +22,7 @@ const std::unordered_map<std::string,std::string> content_mappings
 	{ "gif", "image/gif" },
 	{ "htm", "text/html" },
 	{ "html", "text/html" },
+	{ "css", "text/css"},
 	{ "jpg", "image/jpeg" },
 	{ "jpeg", "image/jpeg" },
 	{ "png", "image/png" },

@@ -58,8 +58,11 @@ deploy:
 	tar -xf binary.tar -C deploy
 	rm binary.tar
 	cp config deploy
+	cp authentication.txt deploy
 	cp -r static deploy
-	printf 'FROM busybox:ubuntu-14.04\n\nWORKDIR /opt/webserver\nCOPY . /opt/webserver\n\nCMD ["./webserver", "config", "-d"]' > deploy/Dockerfile
+	cp -r private deploy
+	cp -r demo deploy
+	printf 'FROM busybox:ubuntu-14.04\n\nWORKDIR /opt/webserver\nCOPY . /opt/webserver\n\nCMD ["./webserver", "demo/democonfig", "-d"]' > deploy/Dockerfile
 	docker build -t webserver deploy
 	docker save -o webserver-image webserver
 	scp -i $(PRIVATE_KEY_LOC) webserver-image $(EC2_SERVER):~
@@ -79,7 +82,10 @@ chrome-deployed:
 	google-chrome $(EC2_HOST)/proxy1
 
 login:
-	ssh -i ~/team22-ec2-key-pair.pem $(EC2_SERVER)
+	ssh -i $(PRIVATE_KEY_LOC) $(EC2_SERVER)
+
+demo: webserver
+	./webserver demo/democonfig
 
 clean:
 	rm -rf $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a $(DEPLOYS) config_temp*

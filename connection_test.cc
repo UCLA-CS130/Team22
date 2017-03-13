@@ -19,7 +19,9 @@ TEST(ConnectionTest, SimpleString) {
 	response.AddHeader("Content-Length", std::to_string(body.length()));
 	response.SetBody(body);
 
-	std::string response_result = c.write_response(response);
+	c.write_response(response);
+
+	std::string response_result = response.ToString();
 	std::string expect = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 5\r\n\r\nhello";
 	EXPECT_EQ(response_result, expect);
 }

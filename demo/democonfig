@@ -1,0 +1,40 @@
+port 8080;
+
+# max number of threads, defaults to 1
+threads 4;
+
+path /echo EchoHandler {}
+
+path /demo StaticHandler {
+	root demo;
+}
+
+# MarkdownHandler inherits StaticHandler and implements ProcessFile
+path_regex /demo \.md MarkdownHandler {
+	root demo;
+}
+
+path /definitelystatic StaticHandler {
+	root demo;
+}
+
+path /status StatusHandler {
+}
+
+path / ReverseProxyHandler {
+	proxy_pass http://www.ucla.edu;
+}
+
+path /zzz SleepHandler {
+	seconds 3;
+}
+
+path /private StaticHandler {
+	root private;
+	authentication_list authentication.txt;
+	timeout 10;
+}
+
+# Default response handler if no handlers match.
+default NotFoundHandler {
+}
