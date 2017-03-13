@@ -33,6 +33,9 @@ public:
 	// returns the body of the request
 	std::string body() const;
 
+	// return the value of a header
+	std::string get_header(std::string key) const;
+
 	// setters
 
 	// sets the header with the key. If it doesn't exist, the header is added

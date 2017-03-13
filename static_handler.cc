@@ -83,42 +83,36 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 	if(!authentication_map_.empty())
 	{
 		std::string current_cookie = "";
+
 		// Gets the current cookie from browser request headers
-		for(auto header : request.headers())
+		std::string cookie_string = request.get_header("Cookie");
+
+		std::string::size_type prev_separation_pos = 0;
+		std::string::size_type separation_pos = cookie_string.find(";");
+
+		while(prev_separation_pos != std::string::npos)
 		{
-			if(header.first == "Cookie")
+			std::string::size_type equal_pos = cookie_string.find("=", prev_separation_pos);
+			if(equal_pos < separation_pos)
 			{
-				std::string cookie_string = header.second;
-				std::string::size_type prev_separation_pos = 0;
-				std::string::size_type separation_pos = cookie_string.find(";");
-
-				while(prev_separation_pos != std::string::npos)
+				std::string key = cookie_string.substr(prev_separation_pos, equal_pos - prev_separation_pos);
+				if(key == "login")
 				{
-					std::string::size_type equal_pos = cookie_string.find("=", prev_separation_pos);
-					if(equal_pos < separation_pos)
-					{
-						std::string key = cookie_string.substr(prev_separation_pos, equal_pos - prev_separation_pos);
-						if(key == "login")
-						{
-							separation_pos = cookie_string.find(";", prev_separation_pos + 1);
-							if(separation_pos == std::string::npos)
-								current_cookie = cookie_string.substr(equal_pos + 1);
-							else
-								current_cookie = cookie_string.substr(equal_pos + 1, separation_pos - equal_pos - 1);
-
-							break;
-						}
-					}
+					separation_pos = cookie_string.find(";", prev_separation_pos + 1);
 					if(separation_pos == std::string::npos)
-						prev_separation_pos = std::string::npos;
+						current_cookie = cookie_string.substr(equal_pos + 1);
 					else
-					{
-						prev_separation_pos = separation_pos + 2;
-						separation_pos = cookie_string.find(";", prev_separation_pos + 1);
-					}
-				}
+						current_cookie = cookie_string.substr(equal_pos + 1, separation_pos - equal_pos - 1);
 
-				break;
+					break;
+				}
+			}
+			if(separation_pos == std::string::npos)
+				prev_separation_pos = std::string::npos;
+			else
+			{
+				prev_separation_pos = separation_pos + 2;
+				separation_pos = cookie_string.find(";", prev_separation_pos + 1);
 			}
 		}
 
@@ -193,9 +187,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 				}
 			}
 
-			std::cout << username << std::endl;
-			std::cout << password << std::endl;
-
 			// If authenticated properly, assign cookie as part of response and serve file normally
 			auto got = authentication_map_.find(username);
 			if(got != authentication_map_.end() && got->second == password) {
@@ -207,19 +198,14 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 					boost::uuids::random_generator gen;
 					boost::uuids::uuid u = gen();
 					new_cookie = boost::uuids::to_string(u);
-				} while (cookie_expiration_map_.find(new_cookie) == cookie_expiration_map_.end());
+				} while (cookie_expiration_map_.find(new_cookie) != cookie_expiration_map_.end());
 
 				// generate expiration time
 				std::time_t expire_time = std::time(nullptr) + timeout_;
 				struct tm * timeinfo = std::gmtime(&expire_time);
 
 				//insert cookie with its expiration time in map
-				time_t time_in_seconds = mktime(timeinfo);
-				if(time_in_seconds != -1)
-					cookie_expiration_map_[new_cookie] = time_in_seconds;
-				else
-					BOOST_LOG_TRIVIAL(error) << "Failed to convert gmtime to time in seconds";
-
+				cookie_expiration_map_[new_cookie] = expire_time;
 
 				char buffer[80];
 				strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S %Z", timeinfo);

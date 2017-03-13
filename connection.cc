@@ -63,8 +63,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	{
 		Response response;
 
-		// there is some issue where the stream holds extra read data
-		// since we don't use POST, deal with it later
 		std::string data((std::istreambuf_iterator<char>(&data_stream_)), std::istreambuf_iterator<char>());
 
 		auto request = Request::Parse(data);
@@ -73,28 +71,21 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 			response.SetBody("400 Bad Request");
 		}
 		else {
+			bool post_request_error = false;
 			
 			// read in the rest of a POST request
 			if (request->method() == "POST") {
-				printf("got a post\n");
-				size_t actual_bytes_transferred = request->raw_request().size();
-
-				// there should really be a GetHeader("Content-Length")
-				size_t content_length = 0;
-				Headers headers = request->headers();
-				bool found = false;
-				for (auto i : headers){
-					if (i.first == "Content-Length"){
-						printf("content length: %s\n", i.second.c_str());
-						content_length = std::stoi(i.second);
-						found = true;
-					}
+				std::string content_length_string = request->get_header("Content-Length");
+				if(content_length_string == "")
+				{
+					response.SetStatus(Response::bad_request);
+					response.SetBody("400 Bad Request");
+					post_request_error = true;
 				}
+				else
+				{
+					size_t content_length = std::stoi(content_length_string);
 
-				if (!found) {
-					// 400 bad request
-				}
-				else {
 					char buff[1000];
 					size_t body_size = request->body().size();
 					while (body_size < content_length) {
@@ -107,36 +98,31 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 							// would close_socket() work?
 							return;
 						}
-						printf("read %d extra bytes\n", nread);
 						body_size = request->append_body(std::string(buff, nread)); // append the body and raw_request, update
 					}
-
 				}
-
-				printf("original bytes transferred: %zu, final length: %zu, body-length: %zu/%zu\n", 
-					actual_bytes_transferred, request->raw_request().size(), request->body().size(), content_length);
-
 			}
 
+			if(!post_request_error) {
+				// log what we're up to
+				request_summary_ = request->uri();
 
-			// log what we're up to
-			request_summary_ = request->uri();
+				// get the correct handler based on the header
+				RequestHandler* handler = GetRequestHandler(request->uri());
 
-			// get the correct handler based on the header
-			RequestHandler* handler = GetRequestHandler(request->uri());
-
-			if (handler == nullptr) {
-				// TODO generalize, fit with the StaticHandler
-				NotFoundHandler not_found_handler;
-				not_found_handler.HandleRequest(*request, &response);
-			}
-			else {
-				// have the handler generate a response
-				RequestHandler::Status status = handler->HandleRequest(*request, &response);
-				if (status != RequestHandler::OK)
-				{
-					response.SetStatus(Response::internal_server_error);
-					response.SetBody("500 Internal Server Error");
+				if (handler == nullptr) {
+					// TODO generalize, fit with the StaticHandler
+					NotFoundHandler not_found_handler;
+					not_found_handler.HandleRequest(*request, &response);
+				}
+				else {
+					// have the handler generate a response
+					RequestHandler::Status status = handler->HandleRequest(*request, &response);
+					if (status != RequestHandler::OK)
+					{
+						response.SetStatus(Response::internal_server_error);
+						response.SetBody("500 Internal Server Error");
+					}
 				}
 			}
 		}

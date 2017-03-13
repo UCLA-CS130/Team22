@@ -59,6 +59,15 @@ std::string Request::body() const
 	return body_;
 }
 
+std::string Request::get_header(std::string key) const {
+	for (auto header : fields_){
+		if (header.first == key){
+			return header.second;
+		}
+	}
+	return "";
+}
+
 void Request::set_header(std::pair<std::string, std::string> header) {
 	for(auto& header_ : fields_) {
 		if(header_.first == header.first) {
