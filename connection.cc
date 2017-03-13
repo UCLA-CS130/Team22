@@ -110,7 +110,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 				request_summary_ = request->uri();
 
 				// get the correct handler based on the header
-				RequestHandler* handler = GetRequestHandler(request->uri(), &prefix);
+				RequestHandler* handler = handlers_->Find(request->uri(), &prefix);
 
 				if (handler == nullptr) {
 					// TODO generalize, fit with the StaticHandler
@@ -177,46 +177,6 @@ void Connection::close_socket(const boost::system::error_code& error)
 
 	delete this;
 	BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
-}
-
-// returns a request handler if it was defined in the config, otherwise returns nullptr
-RequestHandler* Connection::GetRequestHandler(const std::string& path, std::string* pref)
-{
-	//exact match
-	std::map<const std::string, RequestHandler*>::const_iterator match = handlers_->find(path);
-	if(match != handlers_->end()){
-		if (pref) *pref = match->first;
-		return match->second;
-	}
-
-	//longest prefix match
-	std::string prefix = get_prefix(path);
-	match = handlers_->find(prefix);
-	if(match != handlers_->end()){
-		if (pref) *pref = match->first;
-		return match->second;
-	}
-
-	return nullptr;
-}
-
-// gets longest matching prefix
-std::string Connection::get_prefix(const std::string uri)
-{
-	std::string longest = "";
-	size_t index = uri.find_last_of("/");
-	std::string prefix = uri.substr(0, index);
-
-	for (auto& handlerPair : *handlers_)
-	{
-		std::string uri_key = handlerPair.first;
-
-		//uri_key is within this prefix
-		if(prefix.find(uri_key) == 0 && uri_key.length() > longest.length())
-			longest = uri_key;
-	}
-
-	return longest;
 }
 
 std::string Connection::GetStatus()
