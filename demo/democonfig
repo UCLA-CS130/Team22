@@ -14,6 +14,10 @@ path_regex /demo \.md MarkdownHandler {
 	root demo;
 }
 
+path /definitelystatic StaticHandler {
+	root demo;
+}
+
 path /status StatusHandler {
 }
 
