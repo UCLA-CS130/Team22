@@ -29,6 +29,12 @@ protected:
 			staticHandler.HandleRequest(*request, &response);
 			std::string response_string = response.ToString();
 
+			std::string::size_type cookie_pos = response_string.find("Set-Cookie");
+			if(cookie_pos == std::string::npos)
+				cookie_found = false;
+			else
+				cookie_found = true;
+
 			int index = response_string.find("\r\n");
 			return response_string.substr(0, index);
 		}
@@ -40,6 +46,7 @@ protected:
 
 	NginxConfigParser parser;
 	NginxConfig out_config;
+	bool cookie_found;
 };
 
 TEST_F(StaticHandlerTest, SimpleTest) {
@@ -103,7 +110,9 @@ TEST_F(StaticHandlerTest, AuthenticationAccepted) {
 	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 1;");
 	std::string request_string = "POST /private/axolotl.jpg HTTP/1.1\r\n\r\nusername=user1&password=password1";
 	std::string result = runRequest("/private", request_string);
-	EXPECT_EQ(result, "HTTP/1.1 200 OK");
+	EXPECT_EQ(result, "HTTP/1.1 302 Found");
+
+	EXPECT_TRUE(cookie_found);
 }
 
 //send bad authentication credentials that are unauthorized
@@ -111,9 +120,11 @@ TEST_F(StaticHandlerTest, AuthenticationRejection) {
 	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 1;");
 	std::string request_string = "POST /private/axolotl.jpg HTTP/1.1\r\n\r\nusername=hello&password=world";
 	std::string result = runRequest("/private", request_string);
-	EXPECT_EQ(result, "HTTP/1.1 401 Unauthorized");
+	EXPECT_EQ(result, "HTTP/1.1 302 Found");
+	EXPECT_FALSE(cookie_found);
 
 	request_string = "POST /private/axolotl.jpg HTTP/1.1\r\n\r\nusername=user1&password=badpassword";
 	result = runRequest("/private", request_string);
-	EXPECT_EQ(result, "HTTP/1.1 401 Unauthorized");
+	EXPECT_EQ(result, "HTTP/1.1 302 Found");
+	EXPECT_FALSE(cookie_found);
 }

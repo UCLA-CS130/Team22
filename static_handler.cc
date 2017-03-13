@@ -121,7 +121,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			// show login page if no cookie given or current_cookie is not in map
 			if(current_cookie == "" || cookie_expiration_map_.find(current_cookie) == cookie_expiration_map_.end())
 			{
-				std::string login_data = LoginToHtml(full_path, "Please login first");
+				std::string login_data = LoginToHtml(full_path, "Not authenticated");
 				response->SetStatus(Response::unauthorized);
 				response->AddHeader("WWW-Authenticate", "FormBased");
 				response->AddHeader("Content-Type", "text/html");
@@ -208,17 +208,17 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 				char buffer[80];
 				strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S %Z", timeinfo);
 
+				// respond with redirection for making a new GET request instead
 				response->AddHeader("Set-Cookie", "login=" + new_cookie + "; path=" + prefix_ + "; expires=" + buffer);
+				response->AddHeader("Location", request.uri());
+				response->SetStatus(Response::found);
+				return RequestHandler::OK;
 			}
 			// Else, respond with login page because failed authentication
 			else
 			{
-				std::string login_data = LoginToHtml(full_path, "Username and/or password invalid");
-				response->SetStatus(Response::unauthorized);
-				response->AddHeader("WWW-Authenticate", "FormBased");
-				response->AddHeader("Content-Type", "text/html");
-				response->AddHeader("Content-Length", std::to_string(login_data.length()));
-				response->SetBody(login_data);
+				response->AddHeader("Location", request.uri());
+				response->SetStatus(Response::found);
 				return RequestHandler::OK;
 			}
 		}
@@ -242,7 +242,6 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 
 		response->AddHeader("Content-Length", std::to_string(new_data.length()));
 		response->SetBody(new_data);
-
 		response->SetStatus(Response::ok);
 	}
 	else {

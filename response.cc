@@ -12,8 +12,8 @@
 
 const std::unordered_map<Response::ResponseCode, const std::string, std::hash<int>> Response::status_strings = {{
 	{ok,                    "HTTP/1.1 200 OK\r\n"                    },
-	{moved_permanently,     "HTTP/1.1 302 Found\r\n"                 },
-	{found,                 "HTTP/1.1 301 Moved Permanently\r\n"     },
+	{moved_permanently,     "HTTP/1.1 301 Moved Permanently\r\n"     },
+	{found,                 "HTTP/1.1 302 Found\r\n"                 },
 	{bad_request,           "HTTP/1.1 400 Bad Request\r\n"           },
 	{unauthorized,          "HTTP/1.1 401 Unauthorized\r\n"          },
 	{not_found,             "HTTP/1.1 404 Not Found\r\n"             },
