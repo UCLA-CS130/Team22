@@ -91,8 +91,8 @@ TEST_F(StaticHandlerTest, BadInit) {
 }
 
 //expect non-authenticated request for a private image to return 401
-TEST_F(StaticHandlerTest, AuthenticationRejection) {
-	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 5;");
+TEST_F(StaticHandlerTest, UnauthenticatedGet) {
+	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 1;");
 	std::string request_string = "GET /private/axolotl.jpg HTTP/1.1\r\n\r\n";
 	std::string result = runRequest("/private", request_string);
 	EXPECT_EQ(result, "HTTP/1.1 401 Unauthorized");
@@ -100,8 +100,20 @@ TEST_F(StaticHandlerTest, AuthenticationRejection) {
 
 //send authentication credentials to get access
 TEST_F(StaticHandlerTest, AuthenticationAccepted) {
-	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 5;");
+	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 1;");
 	std::string request_string = "POST /private/axolotl.jpg HTTP/1.1\r\n\r\nusername=user1&password=password1";
 	std::string result = runRequest("/private", request_string);
 	EXPECT_EQ(result, "HTTP/1.1 200 OK");
+}
+
+//send bad authentication credentials that are unauthorized
+TEST_F(StaticHandlerTest, AuthenticationRejection) {
+	parseString("root private;\nauthentication_list authentication.txt;\ntimeout 1;");
+	std::string request_string = "POST /private/axolotl.jpg HTTP/1.1\r\n\r\nusername=hello&password=world";
+	std::string result = runRequest("/private", request_string);
+	EXPECT_EQ(result, "HTTP/1.1 401 Unauthorized");
+
+	request_string = "POST /private/axolotl.jpg HTTP/1.1\r\n\r\nusername=user1&password=badpassword";
+	result = runRequest("/private", request_string);
+	EXPECT_EQ(result, "HTTP/1.1 401 Unauthorized");
 }
