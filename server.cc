@@ -116,6 +116,10 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			//default handler
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
+				if(!handler){
+					BOOST_LOG_TRIVIAL(fatal) << "Invalid handler type: " << statement->tokens_[3];
+					return false;
+				}
 				std::string empty_string = "";
 				if(handler->Init(empty_string, *(statement->child_block_).get()) == RequestHandler::ERROR)
 				{
@@ -136,6 +140,10 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				statement->tokens_[0] == "path" &&
 				statement->child_block_ != nullptr) {
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
+			if(!handler){
+				BOOST_LOG_TRIVIAL(fatal) << "Invalid handler type: " << statement->tokens_[3];
+				return false;
+			}
 
 			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
 			{
@@ -160,7 +168,10 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				statement->tokens_[0] == "path_regex" &&
 				statement->child_block_ != nullptr) {
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[3]);
-			printf("created handler %p\n", handler);
+			if(!handler){
+				BOOST_LOG_TRIVIAL(fatal) << "Invalid handler type: " << statement->tokens_[3];
+				return false;
+			}
 
 			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
 			{

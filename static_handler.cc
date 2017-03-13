@@ -63,8 +63,9 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request, Resp
 			response->AddHeader("Content-Type", content_type);
 		}
 
-		response->AddHeader("Content-Length", std::to_string(body_data.length()));
+		response->AddHeader("Content-Length", std::to_string(new_data.length()));
 		response->SetBody(new_data);
+
 		response->SetStatus(Response::ok);
 	}
 	else {
