@@ -13,6 +13,9 @@ public:
 	RequestHandler::Status Init(const std::string& uri_prefix, const NginxConfig& config);
 	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const;
 
+protected:
+	virtual bool ProcessFile(const std::string& path, const std::string& data, std::string *new_data, std::string *content_type) const;
+
 private:
 	// max buffer length for reading in file stream
 	enum { max_length = 8192 };

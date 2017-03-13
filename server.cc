@@ -9,8 +9,8 @@
 #include "server.h"
 #include "config_parser.h"
 #include "request_handler.h"
-#include "echo_handler.h"
-#include "static_handler.h"
+//#include "echo_handler.h"
+//#include "static_handler.h"
 #include "not_found_handler.h"
 #include "status_handler.h"
 
@@ -47,9 +47,9 @@ Server::Server(boost::asio::io_service& io_service, int port, HandlerContainer* 
 	// initialize ServerStatus
 	serverStatus_->sharedState_.port_ = port;
 	serverStatus_->sharedState_.totalRequests_ = 0;
-	for (auto& handlerPair : *requestHandlers_) {
-		serverStatus_->sharedState_.requestHandlers_.push_back(handlerPair.first);
-	}
+
+	serverStatus_->sharedState_.requestHandlers_ = handlers->GetList();
+
 	BOOST_LOG_TRIVIAL(info) << "Server constructed, listening on port " << port << "...";
 }
 
@@ -116,37 +116,42 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 			//default handler
 			else if(statement->tokens_[0] == "default" && statement->child_block_ != nullptr) {
 				RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[1]);
+				if(!handler){
+					BOOST_LOG_TRIVIAL(fatal) << "Invalid handler type: " << statement->tokens_[3];
+					return false;
+				}
 				std::string empty_string = "";
 				if(handler->Init(empty_string, *(statement->child_block_).get()) == RequestHandler::ERROR)
 				{
 					BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for default";
 					return false;
 				}
-				std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(empty_string, handler));
-				//default already exists
-				if (!insert_result.second)
-				{
-					BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
+
+				if (!handlers->AddPath("", handler)){
+					BOOST_LOG_TRIVIAL(fatal) << "Duplicate default handler detected.";
 					return false;
 				}
 
 				BOOST_LOG_TRIVIAL(trace) << "Default handler found, called " << statement->tokens_[1];
 			}
 		}
-		//generic handler instantiation
-		else if (statement->tokens_.size() == 3 && statement->tokens_[0] == "path" && statement->child_block_ != nullptr) {
+		//generic handler instantiation, path
+		else if (statement->tokens_.size() == 3 && 
+				statement->tokens_[0] == "path" &&
+				statement->child_block_ != nullptr) {
 			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[2]);
+			if(!handler){
+				BOOST_LOG_TRIVIAL(fatal) << "Invalid handler type: " << statement->tokens_[3];
+				return false;
+			}
 
 			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
 			{
 				BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for " << statement->tokens_[1];
 				return false;
 			}
-			std::pair<std::map<std::string, RequestHandler*>::iterator, bool> insert_result = handlers->insert(std::make_pair(statement->tokens_[1], handler));
 
-			//prevent duplicate uri keys
-			if (!insert_result.second)
-			{
+			if (!handlers->AddPath(statement->tokens_[1], handler)){
 				BOOST_LOG_TRIVIAL(fatal) << "Duplicate handler uri detected.";
 				return false;
 			}
@@ -157,8 +162,35 @@ bool Server::parse_config(const NginxConfig& config, int& port, HandlerContainer
 				statusHandler->InitStatusHandler(serverStatus);
 			}
 			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " to " << statement->tokens_[2];
-
 		}
+		//generic handler instantiation, path_regex
+		else if (statement->tokens_.size() == 4 && 
+				statement->tokens_[0] == "path_regex" &&
+				statement->child_block_ != nullptr) {
+			RequestHandler* handler = RequestHandler::CreateByName(statement->tokens_[3]);
+			if(!handler){
+				BOOST_LOG_TRIVIAL(fatal) << "Invalid handler type: " << statement->tokens_[3];
+				return false;
+			}
+
+			if(handler->Init(statement->tokens_[1], *(statement->child_block_).get()) == RequestHandler::ERROR)
+			{
+				BOOST_LOG_TRIVIAL(fatal) << "Error with RequestHandler Init for " << statement->tokens_[1];
+				return false;
+			}
+
+			if (!handlers->AddRegexPath(statement->tokens_[1], statement->tokens_[2], handler)){
+				BOOST_LOG_TRIVIAL(fatal) << "Error creating handler " << statement->tokens_[1] << " " << statement->tokens_[2];
+				return false;
+			}
+
+			if (statement->tokens_[3] == "StatusHandler") {
+				StatusHandler* statusHandler = dynamic_cast<StatusHandler*>(handler);
+				statusHandler->InitStatusHandler(serverStatus);
+			}
+			BOOST_LOG_TRIVIAL(info) << "Handler found defining uri " << statement->tokens_[1] << " " << statement->tokens_[2] << " to " << statement->tokens_[3];
+		}
+
 	}
 	if(!port_found)
 	{

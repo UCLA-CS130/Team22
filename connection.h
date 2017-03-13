@@ -42,12 +42,6 @@ private:
 	// Close socket after sending response
 	void close_socket(const boost::system::error_code& error);
 
-	// returns a request handler if it was defined in the config, otherwise returns nullptr
-	const RequestHandler* GetRequestHandler(const std::string & path, std::string* prefix = nullptr);
-
-	// gets longest matching prefix
-	std::string get_prefix(const std::string uri);
-
 	tcp::socket socket_;
 	enum { max_length = 8192 }; // 8KB max length
 	boost::asio::streambuf data_stream_;
