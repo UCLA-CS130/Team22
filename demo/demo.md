@@ -40,13 +40,17 @@ Same as StaticHandler, but add the following in the config block section
 - if authenticated, cookie given to browser to keep authentication for certain timeout
 	- server also stores authenticated cookies and clears expired cookies before authentication check
 - when POST form received, 302 found and redirect sent back so that refreshes do not resend POST data
-- currently storing usernames and passwords as plaintext, but could be implemented fully with database later
+- currently storing usernames and passwords as plaintext for proof of concept, but code is laid out such that a database can be easily implemented later
 
 ### Markdown
 
 #### demo
 
 This [current page](demo.md) is in markdown!
+
+#### description
+
+Converts a markdown text file to HTML style format.
 
 #### config
 
@@ -57,7 +61,7 @@ This [current page](demo.md) is in markdown!
 #### details
 
 - incredibly short (~10 lines)
-- markdown library credits to 
+- used markdown library; credits to [Chad Nelson](https://sourceforge.net/projects/cpp-markdown/)
 - the markdown library is a little shaky (ex: \`\`\` doesn't work)
 
 
