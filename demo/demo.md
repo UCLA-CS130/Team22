@@ -6,14 +6,13 @@ Kevin Zhu, Justin Teo, David Stephan
 
 ## Features
 
-### 1. Markdown
+### Markdown
 
 #### config
 
 `path <prefix> MarkdownHandler { root <root-dir>; }`
 
 - root-dir: path to serve files from
-
 
 #### details
 
@@ -22,7 +21,7 @@ Kevin Zhu, Justin Teo, David Stephan
 - the markdown library is a little shaky (ex: \`\`\` doesn't work)
 
 
-### 2. Regex matching
+### Regex matching
 
 #### syntax
 
@@ -45,7 +44,7 @@ Kevin Zhu, Justin Teo, David Stephan
 - {, }, " are not supported yet
 
 
-### 3. Authentication
+### Authentication
 
 
 ## Extras
