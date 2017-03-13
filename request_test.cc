@@ -12,7 +12,7 @@ TEST(RequestTest, AnotherRequest) {
 	EXPECT_EQ(request->uri(), "/");
 	EXPECT_EQ(request->method(), "GET");
 	EXPECT_EQ(request->headers().size(), 3);
-	EXPECT_EQ(request->body(), "hello");
+	EXPECT_EQ(request->body(), "hello\r\n");
 }
 
 
@@ -31,7 +31,7 @@ TEST(RequestTest, SetParameters) {
 	ASSERT_EQ(request->uri(), "/");
 	ASSERT_EQ(request->method(), "GET");
 	ASSERT_EQ(request->headers().size(), 3);
-	ASSERT_EQ(request->body(), "hello");
+	ASSERT_EQ(request->body(), "hello\r\n");
 
 	request->set_uri("/test");
 	request->set_header(std::make_pair("Host", "localhost"));
@@ -39,7 +39,7 @@ TEST(RequestTest, SetParameters) {
 	EXPECT_EQ(request->uri(), "/test");
 	EXPECT_EQ(request->method(), "GET");
 	EXPECT_EQ(request->headers().size(), 4);
-	EXPECT_EQ(request->body(), "hello");
+	EXPECT_EQ(request->body(), "hello\r\n");
 
 	request->remove_header("Cheese");
 	EXPECT_EQ(request->headers().size(), 3);
