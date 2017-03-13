@@ -67,7 +67,7 @@ Same as StaticHandler, except with a different type
 `path <prefix> MarkdownHandler { root <root-dir>; }`
 
 #### details
-- The API of our StaticHandler allows for easy extension. The MarkdownHandler was trivial to implement (~10 lines).
+- The API of our StaticHandler allows for easy extension via a protected method ProcessFile. This made the MarkdownHandler trivial to implement (~10 lines).
 - Markdown library credits to [Chad Nelson](https://sourceforge.net/projects/cpp-markdown/)
     - The markdown library is a little shaky (\`\`\` doesn't work); however, it should be very easy to replace
 
@@ -97,7 +97,7 @@ This page was served by the MarkdownHandler while the quokka.jpg below was serve
 #### details
 
 - regex matches take priority over fixed matches.
-- ecmascript syntax
+- uses boost::regex, ecmascript syntax
 - {, }, " are not supported yet (would require adding escape sequences in the config)
 
 ## Extras
