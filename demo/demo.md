@@ -23,8 +23,8 @@ Cookies are enabled to keep authentication status and are valid until our specif
 
 Same as StaticHandler, but add the following in the config block section
 
-`authentication_list <authentication_txt_file>`
-`timeout <cookie_expiration_in_sec>`
+	authentication_list <authentication_txt_file>
+	timeout <cookie_expiration_in_sec>
 
 #### example
 
