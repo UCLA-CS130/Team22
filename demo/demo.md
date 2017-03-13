@@ -6,7 +6,51 @@ Kevin Zhu, Justin Teo, David Stephan
 
 ## Features
 
+### Authentication
+
+#### demo
+
+[/private/axolotl.jpg](/private/axolotl.jpg)
+
+Login with user1:password1. Cookie lasts for 10 seconds. Go to /private/seal.gif for alternate image
+
+#### description
+
+Ability to set authentication on certain directories.
+Cookies are enabled to keep authentication status and are valid until our specified timeout.
+
+#### config
+
+Same as StaticHandler, but add the following in the config block section
+
+	authentication_list <authentication_txt_file>
+	timeout <cookie_expiration_in_sec>
+
+#### example
+
+	path /private StaticHandler {
+		root private;
+		authentication_list authentication.txt;
+		timeout 10;
+	}
+
+#### details
+
+- username and password login page if accessing restricted directory
+- if authenticated, cookie given to browser to keep authentication for certain timeout
+	- server also stores authenticated cookies and clears expired cookies before authentication check
+- when POST form received, 302 found and redirect sent back so that refreshes do not resend POST data
+- currently storing usernames and passwords as plaintext for proof of concept, but code is laid out such that a database can be easily implemented later
+
 ### Markdown
+
+#### demo
+
+This [current page](demo.md) is in markdown!
+
+#### description
+
+Converts a markdown text file to HTML style format.
 
 #### config
 
@@ -17,13 +61,13 @@ Kevin Zhu, Justin Teo, David Stephan
 #### details
 
 - incredibly short (~10 lines)
-- markdown library credits to 
+- used markdown library; credits to [Chad Nelson](https://sourceforge.net/projects/cpp-markdown/)
 - the markdown library is a little shaky (ex: \`\`\` doesn't work)
 
 
 ### Regex matching
 
-#### syntax
+#### config
 
 `path_regex <prefix> <regex> <handler> {<config>}`
 
@@ -42,10 +86,6 @@ Kevin Zhu, Justin Teo, David Stephan
 - regex matches take priority over fixed matches
 - ecmascript syntax
 - {, }, " are not supported yet
-
-
-### Authentication
-
 
 ## Extras
 
