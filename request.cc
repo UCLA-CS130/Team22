@@ -59,6 +59,15 @@ std::string Request::body() const
 	return body_;
 }
 
+std::string Request::get_header(std::string key) const {
+	for (auto header : fields_){
+		if (header.first == key){
+			return header.second;
+		}
+	}
+	return "";
+}
+
 void Request::set_header(std::pair<std::string, std::string> header) {
 	for(auto& header_ : fields_) {
 		if(header_.first == header.first) {
@@ -82,6 +91,12 @@ void Request::remove_header(std::string key) {
 
 void Request::set_uri(std::string uri) {
 	path_ = uri;
+}
+
+size_t Request::append_body(const std::string& data){
+	body_ += data;
+	raw_request_ += data;
+	return body_.size();
 }
 
 std::string Request::ToString() const {
@@ -148,7 +163,7 @@ bool Request::parse_raw_request(const std::string& req){
 	}
 	size_t begin_body_index = end_fields_index + 4; //Add 4 to skip to the body.
 	if(begin_body_index < req.size())
-		body_ = req.substr(begin_body_index, req.size() - begin_body_index - 2); //minus 2 to ignore the last \r\n
+		body_ = req.substr(begin_body_index, req.size() - begin_body_index);
 
 	//truncate req to everything before the \r\n\r\n
 	std::string new_req = req.substr(0, end_fields_index + 1);

@@ -11,7 +11,7 @@ RequestHandler::Status NotFoundHandler::Init(const std::string& uri_prefix, cons
 	return RequestHandler::OK;
 }
 
-RequestHandler::Status NotFoundHandler::HandleRequest(const Request& request, Response* response) const
+RequestHandler::Status NotFoundHandler::HandleRequest(const Request& request, Response* response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating not found handler response";
 

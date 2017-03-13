@@ -21,16 +21,16 @@ RequestHandler* RequestHandler::CreateByName(const std::string& type) {
 }
 
 
-bool HandlerContainer::AddPath(const std::string& prefix, const RequestHandler* handler){
-	auto insert_result = paths_.insert(std::make_pair(prefix, std::unique_ptr<const RequestHandler>(handler)));
+bool HandlerContainer::AddPath(const std::string& prefix, RequestHandler* handler){
+	auto insert_result = paths_.insert(std::make_pair(prefix, std::unique_ptr<RequestHandler>(handler)));
 	return insert_result.second;
 }
 
-bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string& regex, const RequestHandler* handler){
+bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string& regex, RequestHandler* handler){
 	//auto insert_result = paths_.insert(std::make_pair(prefix, std::unique_ptr<const RequestHandler>(handler)));
 	// does the regex even compile?
 	try {
-		regex_paths_.push_back(std::make_tuple(prefix, regex, std::unique_ptr<const RequestHandler>(handler), boost::regex(regex)));
+		regex_paths_.push_back(std::make_tuple(prefix, regex, std::unique_ptr<RequestHandler>(handler), boost::regex(regex)));
 		return true; // TODO: duplicate checking?
 	}
 	catch (const std::exception& e){
@@ -39,7 +39,7 @@ bool HandlerContainer::AddRegexPath(const std::string& prefix, const std::string
 	}
 }
 
-const RequestHandler* HandlerContainer::Find(const std::string& path, std::string* pref) const {
+RequestHandler* HandlerContainer::Find(const std::string& path, std::string* pref) const {
 	// scan the regex paths for matches
 	// longest prefix match the list
 	int longest = -1;

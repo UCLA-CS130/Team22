@@ -14,17 +14,12 @@ TEST(NginxConfigParserTest, SimpleConfig) {
 TEST(NginxConfigParserTest, NestedConfig) {
 	NginxConfigParser parser;
 	NginxConfig out_config;
-	bool success = parser.Parse("config_with_nested", &out_config);
+	std::string config = "http {include x;index y;server {listen 80;server_name z;}}";
+	std::stringstream ss_config(config);
+	bool success = parser.Parse(&ss_config, &out_config);
 
 	ASSERT_TRUE(success); //this was fixed to allow nested Configs that end like }}
 	EXPECT_EQ(out_config.statements_.size(), 1);
-}
-
-TEST(NginxConfigParserTest, LargeConfig) {
-	NginxConfigParser parser;
-	NginxConfig out_config;
-
-	EXPECT_TRUE(parser.Parse("large_config", &out_config));
 }
 
 //Test fixture for string parsing

@@ -31,7 +31,7 @@ public:
 	// indicating success or failure condition. If ResponseCode is not OK, the
 	// contents of the response object are undefined, and the server will return
 	// HTTP code 500.
-	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) const = 0;
+	virtual RequestHandler::Status HandleRequest(const Request& request, Response* response) = 0;
 };
 
 // Notes:
@@ -67,15 +67,15 @@ public:
 	// Tracks a handler + prefix
 	// - Calling Add gives ownership to this container
 	// - Duplicate AddPath prefixes are not allowed
-	bool AddPath(const std::string& prefix, const RequestHandler* handler);
-	bool AddRegexPath(const std::string& prefix, const std::string& regex, const RequestHandler* handler);
+	bool AddPath(const std::string& prefix, RequestHandler* handler);
+	bool AddRegexPath(const std::string& prefix, const std::string& regex, RequestHandler* handler);
 
 	// returns a request handler if it was defined in the config, otherwise returns nullptr
 	// - longest matching prefix match
 	// - regex paths take priority over regular paths
 	// - picks the first regex match (after the longest match prefix)
 	// - stores the path+regex in pref (used for logging)
-	const RequestHandler* Find(const std::string& path, std::string* pref = nullptr) const;
+	RequestHandler* Find(const std::string& path, std::string* pref = nullptr) const;
 
 	// returns a list of request handler paths (for the status page)
 	// - path in alphabetical order, then path_regex in alphabetical order
@@ -85,9 +85,9 @@ private:
 	// gets longest matching prefix
 	std::string get_prefix(const std::string& uri) const;
 
-	std::map<const std::string, std::unique_ptr<const RequestHandler>> paths_;
+	std::map<const std::string, std::unique_ptr<RequestHandler>> paths_;
 	// {path, regex string, handler*, compiled regex}
-	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<const RequestHandler>, boost::regex>> regex_paths_;
+	std::list<std::tuple<const std::string, const std::string, std::unique_ptr<RequestHandler>, boost::regex>> regex_paths_;
 };
 
 

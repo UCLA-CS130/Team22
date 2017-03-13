@@ -11,7 +11,7 @@ RequestHandler::Status EchoHandler::Init(const std::string& uri_prefix, const Ng
 	return RequestHandler::OK;
 }
 
-RequestHandler::Status EchoHandler::HandleRequest(const Request& request, Response* response) const
+RequestHandler::Status EchoHandler::HandleRequest(const Request& request, Response* response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Creating echo response...";
 
