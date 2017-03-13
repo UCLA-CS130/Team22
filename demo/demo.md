@@ -38,9 +38,9 @@ Same as StaticHandler, but add the following in the config block section
 
 - username and password login page if accessing restricted directory
 - if authenticated, cookie given to browser to keep authentication for certain timeout
-	- server also stores authenticated cookies and periodically clears them
+	- server also stores authenticated cookies and clears expired cookies before authentication check
+- when POST form received, 302 found and redirect sent back so that refreshes do not resend POST data
 - currently storing usernames and passwords as plaintext, but could be implemented fully with database later
-- Test our [private directory](/private/axolotl.jpg) and login with user1:password1
 
 ### Markdown
 
@@ -59,7 +59,6 @@ This [current page](demo.md) is in markdown!
 - incredibly short (~10 lines)
 - markdown library credits to 
 - the markdown library is a little shaky (ex: \`\`\` doesn't work)
-- this [current page](demo.md) is in markdown!
 
 
 ### Regex matching
