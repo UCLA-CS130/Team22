@@ -147,7 +147,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 // writes the response from Response object
 // returns the data that was written
-std::string Connection::write_response(const Response& response)
+void Connection::write_response(const Response& response)
 {
 	BOOST_LOG_TRIVIAL(trace) << "Writing response...";
 	SetState(WRITING);
@@ -158,8 +158,6 @@ std::string Connection::write_response(const Response& response)
 		boost::asio::buffer(response_data_, response_data_.length()),
 		boost::bind(&Connection::close_socket, this,
 			boost::asio::placeholders::error));
-
-	return response_data_;
 }
 
 // Close socket after sending response

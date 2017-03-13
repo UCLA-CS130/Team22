@@ -6,7 +6,7 @@ error_flag=0
 printf "\ntesting simple port listen on 8080 in config...\n"
 printf "
 			port 8080;\n
-			threads 16;\n
+			threads 4;\n
 			path /echo EchoHandler {}\n
 			path /test EchoHandler {}\n
 			path /static StaticHandler {\n
@@ -167,11 +167,11 @@ fi
 printf "\ntesting parallel capabilities of the server (running 16 sleep handlers)\n"
 processes=()
 tooslow=0
-for i in {1..15} ; do
+for i in {1..4} ; do
 	curl localhost:8080/sleep &
 	processes+=($!)
 done
-sleep 2
+sleep 5
 
 for i in "${processes[@]}"; do
 	if ps -p $i > /dev/null
