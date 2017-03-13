@@ -49,7 +49,14 @@ std::string StatusHandler::StatusToHtml(const ServerStatus::Snapshot& status)
 	HttpPrintList(body, status.openConnections_);
 
 	body << "<h3>URL Request Counts</h3>\n";
-	HttpPrintMap(body, status.requestCountByURL_);
+	//HttpPrintMap(body, status.requestCountByURL_);
+	body << "<ul style = \"list-style-type:none\">\n";
+	for (auto& mapPair : status.requestCountByURL_) {
+		body << "<li>" << mapPair.first;
+		HttpPrintMap(body, mapPair.second);
+		body << "</li>";
+	}
+	body << "</ul>\n";
 
 	body << "<h3>Response Code Counts</h3>\n";
 	HttpPrintMap(body, status.responseCountByCode_);

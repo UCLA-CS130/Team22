@@ -11,7 +11,7 @@ path /test EchoHandler {}
 path /private StaticHandler {
 	root private;
 	authentication_list authentication.txt;
-	timeout 5;
+	timeout 10;
 }
 
 path /static/same StaticHandler {
@@ -42,6 +42,10 @@ path /proxy2 ReverseProxyHandler {
 
 path /proxy3 ReverseProxyHandler {
 	proxy_pass http://ucla.edu;
+}
+
+path /proxy5 ReverseProxyHandler {
+	proxy_pass http://localhost:8000;
 }
 
 # Default response handler if no handlers match.

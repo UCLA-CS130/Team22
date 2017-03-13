@@ -9,16 +9,17 @@
 #include <boost/log/trivial.hpp>
 #include <boost/lexical_cast.hpp>
 
-// Status lines for status codes
-namespace status_string {
-	const std::string ok = "HTTP/1.1 200 OK\r\n";
-	const std::string found = "HTTP/1.1 302 Found\r\n";
-	const std::string moved_permanently = "HTTP/1.1 301 Moved Permanently\r\n";
-	const std::string bad_request = "HTTP/1.1 400 Bad Request\r\n";
-	const std::string unauthorized = "HTTP/1.1 401 Unauthorized\r\n";
-	const std::string not_found = "HTTP/1.1 404 Not Found\r\n";
-	const std::string internal_server_error = "HTTP/1.1 500 Internal Server Error\r\n";
-}
+
+const std::unordered_map<Response::ResponseCode, const std::string, std::hash<int>> Response::status_strings = {{
+	{ok,                    "HTTP/1.1 200 OK\r\n"                    },
+	{moved_permanently,     "HTTP/1.1 302 Found\r\n"                 },
+	{found,                 "HTTP/1.1 301 Moved Permanently\r\n"     },
+	{bad_request,           "HTTP/1.1 400 Bad Request\r\n"           },
+	{unauthorized,          "HTTP/1.1 401 Unauthorized\r\n"          },
+	{not_found,             "HTTP/1.1 404 Not Found\r\n"             },
+	{internal_server_error, "HTTP/1.1 500 Internal Server Error\r\n" },
+	{other,                 "HTTP/1.1 500 Internal Server Error\r\n" }
+}};
 
 Response::Response(std::string raw_res) : raw_response_(raw_res) { }
 Response::Response() { }
@@ -55,32 +56,12 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_res)
 void Response::SetStatus(const ResponseCode response_code)
 {
 	response_status_ = response_code;
-	switch(response_code)
-	{
-	case Response::ok:
-		response_status_first_line_ = status_string::ok;
-		break;
-	case Response::moved_permanently:
-		response_status_first_line_ = status_string::moved_permanently;
-		break;
-	case Response::found:
-		response_status_first_line_ = status_string::found;
-		break;
-	case Response::bad_request:
-		response_status_first_line_ = status_string::bad_request;
-		break;
-	case Response::unauthorized:
-		response_status_first_line_ = status_string::unauthorized;
-		break;
-	case Response::not_found:
-		response_status_first_line_ = status_string::not_found;
-		break;
-	case Response::internal_server_error:
-		response_status_first_line_ = status_string::internal_server_error;
-		break;
-	default:
-		response_status_first_line_ = status_string::internal_server_error;
-		break;
+	try {
+		response_status_first_line_ = status_strings.at(response_code);
+	}
+	catch (...) {
+		BOOST_LOG_TRIVIAL(error) << "Status code " << response_code << " has no corresponding status_string (SetStatus), defaulting to 404";
+		response_status_first_line_ = status_strings.at(not_found);
 	}
 }
 
@@ -118,24 +99,14 @@ std::string Response::ToString() const
 }
 
 Response::ResponseCode Response::IntToResponseCode(int code) {
-	switch(code) {
-		case 200:
-			return ResponseCode::ok;
-		case 301:
-			return ResponseCode::moved_permanently;
-		case 302:
-			return ResponseCode::found;
-		case 400:
-			return ResponseCode::bad_request;
-		case 401:
-			return ResponseCode::unauthorized;
-		case 404:
-			return ResponseCode::not_found;
-		case 500:
-			return ResponseCode::internal_server_error;
-		default:
-			return ResponseCode::other;
+	// technically incorrect since status strings might not be defined
+	// this is just easier to extend
+	auto it = status_strings.find(static_cast<ResponseCode>(code));
+	if (it == status_strings.end()){
+		BOOST_LOG_TRIVIAL(warning) << "Status code " << code << " has no corresponding status_string (IntToResponseCode)";
+		return ResponseCode::other;
 	}
+	return it->first;
 }
 
 std::string Response::get_header(const std::string key) {

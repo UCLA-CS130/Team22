@@ -65,10 +65,12 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 		std::string data((std::istreambuf_iterator<char>(&data_stream_)), std::istreambuf_iterator<char>());
 
-		auto request = Request::Parse(data);
+		std::string prefix = "unknown";
+		std::unique_ptr<Request> request = Request::Parse(data);
 		if (!request) { // parse error -> nullptr
 			response.SetStatus(Response::bad_request);
-			response.SetBody("400 Bad Request");
+			response.SetBody("400 Bad Request\r\n");
+			prefix = "Bad Request";
 		}
 		else {
 			bool post_request_error = false;
@@ -108,12 +110,13 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 				request_summary_ = request->uri();
 
 				// get the correct handler based on the header
-				RequestHandler* handler = GetRequestHandler(request->uri());
+				RequestHandler* handler = GetRequestHandler(request->uri(), &prefix);
 
 				if (handler == nullptr) {
 					// TODO generalize, fit with the StaticHandler
 					NotFoundHandler not_found_handler;
 					not_found_handler.HandleRequest(*request, &response);
+					prefix = "Not Found";
 				}
 				else {
 					// have the handler generate a response
@@ -132,7 +135,7 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 
 		if (serverStatus_) {
 			std::string uri = request ? request->uri() : "invalid";
-			serverStatus_->LogRequest(uri, response.GetStatusCode());
+			serverStatus_->LogRequest(prefix, uri, response.GetStatusCode());
 		}
 	}
 	else
@@ -177,18 +180,22 @@ void Connection::close_socket(const boost::system::error_code& error)
 }
 
 // returns a request handler if it was defined in the config, otherwise returns nullptr
-RequestHandler* Connection::GetRequestHandler(const std::string& path)
+RequestHandler* Connection::GetRequestHandler(const std::string& path, std::string* pref)
 {
 	//exact match
 	std::map<const std::string, RequestHandler*>::const_iterator match = handlers_->find(path);
-	if(match != handlers_->end())
+	if(match != handlers_->end()){
+		if (pref) *pref = match->first;
 		return match->second;
+	}
 
 	//longest prefix match
 	std::string prefix = get_prefix(path);
 	match = handlers_->find(prefix);
-	if(match != handlers_->end())
+	if(match != handlers_->end()){
+		if (pref) *pref = match->first;
 		return match->second;
+	}
 
 	return nullptr;
 }

@@ -43,7 +43,7 @@ private:
 	void close_socket(const boost::system::error_code& error);
 
 	// returns a request handler if it was defined in the config, otherwise returns nullptr
-	RequestHandler* GetRequestHandler(const std::string & path);
+	RequestHandler* GetRequestHandler(const std::string & path, std::string* prefix = nullptr);
 
 	// gets longest matching prefix
 	std::string get_prefix(const std::string uri);
