@@ -12,7 +12,7 @@ RUN make clean && make
 
 # for local testing
 #EXPOSE 8080:8080
-#CMD ["./webserver", "config"]
+#CMD ["./webserver", "demo/democonfig"]
 
 # for deployment
 CMD tar -cf - webserver

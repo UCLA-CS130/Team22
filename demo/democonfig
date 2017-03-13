@@ -3,6 +3,8 @@ port 8080;
 # max number of threads, defaults to 1
 threads 8; 
 
+path /echo EchoHandler {}
+
 path /demo StaticHandler {
 	root demo;
 }
@@ -15,12 +17,18 @@ path_regex /demo \.md MarkdownHandler {
 path /status StatusHandler {
 }
 
-path /proxy2 ReverseProxyHandler {
-	proxy_pass http://web.cs.ucla.edu/~palsberg;
+path / ReverseProxyHandler {
+	proxy_pass http://www.ucla.edu;
 }
 
 path /zzz SleepHandler {
 	seconds 3;
+}
+
+path /private StaticHandler {
+	root private;
+	authentication_list authentication.txt;
+	timeout 10;
 }
 
 # Default response handler if no handlers match.
