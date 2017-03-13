@@ -9,11 +9,13 @@
 #include <boost/log/trivial.hpp>
 #include <boost/lexical_cast.hpp>
 
+
 const std::unordered_map<Response::ResponseCode, const std::string, std::hash<int>> Response::status_strings = {{
 	{ok,                    "HTTP/1.1 200 OK\r\n"                    },
-	{moved_permanently,     "HTTP/1.1 302 Found\r\n"                 },
-	{found,                 "HTTP/1.1 301 Moved Permanently\r\n"     },
+	{moved_permanently,     "HTTP/1.1 301 Moved Permanently\r\n"     },
+	{found,                 "HTTP/1.1 302 Found\r\n"                 },
 	{bad_request,           "HTTP/1.1 400 Bad Request\r\n"           },
+	{unauthorized,          "HTTP/1.1 401 Unauthorized\r\n"          },
 	{not_found,             "HTTP/1.1 404 Not Found\r\n"             },
 	{internal_server_error, "HTTP/1.1 500 Internal Server Error\r\n" },
 	{other,                 "HTTP/1.1 500 Internal Server Error\r\n" }
@@ -54,7 +56,7 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_res)
 void Response::SetStatus(const ResponseCode response_code)
 {
 	response_status_ = response_code;
-;	try {
+	try {
 		response_status_first_line_ = status_strings.at(response_code);
 	}
 	catch (...) {

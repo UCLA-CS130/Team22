@@ -12,7 +12,7 @@ void StatusHandler::InitStatusHandler(ServerStatus* serverStatus)
 	serverStatus_ = serverStatus;
 }
 
-RequestHandler::Status StatusHandler::HandleRequest(const Request & request, Response * response) const
+RequestHandler::Status StatusHandler::HandleRequest(const Request & request, Response * response)
 {
 	if (serverStatus_ == NULL) {
 		return RequestHandler::ERROR;

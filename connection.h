@@ -35,7 +35,7 @@ public:
 	// writes the response from Response object
 	// returns the data that was written
 	std::string write_response(const Response& response);
-	
+
 	std::string GetStatus();
 
 private:
@@ -49,7 +49,7 @@ private:
 	const HandlerContainer* handlers_;
 	ServerStatus* serverStatus_;
 	std::string response_data_;
-	
+
 	std::string request_summary_;
 
 	enum ConnectionState {

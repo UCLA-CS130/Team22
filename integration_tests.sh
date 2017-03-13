@@ -234,6 +234,7 @@ printf "\n"
 
 # cleanup everything just in case
 pkill webserver
+rm config_temp2
 
 if [ $error_flag -eq 1 ]
 then

@@ -11,7 +11,7 @@
 
 using boost::asio::ip::tcp;
 
-Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus) 
+Connection::Connection(boost::asio::io_service& io_service, const HandlerContainer* handlers, ServerStatus* serverStatus)
 	: socket_(io_service)
 	, data_stream_(max_length)
 	, handlers_(handlers)
@@ -63,8 +63,6 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 	{
 		Response response;
 
-		// there is some issue where the stream holds extra read data
-		// since we don't use POST, deal with it later
 		std::string data((std::istreambuf_iterator<char>(&data_stream_)), std::istreambuf_iterator<char>());
 
 		std::string prefix = "unknown";
@@ -75,25 +73,59 @@ void Connection::handle_request(const boost::system::error_code& error, size_t b
 			prefix = "Bad Request";
 		}
 		else {
-			// log what we're up to
-			request_summary_ = request->uri();
-
-			// get the correct handler based on the header
-			const RequestHandler* handler = handlers_->Find(request->uri(), &prefix);
-
-			if (handler == nullptr) {
-				// TODO generalize, fit with the StaticHandler
-				NotFoundHandler not_found_handler;
-				not_found_handler.HandleRequest(*request, &response);
-				prefix = "Not Found";
-			}
-			else {
-				// have the handler generate a response
-				RequestHandler::Status status = handler->HandleRequest(*request, &response);
-				if (status != RequestHandler::OK)
+			bool post_request_error = false;
+			
+			// read in the rest of a POST request
+			if (request->method() == "POST") {
+				std::string content_length_string = request->get_header("Content-Length");
+				if(content_length_string == "")
 				{
-					response.SetStatus(Response::internal_server_error);
-					response.SetBody("500 Internal Server Error");
+					response.SetStatus(Response::bad_request);
+					response.SetBody("400 Bad Request");
+					post_request_error = true;
+				}
+				else
+				{
+					size_t content_length = std::stoi(content_length_string);
+
+					char buff[1000];
+					size_t body_size = request->body().size();
+					while (body_size < content_length) {
+						int nread;
+						try {
+							nread = socket_.read_some(boost::asio::buffer(buff, 1000));
+						}
+						catch (...){
+							// client closed the connection
+							// would close_socket() work?
+							return;
+						}
+						body_size = request->append_body(std::string(buff, nread)); // append the body and raw_request, update
+					}
+				}
+			}
+
+			if(!post_request_error) {
+				// log what we're up to
+				request_summary_ = request->uri();
+
+				// get the correct handler based on the header
+				RequestHandler* handler = handlers_->Find(request->uri(), &prefix);
+
+				if (handler == nullptr) {
+					// TODO generalize, fit with the StaticHandler
+					NotFoundHandler not_found_handler;
+					not_found_handler.HandleRequest(*request, &response);
+					prefix = "Not Found";
+				}
+				else {
+					// have the handler generate a response
+					RequestHandler::Status status = handler->HandleRequest(*request, &response);
+					if (status != RequestHandler::OK)
+					{
+						response.SetStatus(Response::internal_server_error);
+						response.SetBody("500 Internal Server Error");
+					}
 				}
 			}
 		}
@@ -142,7 +174,7 @@ void Connection::close_socket(const boost::system::error_code& error)
 	} else {
 		BOOST_LOG_TRIVIAL(error) << "Error writing connection.";
 	}
-	
+
 	delete this;
 	BOOST_LOG_TRIVIAL(trace) << "======conection closed===========";
 }
@@ -198,4 +230,3 @@ void Connection::SetState(ConnectionState s)
 	std::lock_guard<std::mutex> lock(conn_state_lock_);
 	conn_state_ = s;
 }
-

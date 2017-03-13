@@ -33,6 +33,9 @@ public:
 	// returns the body of the request
 	std::string body() const;
 
+	// return the value of a header
+	std::string get_header(std::string key) const;
+
 	// setters
 
 	// sets the header with the key. If it doesn't exist, the header is added
@@ -43,6 +46,9 @@ public:
 
 	// removes a header
 	void remove_header(std::string key);
+
+	// adds to the body
+	size_t append_body(const std::string&);
 
 	// Converts the response to a http string
 	std::string ToString() const;

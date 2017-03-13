@@ -82,4 +82,4 @@ login:
 	ssh -i ~/team22-ec2-key-pair.pem $(EC2_SERVER)
 
 clean:
-	rm -rf $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a $(DEPLOYS)
+	rm -rf $(OBJ) webserver $(TESTS) *.o *.gcda *.gcno *.gcov coverage.info *.a $(DEPLOYS) config_temp*
