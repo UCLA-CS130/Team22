@@ -6,7 +6,47 @@ Kevin Zhu, Justin Teo, David Stephan
 
 ## Features
 
+### Authentication
+
+#### demo
+
+[DEMO](/private/axolotl.jpg)
+
+Login with user1:password1. Cookie lasts for 10 seconds. Go to /private/seal.gif for alternate image
+
+#### description
+
+Ability to set authentication on certain directories.
+Cookies are enabled to keep authentication status and are valid until our specified timeout.
+
+#### config
+
+Same as StaticHandler, but add the following in the config block section
+
+`authentication_list <authentication_txt_file>`
+`timeout <cookie_expiration_in_sec>`
+
+#### example
+
+	path /private StaticHandler {
+		root private;
+		authentication_list authentication.txt;
+		timeout 10;
+	}
+
+#### details
+
+- username and password login page if accessing restricted directory
+- if authenticated, cookie given to browser to keep authentication for certain timeout
+	- server also stores authenticated cookies and periodically clears them
+- currently storing usernames and passwords as plaintext, but could be implemented fully with database later
+- Test our [private directory](/private/axolotl.jpg) and login with user1:password1
+
 ### Markdown
+
+#### demo
+
+This [current page](demo.md) is in markdown!
 
 #### config
 
@@ -19,11 +59,12 @@ Kevin Zhu, Justin Teo, David Stephan
 - incredibly short (~10 lines)
 - markdown library credits to 
 - the markdown library is a little shaky (ex: \`\`\` doesn't work)
+- this [current page](demo.md) is in markdown!
 
 
 ### Regex matching
 
-#### syntax
+#### config
 
 `path_regex <prefix> <regex> <handler> {<config>}`
 
@@ -42,10 +83,6 @@ Kevin Zhu, Justin Teo, David Stephan
 - regex matches take priority over fixed matches
 - ecmascript syntax
 - {, }, " are not supported yet
-
-
-### Authentication
-
 
 ## Extras
 

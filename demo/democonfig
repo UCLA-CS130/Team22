@@ -1,7 +1,7 @@
 port 8080;
 
 # max number of threads, defaults to 1
-threads 8; 
+threads 1; 
 
 path /echo EchoHandler {}
 
