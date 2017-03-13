@@ -6,9 +6,47 @@ Kevin Zhu, Justin Teo, David Stephan
 
 ## Features
 
-1. [Markdown](markdown.md)
-2. [Regex matching](regex.md)
-3. [Authentication](authentication.md)
+### 1. Markdown
+
+#### config
+
+`path <prefix> MarkdownHandler { root <root-dir>; }`
+
+- root-dir: path to serve files from
+
+
+#### details
+
+- incredibly short (~10 lines)
+- markdown library credits to 
+- the markdown library is a little shaky (ex: \`\`\` doesn't work)
+
+
+### 2. Regex matching
+
+#### syntax
+
+`path_regex <prefix> <regex> <handler> {<config>}`
+
+#### example
+
+
+	path /demo StaticHandler {
+		root demo;
+	}
+	path_regex /demo \.md MarkdownHandler {
+		root demo;
+	}
+
+#### details
+
+- regex matches take priority over fixed matches
+- ecmascript syntax
+- {, }, " are not supported yet
+
+
+### 3. Authentication
+
 
 ## Extras
 
