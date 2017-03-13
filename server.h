@@ -50,7 +50,7 @@ public:
 		int port_ = 0;
 		// std::chrono::duration<double> uptime_seconds;
 		int totalRequests_ = 0;
-		std::map<std::string, int> requestCountByURL_;
+		std::map<std::string, std::map<std::string, int>> requestCountByURL_;
 		std::map<int, int> responseCountByCode_;
 		std::list<std::string> requestHandlers_;
 		// Open connections
@@ -59,7 +59,7 @@ public:
 		
 	};
 	Snapshot GetSnapshot(); // returns a copy of the status
-	void LogRequest(std::string url, int responseCode);
+	void LogRequest(std::string prefix, std::string url, int responseCode);
 
 	void AddConnection(Connection*);
 	void RemoveConnection(Connection*);

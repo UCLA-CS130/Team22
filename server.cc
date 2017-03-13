@@ -178,11 +178,14 @@ void ServerStatus::RemoveConnection(Connection* conn)
 	connections_.erase(conn);
 }
 
-void ServerStatus::LogRequest(std::string url, int responseCode)
+void ServerStatus::LogRequest(std::string prefix, std::string url, int responseCode)
 {
 	// multiple connections will be touching this, so we should lock it
 	std::lock_guard<std::mutex> lock(sharedStateLock_);
 
+	// count by code
+	//   200 : 10
+	//   404 : 3
 	// if doesn't exist insert a 1
 	// pair<iterator,bool> insertPair
 	auto insertPair = sharedState_.responseCountByCode_.insert(std::make_pair(responseCode, 1));
@@ -194,11 +197,19 @@ void ServerStatus::LogRequest(std::string url, int responseCode)
 		it->second++;
 	}
 
-	// the same thing with std::string url
-	auto insertPair2 = sharedState_.requestCountByURL_.insert(std::make_pair(url, 1));
-	if (insertPair2.second == false) {
-		auto it = insertPair2.first;
-		it->second++;
+	// count by prefix and url
+	//   proxy 1 :
+	//     /cat.jpg : 4
+	//     /index.html : 10
+	//   proxy 2:
+	//     /dog.png : 3
+	auto prefixInsertPair = sharedState_.requestCountByURL_.insert(
+		std::make_pair(prefix, std::map<std::string, int>({{url,1}}))); // insert a single {{url, 1}} if prefix not found
+	if (prefixInsertPair.second == false) {
+		auto urlInsertPair = prefixInsertPair.first->second.insert(std::make_pair(url, 1)); // insert a {url, 1} if url not found
+		if (urlInsertPair.second == false) {
+			urlInsertPair.first->second++; // increment the existing counter
+		}
 	}
 
 	sharedState_.totalRequests_++;

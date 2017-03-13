@@ -35,8 +35,8 @@ TEST(StatusHandlerTest, SimpleTest) {
 	ServerStatus::Snapshot status;
 	status.port_ = 1234;
 	status.requestCountByURL_ = {
-		{"url1", 200},
-		{"url2", 45},
+		{"/host1", {{"url1", 200}}},
+		{"/host1", {{"url2", 45}}}
 	};
 	status.responseCountByCode_ = {
 		{200, 100140},
@@ -63,10 +63,10 @@ TEST_F(StatusHandlerFixture, StatusHandlerConstruction) {
 	statusHandler->InitStatusHandler(&status);
 
 	// prepare the ServerStatus
-	status.LogRequest("/some/url", 5555);
-	status.LogRequest("/some/url", 2222);
-	status.LogRequest("/some/url", 1111);
-	status.LogRequest("/someother/url2", 9999);
+	status.LogRequest("/prefix", "/some/url", 5555);
+	status.LogRequest("/prefix", "/some/url", 2222);
+	status.LogRequest("/prefix", "/some/url", 1111);
+	status.LogRequest("/prefix2", "/someother/url2", 9999);
 
 	// Handle a request
 	auto request = Request::Parse("GET /echo HTTP/1.1\r\n\r\n");
